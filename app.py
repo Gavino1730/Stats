@@ -278,7 +278,7 @@ Game Details (by date):
     
     return context
 
-def call_openai_api(system_prompt, user_message, max_tokens=1500):
+def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7):
     """Make API call to OpenAI using requests library"""
     try:
         headers = {
@@ -292,7 +292,7 @@ def call_openai_api(system_prompt, user_message, max_tokens=1500):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            "temperature": 0.7,
+            "temperature": temperature,
             "max_tokens": max_tokens
         }
         
@@ -524,52 +524,45 @@ def ai_team_summary():
         
         stats_context = get_stats_context()
         
-        prompt = """Diagnose season performance using box score data only.
+        prompt = """Diagnose this season's performance using only box score data. Your analysis must be mechanically provable—no speculation, no chemistry claims, no "momentum" or "confidence" inferences.
 
-STRICT RULES:
-- Every stat must answer: "What does this enable?" or "What breaks without it?"
-- Zero speculation (banned: likely, implied, resilience, chemistry, mental, psychological, effort)
-- Zero hedging (banned: might, may, depending on, could be)
-- No evolution/development claims without time-series proof
-- If data is insufficient, state "INSUFFICIENT DATA — {reason}"
+CORE PRINCIPLES:
+• Every stat must answer: "What does this enable us to do?" or "What breaks if this drops?"
+• All failure conditions must cite actual game records (e.g., "1-3 when TO > 15")
+• No words like: likely, suggests, chemistry, mental, resilience, effort, momentum, psychological
+• If you can't prove it from the numbers, don't say it
 
-REQUIRED OUTPUT FORMAT (bullet points only, max 15 bullets total):
+WHAT TO ANALYZE (focus on what's most revealing in the data):
+1. **Primary Win Condition** - What stat pattern predicts wins? Prove it with splits
+2. **Critical Thresholds** - What metric values separate wins from losses?
+3. **Dependency Structure** - Does success require {X} AND {Y}, or can team win through either?
+4. **Failure Modes** - What numeric breakdown causes losses? Be specific with thresholds
+5. **Resource Tradeoffs** - What does high {X} cost us in terms of {Y}?
+6. **Actionable Levers** - What could realistically change and by how much?
 
-1. STAT → OUTCOME CONNECTIONS (5-6 bullets)
-   Format: "{Stat} = {Measured Value} → Enables {specific capability} OR Limits {specific risk}"
-   Example: "47% FG = Scores 1.0 pts/possession → Sustains scoring without elite 3PT volume"
-   Example: "18.4 APG with 47% FG → 78% of FGs are assisted → Team cannot score in isolation"
-
-2. FAILURE CONDITIONS (exactly 3 bullets)
-   Format: "IF {metric} {operator} {threshold} THEN {consequence} (Record: {W-L})"
-   Example: "IF TO > 15 THEN cannot maintain leads (Team is 1-3 in games with 15+ TO)"
-   Use actual game data to prove thresholds.
-
-3. DEPENDENCY STATEMENT (exactly 1 bullet)
-   Choose ONE: "Team wins via {X} rather than {Y}"
-   Examples:
-   - "Team wins via FG efficiency (47%) rather than 3PT volume (32%)"
-   - "Team wins via ball movement (18.4 APG) rather than isolation scoring"
-
-4. FAILURE MODES (exactly 2 bullets)
-   Format: "IF {metric drops/rises to X} THEN {specific breakdown} BECAUSE {measurable reason}"
-   Example: "IF FG% drops below 42% THEN scoring falls under 70 PPG BECAUSE 3PT% (32%) cannot compensate"
-
-5. TACTICAL ADJUSTMENTS (exactly 2 bullets, ranked by impact)
-   Format: "{Action} → {Expected change in metric} → {Expected win impact}"
-   Example: "Reduce TO from 13.8 to 11 → +2 possessions/game → +4-6 pts → Flips 2 close losses"
-   Must be provable from existing data patterns.
+STYLE REQUIREMENTS:
+• Write in direct cause-effect statements
+• Use "IF/THEN/BECAUSE" for failure analysis
+• Compare to league/historical benchmarks when relevant (you have them)
+• Flag insufficient data explicitly ("Cannot determine X because we lack Y")
+• Prioritize insights by win impact (don't waste words on 3rd-order effects)
 
 ABSOLUTE PROHIBITIONS:
-✗ Do NOT infer defensive ability beyond STL/BLK
-✗ Do NOT claim improvement/development without comparing early vs late season splits
-✗ Do NOT mention pace, tempo, or per-possession stats unless you calculate them
-✗ Do NOT say "strong," "good," "concern," or "impressive" without a comparison
-✗ Do NOT create sections not listed above"""
+✗ Don't infer defensive schemes (only STL/BLK are measurable)
+✗ Don't claim "improvement" without early vs late season splits
+✗ Don't use adjectives without numbers ("strong" → "top 20%")
+✗ Don't mention pace/tempo unless you calculate possessions
+✗ Don't speculate on player psychology, effort, or chemistry
+
+STRUCTURE: Use whatever format communicates the diagnosis most clearly. Bullets, paragraphs, tables—whatever works. Just make it scannable and fact-dense."""
         
-        system_prompt = f"""You are a mechanical data translator. Convert stats into cause-effect statements. No speculation. No adjectives without benchmarks. TEAM DATA: {stats_context}"""
+        system_prompt = f"""You are a performance diagnostician analyzing basketball data. Focus on causal mechanisms: what enables wins, what causes losses, what could realistically change.
+
+Write like you're briefing a coach who needs actionable intelligence, not surface-level observations. Be direct, specific, and prove every claim with numbers.
+
+TEAM DATA: {stats_context}"""
         
-        summary = call_openai_api(system_prompt, prompt, max_tokens=2000)
+        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0.9)
         
         return jsonify({
             'summary': summary
