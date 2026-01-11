@@ -1,7 +1,12 @@
 // Service Worker for offline support and caching
-const CACHE_NAME = 'vc-stats-v1';
+const CACHE_NAME = 'vc-stats-v1.1';  // Updated version for page state support
 const urlsToCache = [
     '/',
+    '/games',
+    '/players', 
+    '/trends',
+    '/analysis',
+    '/ai-insights',
     '/static/style.css',
     '/static/main.js',
     '/static/dashboard.js',

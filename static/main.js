@@ -1,6 +1,67 @@
+// Page state persistence functionality
+const PageStateManager = {
+    STORAGE_KEY: 'vc_stats_current_page',
+    
+    // Save the current page to localStorage
+    savePage: function(path) {
+        try {
+            localStorage.setItem(this.STORAGE_KEY, path);
+        } catch (e) {
+            console.warn('Failed to save page state:', e);
+        }
+    },
+    
+    // Get the saved page from localStorage
+    getSavedPage: function() {
+        try {
+            return localStorage.getItem(this.STORAGE_KEY);
+        } catch (e) {
+            console.warn('Failed to retrieve page state:', e);
+            return null;
+        }
+    },
+    
+    // Clear the saved page state
+    clearPage: function() {
+        try {
+            localStorage.removeItem(this.STORAGE_KEY);
+        } catch (e) {
+            console.warn('Failed to clear page state:', e);
+        }
+    },
+    
+    // Check if we should redirect to a saved page
+    checkForSavedPage: function() {
+        const currentPath = window.location.pathname;
+        const savedPage = this.getSavedPage();
+        
+        // If we're on the root page and have a saved page, redirect
+        if (currentPath === '/' && savedPage && savedPage !== '/') {
+            // Small delay to ensure page is ready
+            setTimeout(() => {
+                window.location.href = savedPage;
+            }, 100);
+            return true;
+        }
+        
+        return false;
+    }
+};
+
 // Main navigation functionality
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Check for saved page state and redirect if needed
+    const shouldRedirect = PageStateManager.checkForSavedPage();
+    
+    // If we're redirecting, don't set up navigation yet
+    if (shouldRedirect) {
+        return;
+    }
+    
+    // Save current page immediately
+    PageStateManager.savePage(window.location.pathname);
     
     // Remove active class from all links first
     navLinks.forEach(link => link.classList.remove('active'));
@@ -17,11 +78,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Add click handler for smooth navigation
+    // Add click handler for smooth navigation and page state saving
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
+            const targetPath = link.getAttribute('href');
+            
+            // Save the target page to localStorage
+            PageStateManager.savePage(targetPath);
+            
+            // Update active navigation state
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
         });
+    });
+    
+    // Save page state whenever the URL changes (for browser back/forward)
+    window.addEventListener('popstate', () => {
+        PageStateManager.savePage(window.location.pathname);
     });
 });

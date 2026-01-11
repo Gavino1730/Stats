@@ -56,7 +56,7 @@ for pdf_name, opponent, location in pdf_files:
         players_in_game = []
         team_stats = {
             'fg': 0, 'fga': 0, 'fg3': 0, 'fg3a': 0, 'ft': 0, 'fta': 0,
-            'oreb': 0, 'dreb': 0, 'reb': 0, 'asst': 0, 'to': 0, 'stl': 0, 'blk': 0
+            'oreb': 0, 'dreb': 0, 'reb': 0, 'asst': 0, 'to': 0, 'stl': 0, 'blk': 0, 'fouls': 0
         }
         
         for line in lines:
@@ -107,7 +107,8 @@ for pdf_name, opponent, location in pdf_files:
                             'to': to,
                             'blk': blk,
                             'asst': asst,
-                            'pts': pts
+                            'pts': pts,
+                            'plus_minus': vc_score - opp_score  # Team differential as proxy for +/-
                         }
                         
                         players_in_game.append(player_stat)
@@ -125,6 +126,7 @@ for pdf_name, opponent, location in pdf_files:
                         team_stats['to'] += to
                         team_stats['stl'] += stl
                         team_stats['blk'] += blk
+                        team_stats['fouls'] += fouls
                         
                     except:
                         pass
@@ -181,6 +183,7 @@ for player in all_players:
     total_stl = 0
     total_blk = 0
     total_fouls = 0
+    total_plus_minus = 0
     games_played = 0
     
     for log in player_game_logs[player]:
@@ -199,6 +202,7 @@ for player in all_players:
         total_stl += stats['stl']
         total_blk += stats['blk']
         total_fouls += stats['fouls']
+        total_plus_minus += stats.get('plus_minus', 0)
         games_played += 1
     
     ppg = total_pts / games_played if games_played > 0 else 0
@@ -226,6 +230,7 @@ for player in all_players:
         'stl': total_stl,
         'blk': total_blk,
         'fouls': total_fouls,
+        'plus_minus': total_plus_minus,
         'ppg': round(ppg, 1),
         'rpg': round(rpg, 1),
         'apg': round(apg, 1),
@@ -255,6 +260,7 @@ for game in games_data:
     season_team_stats['to'] += stats['to']
     season_team_stats['stl'] += stats['stl']
     season_team_stats['blk'] += stats['blk']
+    season_team_stats['pf'] += stats.get('fouls', 0)
     
     if game['result'] == 'W':
         season_team_stats['win'] += 1
@@ -262,7 +268,16 @@ for game in games_data:
         season_team_stats['loss'] += 1
 
 season_team_stats['reb'] = season_team_stats['oreb'] + season_team_stats['dreb']
-season_team_stats['ppg'] = round(sum(g['vc_score'] for g in games_data) / len(games_data), 1) if games_data else 0
+games_count = len(games_data) if games_data else 1
+season_team_stats['ppg'] = round(sum(g['vc_score'] for g in games_data) / games_count, 1) if games_data else 0
+season_team_stats['rpg'] = round(season_team_stats['reb'] / games_count, 1)
+season_team_stats['apg'] = round(season_team_stats['asst'] / games_count, 1)
+season_team_stats['to_pg'] = round(season_team_stats['to'] / games_count, 1)
+season_team_stats['stl_pg'] = round(season_team_stats['stl'] / games_count, 1)
+season_team_stats['blk_pg'] = round(season_team_stats['blk'] / games_count, 1)
+season_team_stats['oreb_pg'] = round(season_team_stats['oreb'] / games_count, 1)
+season_team_stats['dreb_pg'] = round(season_team_stats['dreb'] / games_count, 1)
+season_team_stats['fouls_pg'] = round(season_team_stats['pf'] / games_count, 1)
 season_team_stats['fg_pct'] = round(season_team_stats['fg'] / season_team_stats['fga'] * 100, 1) if season_team_stats['fga'] > 0 else 0
 season_team_stats['fg3_pct'] = round(season_team_stats['fg3'] / season_team_stats['fg3a'] * 100, 1) if season_team_stats['fg3a'] > 0 else 0
 season_team_stats['ft_pct'] = round(season_team_stats['ft'] / season_team_stats['fta'] * 100, 1) if season_team_stats['fta'] > 0 else 0

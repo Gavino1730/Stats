@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Valley Catholic Basketball Stats</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -34,6 +37,20 @@
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.log('Service Worker registration failed'));
         }
+        
+        // Emergency fallback to restore page state if main.js fails
+        window.addEventListener('beforeunload', () => {
+            if (typeof PageStateManager !== 'undefined') {
+                PageStateManager.savePage(window.location.pathname);
+            } else {
+                // Fallback localStorage save
+                try {
+                    localStorage.setItem('vc_stats_current_page', window.location.pathname);
+                } catch (e) {
+                    console.warn('Fallback page state save failed:', e);
+                }
+            }
+        });
     </script>
     {% block scripts %}{% endblock %}
 </body>

@@ -137,9 +137,14 @@ async function showGameDetail(game) {
                     <th>3P</th>
                     <th>FT</th>
                     <th>REB</th>
+                    <th>OREB</th>
+                    <th>DREB</th>
                     <th>AST</th>
                     <th>STL</th>
                     <th>BLK</th>
+                    <th>TO</th>
+                    <th>PF</th>
+                    <th>+/-</th>
                     <th>PTS</th>
                 </tr>
             </thead>
@@ -150,21 +155,33 @@ async function showGameDetail(game) {
                         <td>${p.fg_made}-${p.fg_att}</td>
                         <td>${p.fg3_made}-${p.fg3_att}</td>
                         <td>${p.ft_made}-${p.ft_att}</td>
-                        <td>${p.oreb + p.dreb}</td>
+                        <td><strong>${p.oreb + p.dreb}</strong></td>
+                        <td>${p.oreb}</td>
+                        <td>${p.dreb}</td>
                         <td>${p.asst}</td>
                         <td>${p.stl}</td>
                         <td>${p.blk}</td>
+                        <td style="color: ${p.to >= 4 ? '#dc3545' : 'inherit'};">${p.to}</td>
+                        <td>${p.fouls}</td>
+                        <td style="font-weight: 700; color: ${p.plus_minus > 0 ? 'var(--success)' : p.plus_minus < 0 ? '#dc3545' : 'inherit'};">${p.plus_minus > 0 ? '+' : ''}${p.plus_minus}</td>
                         <td><strong>${p.pts}</strong></td>
                     </tr>
                 `).join('')}
             </tbody>
         </table>
         <div style="margin-top: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 4px;">
-            <strong>Team Totals:</strong>
-            ${game.team_stats.fg}-${game.team_stats.fga} FG (${vcFgPct}%) | 
-            ${game.team_stats.fg3}-${game.team_stats.fg3a} 3P (${vc3pPct}%) | 
-            ${game.team_stats.ft}-${game.team_stats.fta} FT (${vcFtPct}%) |
-            REB: ${game.team_stats.reb} | AST: ${game.team_stats.asst} | TO: ${game.team_stats.to}
+            <div style="font-weight: 700; margin-bottom: 0.5rem;">Team Totals</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                <div><strong>FG:</strong> ${game.team_stats.fg}-${game.team_stats.fga} (${vcFgPct}%)</div>
+                <div><strong>3P:</strong> ${game.team_stats.fg3}-${game.team_stats.fg3a} (${vc3pPct}%)</div>
+                <div><strong>FT:</strong> ${game.team_stats.ft}-${game.team_stats.fta} (${vcFtPct}%)</div>
+                <div><strong>REB:</strong> ${game.team_stats.reb} (${game.team_stats.oreb}+${game.team_stats.dreb})</div>
+                <div><strong>AST:</strong> ${game.team_stats.asst}</div>
+                <div><strong>TO:</strong> ${game.team_stats.to}</div>
+                <div><strong>STL:</strong> ${game.team_stats.stl}</div>
+                <div><strong>BLK:</strong> ${game.team_stats.blk}</div>
+                <div><strong>PF:</strong> ${game.team_stats.fouls || 0}</div>
+            </div>
         </div>
     `;
     

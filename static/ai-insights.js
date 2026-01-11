@@ -56,21 +56,24 @@ function updateStatsPanel() {
     const totalGames = wins + losses;
     const winRate = totalGames > 0 ? (wins / totalGames * 100).toFixed(1) : '0.0';
     
-    document.getElementById('team-record-info').innerHTML = `
-        <div class="stat-item">
-            <strong>${wins}-${losses}</strong>
-            <span>${winRate}% Win Rate</span>
-        </div>
-        <div class="stat-item">
-            <span>PPG:</span> <strong>${(teamStats.ppg || 0).toFixed(1)}</strong>
-        </div>
-        <div class="stat-item">
-            <span>RPG:</span> <strong>${(teamStats.rpg || 0).toFixed(1)}</strong>
-        </div>
-        <div class="stat-item">
-            <span>APG:</span> <strong>${(teamStats.apg || 0).toFixed(1)}</strong>
-        </div>
-    `;
+    const teamRecordElement = document.getElementById('team-record-info');
+    if (teamRecordElement) {
+        teamRecordElement.innerHTML = `
+            <div class="stat-item">
+                <strong>${wins}-${losses}</strong>
+                <span>${winRate}% Win Rate</span>
+            </div>
+            <div class="stat-item">
+                <span>PPG:</span> <strong>${(teamStats.ppg || 0).toFixed(1)}</strong>
+            </div>
+            <div class="stat-item">
+                <span>RPG:</span> <strong>${(teamStats.rpg || 0).toFixed(1)}</strong>
+            </div>
+            <div class="stat-item">
+                <span>APG:</span> <strong>${(teamStats.apg || 0).toFixed(1)}</strong>
+            </div>
+        `;
+    }
     
     // Top Players by PPG - add validation
     const topPlayers = Object.entries(playerStats)
@@ -78,31 +81,39 @@ function updateStatsPanel() {
         .sort((a, b) => b[1].ppg - a[1].ppg)
         .slice(0, 5);
     
-    document.getElementById('top-players-info').innerHTML = topPlayers.map(([name, playerStats]) => `
-        <div class="player-stat-item">
-            <span class="player-name">${name}</span>
-            <span class="player-ppg">${playerStats.ppg.toFixed(1)} PPG</span>
-        </div>
-    `).join('');
-    
-    // Recent Games (last 5) - add validation
-    if (Array.isArray(statsContext.games) && statsContext.games.length > 0) {
-        const recentGames = statsContext.games.slice(-5).reverse();
-        document.getElementById('recent-games-info').innerHTML = recentGames.map(game => `
-            <div class="game-item ${game.result === 'W' ? 'win' : 'loss'}">
-                <span class="game-result">${game.result || '?'}</span>
-                <span class="game-info">${game.opponent || 'Unknown'} ${game.vc_score || 0}-${game.opp_score || 0}</span>
+    const topPlayersElement = document.getElementById('top-players-info');
+    if (topPlayersElement) {
+        topPlayersElement.innerHTML = topPlayers.map(([name, playerStats]) => `
+            <div class="player-stat-item">
+                <span class="player-name">${name}</span>
+                <span class="player-ppg">${playerStats.ppg.toFixed(1)} PPG</span>
             </div>
         `).join('');
-    } else {
-        document.getElementById('recent-games-info').innerHTML = '<div class="game-item">No games data available</div>';
+    }
+    
+    // Recent Games (last 5) - add validation
+    const recentGamesElement = document.getElementById('recent-games-info');
+    if (recentGamesElement) {
+        if (Array.isArray(statsContext.games) && statsContext.games.length > 0) {
+            const recentGames = statsContext.games.slice(-5).reverse();
+            recentGamesElement.innerHTML = recentGames.map(game => `
+                <div class="game-item ${game.result === 'W' ? 'win' : 'loss'}">
+                    <span class="game-result">${game.result || '?'}</span>
+                    <span class="game-info">${game.opponent || 'Unknown'} ${game.vc_score || 0}-${game.opp_score || 0}</span>
+                </div>
+            `).join('');
+        } else {
+            recentGamesElement.innerHTML = '<div class="game-item">No games data available</div>';
+        }
     }
 }
 
 // Toggle stats panel visibility
 function toggleStatsPanel() {
     const panel = document.getElementById('stats-panel');
-    panel.classList.toggle('hidden');
+    if (panel) {
+        panel.classList.toggle('hidden');
+    }
 }
 
 // Load conversation history from sessionStorage
@@ -123,6 +134,11 @@ function saveConversationHistory() {
 function displayConversationHistory() {
     const container = document.getElementById('chat-messages-container');
     
+    if (!container) {
+        console.error('Error: chat-messages-container element not found');
+        return;
+    }
+    
     // Clear welcome message if there's history
     if (conversationHistory.length > 0) {
         container.innerHTML = '';
@@ -138,6 +154,11 @@ function displayConversationHistory() {
 // Add a message to the UI
 function addMessageToUI(role, content, shouldScroll = true) {
     const container = document.getElementById('chat-messages-container');
+    
+    if (!container) {
+        console.error('Error: chat-messages-container element not found');
+        return;
+    }
     
     // Remove welcome message on first user message
     if (role === 'user') {
@@ -168,12 +189,19 @@ function addMessageToUI(role, content, shouldScroll = true) {
 // Scroll chat to bottom
 function scrollToBottom() {
     const container = document.getElementById('chat-messages-container');
-    container.scrollTop = container.scrollHeight;
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
 }
 
 // Send a message
 async function sendMessage() {
     const input = document.getElementById('chat-input');
+    if (!input) {
+        console.error('Error: chat-input element not found');
+        return;
+    }
+    
     const message = input.value.trim();
     
     if (!message) return;
@@ -182,7 +210,9 @@ async function sendMessage() {
     input.value = '';
     input.style.height = 'auto';
     const sendBtn = document.getElementById('send-btn');
-    sendBtn.disabled = true;
+    if (sendBtn) {
+        sendBtn.disabled = true;
+    }
     
     // Add user message to history and UI
     conversationHistory.push({ role: 'user', content: message });
@@ -224,7 +254,9 @@ async function sendMessage() {
         addMessageToUI('assistant', errorMsg);
         saveConversationHistory();
     } finally {
-        sendBtn.disabled = false;
+        if (sendBtn) {
+            sendBtn.disabled = false;
+        }
         input.focus();
     }
 }
@@ -232,8 +264,10 @@ async function sendMessage() {
 // Send a quick prompt
 function sendQuickPrompt(prompt) {
     const input = document.getElementById('chat-input');
-    input.value = prompt;
-    sendMessage();
+    if (input) {
+        input.value = prompt;
+        sendMessage();
+    }
 }
 
 // Clear chat history
@@ -245,20 +279,22 @@ function clearChatHistory() {
         sessionStorage.removeItem('chatHistory');
         
         const container = document.getElementById('chat-messages-container');
-        container.innerHTML = `
-            <div class="welcome-message">
-                <h3>👋 Hi! I'm your AI Stats Assistant</h3>
-                <p>I have access to all your team and player statistics. You can ask me:</p>
-                <ul>
-                    <li>💪 "Who are our top scorers?"</li>
-                    <li>📈 "Show me John's shooting trends"</li>
-                    <li>🎯 "How can we improve our three-point shooting?"</li>
-                    <li>🏆 "Compare our last 3 games"</li>
-                    <li>📊 "What's our defensive rebound average?"</li>
-                </ul>
-                <p>Just type your question below!</p>
-            </div>
-        `;
+        if (container) {
+            container.innerHTML = `
+                <div class="welcome-message">
+                    <h3>👋 Hi! I'm your AI Stats Assistant</h3>
+                    <p>I have access to all your team and player statistics. You can ask me:</p>
+                    <ul>
+                        <li>💪 "Who are our top scorers?"</li>
+                        <li>📈 "Show me John's shooting trends"</li>
+                        <li>🎯 "How can we improve our three-point shooting?"</li>
+                        <li>🏆 "Compare our last 3 games"</li>
+                        <li>📊 "What's our defensive rebound average?"</li>
+                    </ul>
+                    <p>Just type your question below!</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -278,13 +314,19 @@ function autoResizeInput(textarea) {
 
 // Show typing indicator
 function showTypingIndicator() {
-    document.getElementById('typing-indicator').classList.remove('hidden');
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+        typingIndicator.classList.remove('hidden');
+    }
     scrollToBottom();
 }
 
 // Hide typing indicator
 function hideTypingIndicator() {
-    document.getElementById('typing-indicator').classList.add('hidden');
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+        typingIndicator.classList.add('hidden');
+    }
 }
 
 // Escape HTML to prevent XSS

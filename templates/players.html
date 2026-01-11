@@ -80,5 +80,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='players.js') }}"></script>
+<script src="{{ url_for('static', filename='players.js') }}?v={{ timestamp }}"></script>
 {% endblock %}

@@ -386,6 +386,7 @@ TEAM SEASON AVERAGES:
 - Turnovers Per Game: {season_stats.get('to_pg', 0):.1f}
 - Steals Per Game: {season_stats.get('stl_pg', 0):.1f}
 - Blocks Per Game: {season_stats.get('blk_pg', 0):.1f}
+- Fouls Per Game: {season_stats.get('fouls_pg', 0):.1f}
 - Field Goal %: {season_stats.get('fg_pct', 0):.1f}%
 - Three Point %: {season_stats.get('fg3_pct', 0):.1f}%
 - Free Throw %: {season_stats.get('ft_pct', 0):.1f}%
@@ -409,7 +410,7 @@ GAME-BY-GAME RESULTS ({len(games)} games):
                 
                 context += f"""
 Game {game.get('gameId', 'N/A')} - {game.get('date', 'N/A')} vs {game.get('opponent', 'Unknown')} ({game.get('location', 'home')}): {game.get('result', '?')} {game.get('vc_score', 0)}-{game.get('opp_score', 0)}
-  Team Stats: {team_stats.get('fg', 0)}/{team_stats.get('fga', 0)} FG ({fg_pct:.1f}%), {team_stats.get('fg3', 0)}/{team_stats.get('fg3a', 0)} 3P ({fg3_pct:.1f}%), {team_stats.get('ft', 0)}/{team_stats.get('fta', 0)} FT, {team_stats.get('reb', 0)} REB, {team_stats.get('asst', 0)} AST, {team_stats.get('to', 0)} TO, {team_stats.get('stl', 0)} STL
+  Team Stats: {team_stats.get('fg', 0)}/{team_stats.get('fga', 0)} FG ({fg_pct:.1f}%), {team_stats.get('fg3', 0)}/{team_stats.get('fg3a', 0)} 3P ({fg3_pct:.1f}%), {team_stats.get('ft', 0)}/{team_stats.get('fta', 0)} FT ({ft_pct:.1f}%), {team_stats.get('reb', 0)} REB ({team_stats.get('oreb', 0)}+{team_stats.get('dreb', 0)}), {team_stats.get('asst', 0)} AST, {team_stats.get('to', 0)} TO, {team_stats.get('stl', 0)} STL, {team_stats.get('blk', 0)} BLK, {team_stats.get('fouls', 0)} PF
   Top Scorers: {', '.join(top_scorers) if top_scorers else 'No scorers data'}"""
             except Exception as e:
                 logger.warning(f"Error processing game {game.get('gameId', 'unknown')}: {e}")
@@ -427,28 +428,28 @@ Game {game.get('gameId', 'N/A')} - {game.get('date', 'N/A')} vs {game.get('oppon
                 context += f"""
 {player_name}: {stats.get('games', 0)} GP, {stats.get('ppg', 0):.1f} PPG, {stats.get('rpg', 0):.1f} RPG, {stats.get('apg', 0):.1f} APG, {tpg:.1f} TPG, {stats.get('stl_pg', 0):.1f} SPG, {stats.get('blk_pg', 0):.1f} BPG
   Shooting: {stats.get('fg_pct', 0):.1f}% FG, {stats.get('fg3_pct', 0):.1f}% 3P, {stats.get('ft_pct', 0):.1f}% FT
-  Total Season Stats: {stats.get('pts', 0)} PTS, {stats.get('reb', 0)} REB, {stats.get('asst', 0)} AST, {stats.get('to', 0)} TO, {stats.get('stl', 0)} STL, {stats.get('blk', 0)} BLK"""
+  Total Season Stats: {stats.get('pts', 0)} PTS, {stats.get('reb', 0)} REB ({stats.get('oreb', 0)}+{stats.get('dreb', 0)}), {stats.get('asst', 0)} AST, {stats.get('to', 0)} TO, {stats.get('stl', 0)} STL, {stats.get('blk', 0)} BLK, {stats.get('fouls', 0)} PF, +/- {stats.get('plus_minus', 0)}"""
         except Exception as e:
             logger.warning(f"Error processing player season stats: {e}")
             context += "\nError loading player statistics"
         
-        # Add player game logs for top 5 scorers to show trends
-        context += "\n\nTOP PLAYERS GAME-BY-GAME TRENDS:\n"
+        # Add player game logs for ALL players to enable specific game-by-game queries
+        context += "\n\nCOMPLETE PLAYER GAME-BY-GAME LOGS:\n"
         try:
-            season_player_stats = stats_data.get('season_player_stats', {})
-            if season_player_stats:
-                top_scorers = sorted([(name, stats) for name, stats in season_player_stats.items() 
-                                     if name not in EXCLUDED_PLAYERS and isinstance(stats, dict) and 'ppg' in stats], 
-                                    key=lambda x: x[1].get('ppg', 0), reverse=True)[:5]
-                
-                for player_name, _ in top_scorers:
-                    player_game_logs = stats_data.get('player_game_logs', {})
-                    if player_name in player_game_logs:
-                        game_logs = sorted(player_game_logs[player_name], key=lambda x: x.get('gameId', 0))
-                        context += f"\n{player_name} (last {min(5, len(game_logs))} games):\n"
-                        for log in game_logs[-5:]:
-                            log_stats = log.get('stats', {})
-                            context += f"  G{log.get('gameId', 'N/A')} vs {log.get('opponent', 'Unknown')}: {log_stats.get('pts', 0)}pts, {log_stats.get('oreb', 0)+log_stats.get('dreb', 0)}reb, {log_stats.get('asst', 0)}ast, {log_stats.get('to', 0)}to, {log_stats.get('fg_made', 0)}/{log_stats.get('fg_att', 0)}FG, {log_stats.get('fg3_made', 0)}/{log_stats.get('fg3_att', 0)}3P\n"
+            player_game_logs = stats_data.get('player_game_logs', {})
+            for player_name in sorted(player_game_logs.keys()):
+                if player_name in EXCLUDED_PLAYERS:
+                    continue
+                    
+                game_logs = sorted(player_game_logs[player_name], key=lambda x: x.get('gameId', 0))
+                context += f"\n{player_name} - All Games:\n"
+                for log in game_logs:
+                    log_stats = log.get('stats', {})
+                    context += f"  Game {log.get('gameId', 'N/A')} vs {log.get('opponent', 'Unknown')} ({log.get('date', 'N/A')}): "
+                    context += f"{log_stats.get('pts', 0)} PTS, {log_stats.get('oreb', 0)+log_stats.get('dreb', 0)} REB, {log_stats.get('asst', 0)} AST, "
+                    context += f"{log_stats.get('to', 0)} TO, {log_stats.get('stl', 0)} STL, {log_stats.get('blk', 0)} BLK, {log_stats.get('fouls', 0)} PF, "
+                    context += f"{log_stats.get('fg_made', 0)}-{log_stats.get('fg_att', 0)} FG, {log_stats.get('fg3_made', 0)}-{log_stats.get('fg3_att', 0)} 3P, "
+                    context += f"{log_stats.get('ft_made', 0)}-{log_stats.get('ft_att', 0)} FT\n"
         except Exception as e:
             logger.warning(f"Error processing player game logs: {e}")
             context += "\nError loading player trends"

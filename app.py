@@ -65,6 +65,15 @@ except json.JSONDecodeError as e:
 # Initialize advanced stats calculator
 advanced_calc = AdvancedStatsCalculator(stats_data)
 
+@app.context_processor
+def inject_timestamp():
+    """Inject timestamp and current page for cache-busting and navigation state"""
+    current_page = request.endpoint or 'dashboard'
+    return {
+        'timestamp': int(datetime.now().timestamp()),
+        'current_page': current_page
+    }
+
 @app.route('/')
 def dashboard():
     """Main dashboard with season overview"""

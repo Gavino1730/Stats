@@ -72,6 +72,14 @@ function displayPlayers(players) {
                     <div class="player-stat-label">BPG</div>
                     <div class="player-stat-value">${player.bpg.toFixed(1)}</div>
                 </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">FPG</div>
+                    <div class="player-stat-value">${player.fpg.toFixed(1)}</div>
+                </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">+/-</div>
+                    <div class="player-stat-value" style="color: ${(player.plus_minus / player.games) > 0 ? 'var(--success)' : (player.plus_minus / player.games) < 0 ? '#dc3545' : 'inherit'};">${((player.plus_minus / player.games) > 0 ? '+' : '') + (player.plus_minus / player.games).toFixed(1)}</div>
+                </div>
             </div>
         `;
         
@@ -416,6 +424,14 @@ async function showPlayerDetail(playerName) {
                         <div style="font-size: 0.7rem; color: var(--text-light);">FT</div>
                         <div style="font-weight: 700; font-size: 1.1rem;">${data.season_stats.ft}-${data.season_stats.fta}</div>
                     </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">PF</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.fouls}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">+/-</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: ${data.season_stats.plus_minus > 0 ? 'var(--success)' : data.season_stats.plus_minus < 0 ? '#dc3545' : 'inherit'};">${data.season_stats.plus_minus > 0 ? '+' : ''}${data.season_stats.plus_minus}</div>
+                    </div>
                 </div>
             </div>
             
@@ -446,6 +462,14 @@ async function showPlayerDetail(playerName) {
                     <div style="text-align: center;">
                         <div style="font-size: 0.7rem; color: var(--text-light);">TPG</div>
                         <div style="font-weight: 700; font-size: 1.3rem; color: #dc3545;">${data.season_stats.tpg.toFixed(1)}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">FPG</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: #dc3545;">${data.season_stats.fpg.toFixed(1)}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">+/-/G</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: ${(data.season_stats.plus_minus / data.season_stats.games) > 0 ? 'var(--success)' : (data.season_stats.plus_minus / data.season_stats.games) < 0 ? '#dc3545' : 'inherit'};">${((data.season_stats.plus_minus / data.season_stats.games) > 0 ? '+' : '') + (data.season_stats.plus_minus / data.season_stats.games).toFixed(1)}</div>
                     </div>
                 </div>
             </div>
@@ -590,7 +614,7 @@ async function showPlayerDetail(playerName) {
                                 <td>${stats.blk}</td>
                                 <td style="color: ${stats.to >= 4 ? '#dc3545' : 'inherit'};">${stats.to}</td>
                                 <td>${stats.fouls}</td>
-                                <td style="font-weight: 700; color: ${(game.vc_score - game.opp_score) > 0 ? 'var(--success)' : '#dc3545'};">${(game.vc_score - game.opp_score) > 0 ? '+' : ''}${game.vc_score - game.opp_score}</td>
+                                <td style="font-weight: 700; color: ${stats.plus_minus > 0 ? 'var(--success)' : stats.plus_minus < 0 ? '#dc3545' : 'inherit'};">${stats.plus_minus > 0 ? '+' : ''}${stats.plus_minus}</td>
                             </tr>
                         `;
                     }).join('')}
