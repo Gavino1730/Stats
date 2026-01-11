@@ -3,6 +3,27 @@ let allPlayers = [];
 let allGames = [];
 let chatHistory = [];
 
+// Convert markdown-like formatting to HTML
+function formatAIResponse(text) {
+    return text
+        // Convert headers (### Header -> <h3>Header</h3>)
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        // Convert bold (**text** or __text__ -> <strong>text</strong>)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__(.+?)__/g, '<strong>$1</strong>')
+        // Convert italic (*text* or _text_ -> <em>text</em>)
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/_(.+?)_/g, '<em>$1</em>')
+        // Convert bullet points (- item or * item -> <li>item</li>)
+        .replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>')
+        // Wrap consecutive list items in <ul>
+        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+        // Convert line breaks
+        .replace(/\n/g, '<br>');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPlayersAndGames();
 });
@@ -75,7 +96,7 @@ async function loadTeamSummary() {
             content.innerHTML = `<div class="error-message">⚠️ ${data.error}</div>
                 <p>Please configure your OpenAI API key as an environment variable: <code>OPENAI_API_KEY</code></p>`;
         } else {
-            content.innerHTML = `<div class="ai-response">${data.summary.replace(/\n/g, '<br>')}</div>`;
+            content.innerHTML = `<div class="ai-response">${formatAIResponse(data.summary)}</div>`;
         }
     } catch (error) {
         document.getElementById('team-summary-content').innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
@@ -112,7 +133,7 @@ async function askCoach() {
                 <p>Please configure your OpenAI API key as an environment variable: <code>OPENAI_API_KEY</code></p>`;
         } else {
             document.getElementById('coach-answer-content').innerHTML = 
-                `<div class="ai-response"><strong>AI Coach Response:</strong><br>${data.analysis.replace(/\n/g, '<br>')}</div>`;
+                `<div class="ai-response"><strong>AI Response:</strong><br>${formatAIResponse(data.analysis)}</div>`;
         }
         
         askBtn.disabled = false;
@@ -140,7 +161,7 @@ async function analyzeSelectedPlayer() {
             content.innerHTML = `<div class="error-message">⚠️ ${data.error}</div>
                 <p>Please configure your OpenAI API key as an environment variable: <code>OPENAI_API_KEY</code></p>`;
         } else {
-            content.innerHTML = `<div class="ai-response"><strong>${data.player} - AI Coaching Insights:</strong><br>${data.insights.replace(/\n/g, '<br>')}</div>`;
+            content.innerHTML = `<div class="ai-response"><strong>${data.player} - AI Insights:</strong><br>${formatAIResponse(data.insights)}</div>`;
         }
     } catch (error) {
         document.getElementById('player-insights-content').innerHTML = 
@@ -163,7 +184,7 @@ async function analyzeSelectedGame() {
             content.innerHTML = `<div class="error-message">⚠️ ${data.error}</div>
                 <p>Please configure your OpenAI API key as an environment variable: <code>OPENAI_API_KEY</code></p>`;
         } else {
-            content.innerHTML = `<div class="ai-response"><strong>Game vs ${data.game} - AI Analysis:</strong><br>${data.analysis.replace(/\n/g, '<br>')}</div>`;
+            content.innerHTML = `<div class="ai-response"><strong>Game vs ${data.game} - AI Analysis:</strong><br>${formatAIResponse(data.analysis)}</div>`;
         }
     } catch (error) {
         document.getElementById('game-insights-content').innerHTML = 
@@ -202,7 +223,7 @@ async function sendChatMessage() {
         
         const aiMsg = document.createElement('div');
         aiMsg.className = 'chat-message ai-message';
-        aiMsg.textContent = data.error ? `Error: ${data.error}` : data.analysis;
+        aiMsg.innerHTML = data.error ? `Error: ${data.error}` : formatAIResponse(data.analysis);
         messages.appendChild(aiMsg);
         
         messages.scrollTop = messages.scrollHeight;
