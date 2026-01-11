@@ -28,11 +28,14 @@ class AdvancedStatsCalculator:
         games = self.games
         team_stats = self.season_team_stats
         
+        # Calculate total games
+        total_games = team_stats['win'] + team_stats['loss']
+        
         # Estimated possessions (FGA + 0.44*FTA - OREB + TO)
         est_poss = team_stats['fga'] + (0.44 * team_stats['fta']) - team_stats['oreb'] + team_stats['to']
         
         # Scoring & Efficiency
-        pts = team_stats['ppg'] * team_stats['games']
+        pts = team_stats['ppg'] * total_games
         ppg = team_stats['ppg']
         ppp = pts / est_poss if est_poss > 0 else 0
         
@@ -70,7 +73,7 @@ class AdvancedStatsCalculator:
         to_per_poss = team_stats['to'] / est_poss if est_poss > 0 else 0
         to_per_100 = (team_stats['to'] / est_poss * 100) if est_poss > 0 else 0
         ast_to_ratio = team_stats['asst'] / team_stats['to'] if team_stats['to'] > 0 else 0
-        reb_per_poss = team_stats['rpg'] / (est_poss / team_stats['games']) if est_poss > 0 else 0
+        reb_per_poss = team_stats['rpg'] / (est_poss / total_games) if est_poss > 0 else 0
         
         # Rebound rates (estimated without opponent rebounds)
         total_reb_opps = team_stats['reb'] * 2  # Rough estimate
@@ -84,12 +87,12 @@ class AdvancedStatsCalculator:
         isolation_reliance = 100 - assisted_scoring_rate
         
         # Defense (box score only)
-        stl_per_game = team_stats['stl'] / team_stats['games']
-        blk_per_game = team_stats['blk'] / team_stats['games']
+        stl_per_game = team_stats['stl'] / total_games
+        blk_per_game = team_stats['blk'] / total_games
         stl_blk_per_poss = (team_stats['stl'] + team_stats['blk']) / est_poss if est_poss > 0 else 0
         
         # Discipline & Control
-        fpg = team_stats.get('fouls', 0) / team_stats['games'] if 'fouls' in team_stats else 0
+        fpg = team_stats.get('fouls', 0) / total_games if 'fouls' in team_stats else 0
         
         return {
             'scoring_efficiency': {
@@ -133,7 +136,7 @@ class AdvancedStatsCalculator:
             },
             'discipline': {
                 'fpg': round(fpg, 1),
-                'fta_allowed': round(team_stats['fta'] / team_stats['games'], 1)
+                'fta_allowed': round(team_stats['fta'] / total_games, 1)
             }
         }
     
@@ -176,7 +179,8 @@ class AdvancedStatsCalculator:
         
         usage_proxy = ((fga + 0.44 * fta + to) / (team_fga + 0.44 * team_fta + team_to) * 100) if (team_fga + team_fta + team_to) > 0 else 0
         shot_volume_share = (fga / team_fga * 100) if team_fga > 0 else 0
-        scoring_share = (pts / (team_stats['ppg'] * team_stats['games']) * 100) if team_stats['ppg'] > 0 else 0
+        total_team_games = team_stats['win'] + team_stats['loss']
+        scoring_share = (pts / (team_stats['ppg'] * total_team_games) * 100) if team_stats['ppg'] > 0 else 0
         
         # Ball Handling
         ast = player['asst']
