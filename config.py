@@ -4,9 +4,17 @@ Centralizes all magic numbers and configuration constants
 """
 
 # API Configuration
-OPENAI_MODEL = "gpt-4o"
+# Model selection based on task complexity and cost
+OPENAI_MODEL_ANALYSIS = "gpt-5.2"      # For diagnostic analysis, coach-style commentary
+OPENAI_MODEL_CARDS = "gpt-5-mini"      # For game cards, structured summaries, rankings
+OPENAI_MODEL_TAGS = "gpt-5-nano"       # For quick classifications, tags, formatting
 OPENAI_TIMEOUT = 30
 OPENAI_MAX_RETRIES = 3
+
+# Server Configuration
+GUNICORN_TIMEOUT = 600  # 10 minutes for long-running analysis
+GUNICORN_WORKERS = 2
+GUNICORN_KEEP_ALIVE = 5
 
 # Analysis Configuration
 MAX_TOKENS_GAME_ANALYSIS = 800

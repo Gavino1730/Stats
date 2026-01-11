@@ -348,7 +348,7 @@ Game Details (by date):
     
     return context
 
-def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7):
+def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7, model="gpt-5.2"):
     """Make API call to OpenAI using requests library"""
     try:
         headers = {
@@ -357,7 +357,7 @@ def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.
         }
         
         payload = {
-            "model": "gpt-4o",
+            "model": model,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
@@ -501,7 +501,7 @@ REQUIRED OUTPUT STRUCTURE:
         
         system_prompt = system_prompts.get(analysis_type, system_prompts['general'])
         
-        analysis = call_openai_api(system_prompt, query, max_tokens=1500)
+        analysis = call_openai_api(system_prompt, query, max_tokens=1500, model="gpt-5.2")
         
         return jsonify({
             'analysis': analysis,
@@ -551,7 +551,7 @@ OUTPUT RULES:
         
         system_prompt = f"""Diagnose player performance strictly through measurable outputs. TEAM DATA: {stats_context}"""
         
-        insights = call_openai_api(system_prompt, prompt, max_tokens=1000)
+        insights = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-5.2")
         
         return jsonify({
             'player': player_name,
@@ -599,7 +599,7 @@ REQUIRED OUTPUT:
         
         system_prompt = f"""Diagnose what failed or succeeded in this game using measurable deltas only. TEAM DATA: {stats_context}"""
         
-        analysis = call_openai_api(system_prompt, prompt, max_tokens=1000)
+        analysis = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-5.2")
         
         return jsonify({
             'game': f"{game['opponent']} ({game['date']})",
@@ -663,7 +663,7 @@ Write like you're briefing a coach who needs actionable intelligence, not surfac
 
 TEAM DATA: {stats_context}"""
         
-        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0)
+        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0, model="gpt-5.2")
         
         # Cache the result
         result = {'summary': summary}
@@ -690,10 +690,17 @@ def clear_team_summary():
 def get_season_analysis():
     """Get cached season analysis or generate it"""
     try:
-        # Check if analysis is cached
-        if os.path.exists(ANALYSIS_CACHE_FILE):
+        # Always return cached version if it exists unless force=true
+        force_regenerate = request.args.get('force', 'false').lower() == 'true'
+        
+        if not force_regenerate and os.path.exists(ANALYSIS_CACHE_FILE):
+            logger.info("Returning cached season analysis")
             with open(ANALYSIS_CACHE_FILE) as f:
                 return jsonify(json.load(f))
+        
+        # Warn about long generation time
+        if force_regenerate:
+            logger.warning("Force regenerating season analysis - this may take 5-10 minutes")
         
         # Generate analysis if not cached
         if not OPENAI_API_KEY:
@@ -702,13 +709,20 @@ def get_season_analysis():
         games = sorted(stats_data['games'], key=lambda x: x['gameId'])
         season_stats = stats_data['season_team_stats']
         
+        # Limit number of games to analyze to prevent timeout
+        max_games_to_analyze = int(request.args.get('max_games', len(games)))
+        games_to_analyze = games[:max_games_to_analyze]
+        
+        logger.info(f"Generating analysis for {len(games_to_analyze)} games")
+        
         # Generate per-game analysis
         per_game_analysis = []
         
         # First, calculate player season averages for comparison
         player_season_stats = stats_data['season_player_stats']
         
-        for i, game in enumerate(games, 1):
+        for i, game in enumerate(games_to_analyze, 1):
+            logger.info(f"Analyzing game {i}/{len(games_to_analyze)}: {game.get('opponent', 'Unknown')}")
             team_stats = game['team_stats']
             fg_pct = (team_stats['fg']/team_stats['fga']*100) if team_stats['fga'] > 0 else 0
             
@@ -797,7 +811,9 @@ REQUIRED OUTPUT:
             system_prompt = "Generate compact, UI-safe game diagnostics using measurable deltas only."
             
             try:
-                analysis_text = call_openai_api(system_prompt, game_prompt, max_tokens=800)
+                logger.info(f"Calling OpenAI API for game {i}")
+                analysis_text = call_openai_api(system_prompt, game_prompt, max_tokens=800, model="gpt-5-mini")
+                logger.info(f"Successfully analyzed game {i}")
                 per_game_analysis.append({
                     'game': i,
                     'opponent': game['opponent'],
@@ -813,6 +829,7 @@ REQUIRED OUTPUT:
                     'analysis': analysis_text
                 })
             except Exception as e:
+                logger.error(f"Failed to analyze game {i}: {e}")
                 per_game_analysis.append({
                     'game': i,
                     'opponent': game['opponent'],
@@ -837,7 +854,7 @@ Analyze comprehensively:
 6. Season trajectory and momentum"""
         
         system_prompt = "You are an expert basketball coach providing detailed season analysis. Be thorough and specific."
-        season_summary = call_openai_api(system_prompt, season_prompt, max_tokens=2000)
+        season_summary = call_openai_api(system_prompt, season_prompt, max_tokens=2000, model="gpt-5.2")
         
         # Cache the analysis
         analysis_data = {
@@ -1043,7 +1060,7 @@ Use specific statistics and metrics to support every observation. Be thorough bu
 Focus on measurable performance indicators and tactical insights. Format your response in clear sections with bullet points."""
         
         # Generate analysis
-        analysis = call_openai_api(system_prompt, analysis_prompt, max_tokens=2000, temperature=0.7)
+        analysis = call_openai_api(system_prompt, analysis_prompt, max_tokens=2000, temperature=0.7, model="gpt-5.2")
         
         # Prepare response
         response_data = {
