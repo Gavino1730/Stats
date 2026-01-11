@@ -160,7 +160,10 @@ All insights are derived from box score data only.
 
 - **Backend**: Flask 3.0, Python 3.11, Gunicorn
 - **Frontend**: Vanilla JavaScript, Chart.js
-- **AI**: OpenAI GPT-4o API
+- **AI**: OpenAI API with intelligent model selection:
+  - **GPT-5.2**: Main analysis (game recaps, season summary, player diagnostics)
+  - **GPT-5-mini**: Quick insights (short blurbs, simple deltas, UI copy)
+  - **GPT-4.1**: Available for long-context season-wide processing
 - **Deployment**: Railway
 - **Caching**: LRU cache, Service Worker
 

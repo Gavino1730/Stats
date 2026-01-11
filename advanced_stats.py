@@ -5,8 +5,17 @@ No play-by-play, no shot charts, no opponent player tracking.
 """
 
 import json
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import statistics
+
+# Constants
+FREE_THROW_POSSESSION_FACTOR = 0.44
+THREE_POINT_MULTIPLIER = 0.5
+PRIMARY_SCORER_THRESHOLD = 20.0  # percentage
+SECONDARY_SCORER_THRESHOLD = 10.0  # percentage
+MIN_GAMES_FOR_STATS = 1
+TURNOVER_THRESHOLD = 13
+FG_PERCENTAGE_THRESHOLD = 44.0
 
 
 class AdvancedStatsCalculator:
@@ -28,15 +37,23 @@ class AdvancedStatsCalculator:
         games = self.games
         team_stats = self.season_team_stats
         
+        # Validate required data
+        if not team_stats or not games:
+            return {}
+        
         # Calculate total games
-        total_games = team_stats['win'] + team_stats['loss']
+        total_games = team_stats.get('win', 0) + team_stats.get('loss', 0)
+        if total_games == 0:
+            return {}
         
         # Estimated possessions (FGA + 0.44*FTA - OREB + TO)
-        est_poss = team_stats['fga'] + (0.44 * team_stats['fta']) - team_stats['oreb'] + team_stats['to']
+        est_poss = (team_stats.get('fga', 0) + 
+                    (FREE_THROW_POSSESSION_FACTOR * team_stats.get('fta', 0)) - 
+                    team_stats.get('oreb', 0) + team_stats.get('to', 0))
         
         # Scoring & Efficiency
-        pts = team_stats['ppg'] * total_games
-        ppg = team_stats['ppg']
+        pts = team_stats.get('ppg', 0) * total_games
+        ppg = team_stats.get('ppg', 0)
         ppp = pts / est_poss if est_poss > 0 else 0
         
         # Shot percentages
@@ -144,43 +161,47 @@ class AdvancedStatsCalculator:
     # B. PLAYER LEVEL STATS
     # ==============================================================================
     
-    def calculate_player_advanced_stats(self, player_name: str) -> Dict:
+    def calculate_player_advanced_stats(self, player_name: str) -> Optional[Dict]:
         """Calculate advanced stats for a specific player"""
         
         if player_name not in self.season_player_stats:
-            return {}
+            return None
         
         player = self.season_player_stats[player_name]
         team_stats = self.season_team_stats
         
         # Basic totals
-        games = player['games']
-        pts = player['ppg'] * games
-        fga = player['fga']
-        fta = player['fta']
-        fg = player['fg']
-        fg3 = player['fg3']
-        ft = player['ft']
-        to = player['to']
+        games = player.get('games', 0)
+        if games == 0:
+            return None
+        
+        pts = player.get('ppg', 0) * games
+        fga = player.get('fga', 0)
+        fta = player.get('fta', 0)
+        fg = player.get('fg', 0)
+        fg3 = player.get('fg3', 0)
+        ft = player.get('ft', 0)
+        to = player.get('to', 0)
         
         # Scoring & Efficiency
-        ppg = player['ppg']
+        ppg = player.get('ppg', 0)
         pts_per_shot = pts / fga if fga > 0 else 0
         pts_per_fga = pts / fga if fga > 0 else 0
         
         # Advanced shooting
-        efg_pct = ((fg + 0.5 * fg3) / fga * 100) if fga > 0 else 0
-        ts_pct = (pts / (2 * (fga + 0.44 * fta)) * 100) if (fga + fta) > 0 else 0
+        efg_pct = ((fg + THREE_POINT_MULTIPLIER * fg3) / fga * 100) if fga > 0 else 0
+        ts_pct = (pts / (2 * (fga + FREE_THROW_POSSESSION_FACTOR * fta)) * 100) if (fga + fta) > 0 else 0
         
         # Usage & Role
-        team_fga = team_stats['fga']
-        team_fta = team_stats['fta']
-        team_to = team_stats['to']
+        team_fga = team_stats.get('fga', 0)
+        team_fta = team_stats.get('fta', 0)
+        team_to = team_stats.get('to', 0)
         
-        usage_proxy = ((fga + 0.44 * fta + to) / (team_fga + 0.44 * team_fta + team_to) * 100) if (team_fga + team_fta + team_to) > 0 else 0
+        usage_proxy = ((fga + FREE_THROW_POSSESSION_FACTOR * fta + to) / 
+                       (team_fga + FREE_THROW_POSSESSION_FACTOR * team_fta + team_to) * 100) if (team_fga + team_fta + team_to) > 0 else 0
         shot_volume_share = (fga / team_fga * 100) if team_fga > 0 else 0
-        total_team_games = team_stats['win'] + team_stats['loss']
-        scoring_share = (pts / (team_stats['ppg'] * total_team_games) * 100) if team_stats['ppg'] > 0 else 0
+        total_team_games = team_stats.get('win', 0) + team_stats.get('loss', 0)
+        scoring_share = (pts / (team_stats.get('ppg', 0) * total_team_games) * 100) if team_stats.get('ppg', 0) > 0 and total_team_games > 0 else 0
         
         # Ball Handling
         ast = player['asst']
@@ -218,8 +239,8 @@ class AdvancedStatsCalculator:
                 'usage_proxy': round(usage_proxy, 1),
                 'shot_volume_share': round(shot_volume_share, 1),
                 'scoring_share': round(scoring_share, 1),
-                'primary_scorer': scoring_share >= 20,
-                'secondary_scorer': 10 <= scoring_share < 20
+                'primary_scorer': scoring_share >= PRIMARY_SCORER_THRESHOLD,
+                'secondary_scorer': SECONDARY_SCORER_THRESHOLD <= scoring_share < PRIMARY_SCORER_THRESHOLD
             },
             'ball_handling': {
                 'apg': round(ast_rate, 1),
@@ -248,7 +269,7 @@ class AdvancedStatsCalculator:
     # C. GAME LEVEL STATS
     # ==============================================================================
     
-    def calculate_game_advanced_stats(self, game_id: int) -> Dict:
+    def calculate_game_advanced_stats(self, game_id: int) -> Optional[Dict]:
         """Calculate advanced stats for a specific game"""
         
         game = None
@@ -258,20 +279,29 @@ class AdvancedStatsCalculator:
                 break
         
         if not game:
-            return {}
+            return None
         
-        team_stats = game['team_stats']
+        team_stats = game.get('team_stats', {})
+        if not team_stats:
+            return None
         
         # Estimated possessions
-        est_poss = team_stats['fga'] + (0.44 * team_stats['fta']) - team_stats.get('oreb', 0) + team_stats['to']
+        est_poss = (team_stats.get('fga', 0) + 
+                    (FREE_THROW_POSSESSION_FACTOR * team_stats.get('fta', 0)) - 
+                    team_stats.get('oreb', 0) + team_stats.get('to', 0))
         
         # Scoring efficiency
-        pts = game['vc_score']
+        pts = game.get('vc_score', 0)
         ppp = pts / est_poss if est_poss > 0 else 0
         
         # Advanced shooting
-        efg_pct = ((team_stats['fg'] + 0.5 * team_stats['fg3']) / team_stats['fga'] * 100) if team_stats['fga'] > 0 else 0
-        ts_pct = (pts / (2 * (team_stats['fga'] + 0.44 * team_stats['fta'])) * 100) if (team_stats['fga'] + team_stats['fta']) > 0 else 0
+        fga = team_stats.get('fga', 0)
+        fg = team_stats.get('fg', 0)
+        fg3 = team_stats.get('fg3', 0)
+        fta = team_stats.get('fta', 0)
+        
+        efg_pct = ((fg + THREE_POINT_MULTIPLIER * fg3) / fga * 100) if fga > 0 else 0
+        ts_pct = (pts / (2 * (fga + FREE_THROW_POSSESSION_FACTOR * fta)) * 100) if (fga + fta) > 0 else 0
         
         # Possession control
         to_per_100 = (team_stats['to'] / est_poss * 100) if est_poss > 0 else 0
@@ -338,18 +368,19 @@ class AdvancedStatsCalculator:
         }
         
         # Record by thresholds
-        to_13_or_less = [g for g in self.games if g['team_stats']['to'] <= 13]
-        to_13_record = f"{len([g for g in to_13_or_less if g['result'] == 'W'])}-{len([g for g in to_13_or_less if g['result'] == 'L'])}"
+        to_threshold_or_less = [g for g in self.games if g.get('team_stats', {}).get('to', 999) <= TURNOVER_THRESHOLD]
+        to_threshold_record = f"{len([g for g in to_threshold_or_less if g.get('result') == 'W'])}-{len([g for g in to_threshold_or_less if g.get('result') == 'L'])}"
         
-        fg_44_or_higher = [g for g in self.games if (g['team_stats']['fg'] / g['team_stats']['fga'] * 100) >= 44]
-        fg_44_record = f"{len([g for g in fg_44_or_higher if g['result'] == 'W'])}-{len([g for g in fg_44_or_higher if g['result'] == 'L'])}"
+        fg_threshold_or_higher = [g for g in self.games if g.get('team_stats', {}).get('fga', 0) > 0 and 
+                                   (g.get('team_stats', {}).get('fg', 0) / g.get('team_stats', {}).get('fga', 1) * 100) >= FG_PERCENTAGE_THRESHOLD]
+        fg_threshold_record = f"{len([g for g in fg_threshold_or_higher if g.get('result') == 'W'])}-{len([g for g in fg_threshold_or_higher if g.get('result') == 'L'])}"
         
         return {
             'win_conditions': win_conditions,
             'loss_conditions': loss_conditions,
             'threshold_records': {
-                'to_13_or_less': to_13_record,
-                'fg_44_or_higher': fg_44_record
+                f'to_{TURNOVER_THRESHOLD}_or_less': to_threshold_record,
+                f'fg_{int(FG_PERCENTAGE_THRESHOLD)}_or_higher': fg_threshold_record
             },
             'total_wins': len(wins),
             'total_losses': len(losses)
@@ -378,21 +409,38 @@ class AdvancedStatsCalculator:
         }
         
         # Player scoring variance (top 5 scorers)
-        top_scorers = sorted(self.season_player_stats.values(), key=lambda x: x['ppg'], reverse=True)[:5]
+        top_scorers = sorted(self.season_player_stats.values(), key=lambda x: x.get('ppg', 0), reverse=True)[:5]
         player_volatility = []
         
+        player_game_logs = self.stats_data.get('player_game_logs', {})
+        
         for player in top_scorers:
-            if player['name'] in self.stats_data.get('player_game_logs', {}):
-                game_logs = self.stats_data['player_game_logs'][player['name']]
-                pts_list = [log['pts'] for log in game_logs]
-                if len(pts_list) > 1:
-                    player_volatility.append({
-                        'name': player['name'],
-                        'ppg': player['ppg'],
-                        'std_dev': round(statistics.stdev(pts_list), 1),
-                        'variance': round(statistics.variance(pts_list), 1),
-                        'range': f"{min(pts_list)}-{max(pts_list)}"
-                    })
+            player_name = player.get('name')
+            if not player_name or player_name not in player_game_logs:
+                continue
+            
+            game_logs = player_game_logs[player_name]
+            if not game_logs:
+                continue
+            
+            # Handle both data structures: direct stats or nested in 'stats' key
+            pts_list = []
+            for log in game_logs:
+                if isinstance(log, dict):
+                    if 'stats' in log:
+                        pts_list.append(log['stats'].get('pts', 0))
+                    else:
+                        pts_list.append(log.get('pts', 0))
+            
+            if len(pts_list) > 1:
+                player_ppg = player.get('ppg', 0)
+                player_volatility.append({
+                    'name': player_name,
+                    'ppg': player_ppg,
+                    'std_dev': round(statistics.stdev(pts_list), 1),
+                    'variance': round(statistics.variance(pts_list), 1),
+                    'range': f"{min(pts_list)}-{max(pts_list)}"
+                })
         
         return {
             'team_volatility': team_volatility,
