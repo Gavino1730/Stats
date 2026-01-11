@@ -50,6 +50,22 @@ function displayPlayers(players) {
                     <div class="player-stat-label">FG%</div>
                     <div class="player-stat-value">${player.fg_pct.toFixed(1)}%</div>
                 </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">3P%</div>
+                    <div class="player-stat-value">${player.fg3_pct.toFixed(1)}%</div>
+                </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">SPG</div>
+                    <div class="player-stat-value">${player.spg.toFixed(1)}</div>
+                </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">BPG</div>
+                    <div class="player-stat-value">${player.bpg.toFixed(1)}</div>
+                </div>
+                <div class="player-stat-item">
+                    <div class="player-stat-label">TPG</div>
+                    <div class="player-stat-value">${player.tpg.toFixed(1)}</div>
+                </div>
             </div>
         `;
         
@@ -107,6 +123,11 @@ function sortPlayers() {
         if (sortValue === 'rpg') return b.rpg - a.rpg;
         if (sortValue === 'apg') return b.apg - a.apg;
         if (sortValue === 'fg_pct') return b.fg_pct - a.fg_pct;
+        if (sortValue === 'fg3_pct') return b.fg3_pct - a.fg3_pct;
+        if (sortValue === 'spg') return b.spg - a.spg;
+        if (sortValue === 'bpg') return b.bpg - a.bpg;
+        if (sortValue === 'tpg') return a.tpg - b.tpg; // Lower is better for turnovers
+        if (sortValue === 'ft_pct') return b.ft_pct - a.ft_pct;
         return 0;
     });
     displayPlayers(sorted);
@@ -342,16 +363,94 @@ async function showPlayerDetail(playerName) {
                         <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.apg.toFixed(1)}</div>
                     </div>
                     <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">SPG</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.spg.toFixed(1)}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">BPG</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.bpg.toFixed(1)}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">TPG</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: #dc3545;">${data.season_stats.tpg.toFixed(1)}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shooting Splits & Efficiency -->
+            <div style="margin: 1.5rem 0;">
+                <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: var(--primary);">Shooting Performance</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; padding: 1rem; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border);">
+                    <div style="text-align: center;">
                         <div style="font-size: 0.7rem; color: var(--text-light);">FG%</div>
                         <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.fg_pct.toFixed(1)}%</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">${data.season_stats.fg}/${data.season_stats.fga}</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.7rem; color: var(--text-light);">3P%</div>
                         <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.fg3_pct.toFixed(1)}%</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">${data.season_stats.fg3}/${data.season_stats.fg3a}</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.7rem; color: var(--text-light);">FT%</div>
                         <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.ft_pct.toFixed(1)}%</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">${data.season_stats.ft}/${data.season_stats.fta}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">2P%</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${((data.season_stats.fg - data.season_stats.fg3) / Math.max(1, data.season_stats.fga - data.season_stats.fg3a) * 100).toFixed(1)}%</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">${data.season_stats.fg - data.season_stats.fg3}/${data.season_stats.fga - data.season_stats.fg3a}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">FGM/G</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${(data.season_stats.fg / data.season_stats.games).toFixed(1)}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">per game</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">FGA/G</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${(data.season_stats.fga / data.season_stats.games).toFixed(1)}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">per game</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div style="margin: 1.5rem 0;">
+                <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: var(--primary);">Performance Metrics</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; padding: 1rem; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border);">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">A/T Ratio</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: ${data.season_stats.to > 0 ? (data.season_stats.asst / data.season_stats.to >= 2 ? 'var(--success)' : data.season_stats.asst / data.season_stats.to >= 1 ? '#ffa500' : '#dc3545') : 'var(--success)'};">${data.season_stats.to > 0 ? (data.season_stats.asst / data.season_stats.to).toFixed(1) : '∞'}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">assists/turnovers</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">Games</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${data.season_stats.games}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">played</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">Double-Doubles</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${data.game_logs.filter(g => {
+                            const stats = g.stats;
+                            const categories = [stats.pts, stats.oreb + stats.dreb, stats.asst, stats.stl, stats.blk].filter(x => x >= 10);
+                            return categories.length >= 2;
+                        }).length}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">career</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">High Score</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: var(--primary);">${Math.max(...data.game_logs.map(g => g.stats.pts))}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">points</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">Best REB</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${Math.max(...data.game_logs.map(g => g.stats.oreb + g.stats.dreb))}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">rebounds</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.7rem; color: var(--text-light);">Best AST</div>
+                        <div style="font-weight: 700; font-size: 1.3rem;">${Math.max(...data.game_logs.map(g => g.stats.asst))}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-light);">assists</div>
                     </div>
                 </div>
             </div>
@@ -359,11 +458,13 @@ async function showPlayerDetail(playerName) {
             ${advancedHtml}
 
             <h3 style="margin-top: 2rem; color: var(--primary); margin-bottom: 1rem;">Game-by-Game Performance</h3>
-            <table class="box-score-table">
+            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+            <table class="box-score-table" style="min-width: 1200px;">
                 <thead>
                     <tr>
                         <th>Date</th>
                         <th>Opponent</th>
+                        <th>W/L</th>
                         <th>MIN</th>
                         <th>PTS</th>
                         <th>FG</th>
@@ -380,6 +481,7 @@ async function showPlayerDetail(playerName) {
                         <th>BLK</th>
                         <th>TO</th>
                         <th>PF</th>
+                        <th>+/-</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -398,6 +500,25 @@ async function showPlayerDetail(playerName) {
                             <tr>
                                 <td>${game.date}</td>
                                 <td>${game.location === 'away' ? '@' : 'vs'} ${game.opponent}</td>
+                                <td style="font-weight: 700; color: ${game.result === 'W' ? 'var(--success)' : '#dc3545'};">${game.result}</td>
+                                <td>${stats.min || 0}</td>
+                                <td style="font-weight: 700;">${stats.pts}</td>
+                                <td>${stats.fg_made}-${stats.fg_att}</td>
+                                <td>${fgPct}%</td>
+                                <td>${stats.fg3_made}-${stats.fg3_att}</td>
+                                <td>${fg3Pct}%</td>
+                                <td>${stats.ft_made}-${stats.ft_att}</td>
+                                <td>${ftPct}%</td>
+                                <td style="font-weight: 700;">${reb}</td>
+                                <td>${stats.oreb}</td>
+                                <td>${stats.dreb}</td>
+                                <td style="font-weight: 700;">${stats.asst}</td>
+                                <td>${stats.stl}</td>
+                                <td>${stats.blk}</td>
+                                <td style="color: ${stats.to >= 4 ? '#dc3545' : 'inherit'};">${stats.to}</td>
+                                <td>${stats.fouls}</td>
+                                <td style="font-weight: 700; color: ${(game.vc_score - game.opp_score) > 0 ? 'var(--success)' : '#dc3545'};">${(game.vc_score - game.opp_score) > 0 ? '+' : ''}${game.vc_score - game.opp_score}</td>
+                            </tr>
                                 <td>${stats.minutes || '-'}</td>
                                 <td><strong style="color: var(--primary);">${stats.pts}</strong></td>
                                 <td>${stats.fg_made}-${stats.fg_att}</td>
@@ -417,6 +538,9 @@ async function showPlayerDetail(playerName) {
                             </tr>
                         `;
                     }).join('')}
+                </tbody>
+            </table>
+            </div>
                 </tbody>
             </table>
         `;
