@@ -331,25 +331,50 @@ Valley Catholic Varsity Basketball - 2025-2026 Season Stats
 TEAM RECORD: {season_stats['win']}-{season_stats['loss']}
 Win Percentage: {season_stats['win']/(season_stats['win']+season_stats['loss'])*100:.1f}%
 
-TEAM STATISTICS:
+TEAM SEASON AVERAGES:
 - Points Per Game: {season_stats['ppg']:.1f}
-- Rebounds Per Game: {season_stats['rpg']:.1f}
+- Rebounds Per Game: {season_stats['rpg']:.1f} (ORB: {season_stats.get('oreb_pg', 0):.1f}, DRB: {season_stats.get('dreb_pg', 0):.1f})
 - Assists Per Game: {season_stats['apg']:.1f}
+- Turnovers Per Game: {season_stats.get('to_pg', 0):.1f}
+- Steals Per Game: {season_stats.get('stl_pg', 0):.1f}
+- Blocks Per Game: {season_stats.get('blk_pg', 0):.1f}
 - Field Goal %: {season_stats['fg_pct']:.1f}%
 - Three Point %: {season_stats['fg3_pct']:.1f}%
 - Free Throw %: {season_stats['ft_pct']:.1f}%
 
-GAMES PLAYED: {len(games)}
-Game Details (by date):
+GAME-BY-GAME RESULTS ({len(games)} games):
 """
     
     for game in games:
-        context += f"\n- vs {game['opponent']} ({game['date']}): VC {game['vc_score']}-{game['opp_score']} ({game['result']})"
+        team_stats = game['team_stats']
+        fg_pct = (team_stats['fg']/team_stats['fga']*100) if team_stats['fga'] > 0 else 0
+        fg3_pct = (team_stats['fg3']/team_stats['fg3a']*100) if team_stats['fg3a'] > 0 else 0
+        context += f"""
+Game {game['gameId']} - {game['date']} vs {game['opponent']} ({game.get('location', 'home')}): {game['result']} {game['vc_score']}-{game['opp_score']}
+  Team Stats: {team_stats['fg']}/{team_stats['fga']} FG ({fg_pct:.1f}%), {team_stats['fg3']}/{team_stats['fg3a']} 3P ({fg3_pct:.1f}%), {team_stats['ft']}/{team_stats['fta']} FT, {team_stats['reb']} REB, {team_stats['asst']} AST, {team_stats['to']} TO, {team_stats['stl']} STL
+  Top Scorers: {', '.join([f"{p['name']} {p['pts']}pts" for p in sorted([p for p in game.get('player_stats', []) if p['name'] not in EXCLUDED_PLAYERS], key=lambda x: x['pts'], reverse=True)[:3]])}"""
     
-    context += "\n\nPLAYER STATISTICS:\n"
+    context += "\n\nPLAYER SEASON STATISTICS (sorted by PPG):\n"
     for player_name, stats in sorted(stats_data['season_player_stats'].items(), 
                                      key=lambda x: x[1]['ppg'], reverse=True):
-        context += f"\n{player_name}: {stats['ppg']:.1f} PPG, {stats['rpg']:.1f} RPG, {stats['apg']:.1f} APG, {stats['fg_pct']:.1f}% FG"
+        if player_name in EXCLUDED_PLAYERS:
+            continue
+        context += f"""
+{player_name}: {stats['games']} GP, {stats['ppg']:.1f} PPG, {stats['rpg']:.1f} RPG, {stats['apg']:.1f} APG, {stats.get('stl_pg', 0):.1f} SPG, {stats.get('blk_pg', 0):.1f} BPG
+  Shooting: {stats['fg_pct']:.1f}% FG, {stats['fg3_pct']:.1f}% 3P, {stats['ft_pct']:.1f}% FT"""
+    
+    # Add player game logs for top 5 scorers to show trends
+    context += "\n\nTOP PLAYERS GAME-BY-GAME TRENDS:\n"
+    top_scorers = sorted([(name, stats) for name, stats in stats_data['season_player_stats'].items() 
+                         if name not in EXCLUDED_PLAYERS], 
+                        key=lambda x: x[1]['ppg'], reverse=True)[:5]
+    
+    for player_name, _ in top_scorers:
+        if player_name in stats_data.get('player_game_logs', {}):
+            game_logs = sorted(stats_data['player_game_logs'][player_name], key=lambda x: x['gameId'])
+            context += f"\n{player_name} (last {min(5, len(game_logs))} games):\n"
+            for log in game_logs[-5:]:
+                context += f"  G{log['gameId']} vs {log['opponent']}: {log['stats']['pts']}pts, {log['stats']['oreb']+log['stats']['dreb']}reb, {log['stats']['asst']}ast, {log['stats']['fg_made']}/{log['stats']['fg_att']}FG, {log['stats']['fg3_made']}/{log['stats']['fg3_att']}3P\n"
     
     return context
 
@@ -517,6 +542,109 @@ REQUIRED OUTPUT STRUCTURE:
     except Exception as e:
         return jsonify({'error': f'AI analysis failed: {str(e)}'}), 500
 
+@app.route('/api/ai/chat', methods=['POST'])
+def ai_chat():
+    """Chatbot endpoint with conversation history support"""
+    try:
+        data = request.json
+        message = data.get('message', '')
+        history = data.get('history', [])
+        
+        if not message:
+            return jsonify({'error': 'No message provided'}), 400
+        
+        if not OPENAI_API_KEY:
+            return jsonify({'error': 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.'}), 500
+        
+        # Get comprehensive stats context
+        stats_context = get_stats_context()
+        
+        # Build system prompt with stats context
+        system_prompt = f"""You are an expert basketball statistics analyst and coaching assistant. You have access to comprehensive team and player statistics.
+
+Your role is to:
+- Answer questions about team and player performance using ONLY the stats data provided
+- Provide actionable insights based on measurable data
+- Compare players, games, and trends when asked
+- Suggest tactical improvements based on statistical analysis
+- Be conversational but data-driven
+
+Guidelines:
+- Reference specific stats and numbers in your responses
+- When comparing players, show their actual stats
+- For trends, identify patterns across games
+- Keep responses concise but informative (2-4 paragraphs typically)
+- Use bullet points for lists of stats or recommendations
+- If asked about something not in the data, clearly state that
+
+Available data includes:
+- Team record and season statistics
+- Player season averages (PPG, RPG, APG, FG%, 3P%, FT%, etc.)
+- Individual game results and box scores
+- Player game-by-game performance logs
+
+TEAM STATS DATA:
+{stats_context}
+
+Respond naturally to the user's question while referencing the actual stats."""
+        
+        # Prepare messages for API call
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # Add recent conversation history (last 10 messages for context)
+        for msg in history[-10:]:
+            messages.append({
+                "role": msg.get('role', 'user'),
+                "content": msg.get('content', '')
+            })
+        
+        # Make API call with conversation context
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 1000
+        }
+        
+        response = requests.post(OPENAI_API_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        response_data = response.json()
+        ai_response = response_data['choices'][0]['message']['content']
+        
+        return jsonify({
+            'response': ai_response,
+            'message': message
+        })
+    
+    except requests.exceptions.Timeout:
+        logger.error("OpenAI API timeout")
+        return jsonify({'error': 'AI service timeout - please try again'}), 504
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            logger.error("OpenAI API rate limit exceeded")
+            return jsonify({'error': 'AI service rate limit - please wait a moment'}), 429
+        elif e.response.status_code == 401:
+            logger.error("OpenAI API authentication failed")
+            return jsonify({'error': 'AI service authentication error - check API key'}), 401
+        else:
+            logger.error(f"OpenAI API HTTP error: {e}")
+            return jsonify({'error': 'AI service error - please try again'}), 500
+    except requests.exceptions.RequestException as e:
+        logger.error(f"OpenAI API request failed: {e}")
+        return jsonify({'error': 'AI service connection error'}), 503
+    except (KeyError, IndexError) as e:
+        logger.error(f"OpenAI API response format error: {e}")
+        return jsonify({'error': 'AI service response error'}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error in chat endpoint: {e}")
+        return jsonify({'error': f'Chat failed: {str(e)}'}), 500
+
 @app.route('/api/ai/player-insights/<player_name>', methods=['GET'])
 def ai_player_insights(player_name):
     """Get AI-generated insights for a specific player"""
@@ -536,27 +664,43 @@ def ai_player_insights(player_name):
             return jsonify({'error': 'Analysis not available for this player'}), 404
         
         player_stats = stats_data['season_player_stats'][player_name]
-        stats_context = get_stats_context()
         
-        prompt = f"""Diagnose {player_name}
+        # Get lightweight context - just team averages and top players for comparison
+        season_stats = stats_data['season_team_stats']
+        top_players_context = "\n\nTEAM LEADING SCORERS FOR COMPARISON:\n"
+        for pname, pstats in sorted(stats_data['season_player_stats'].items(), 
+                                    key=lambda x: x[1]['ppg'], reverse=True)[:5]:
+            if pname not in EXCLUDED_PLAYERS:
+                top_players_context += f"{pname}: {pstats['ppg']:.1f} PPG, {pstats['rpg']:.1f} RPG, {pstats['apg']:.1f} APG, {pstats['fg_pct']:.1f}% FG\n"
+        
+        # Get player game logs for trend analysis (last 5 games only)
+        game_logs_text = ""
+        if player_name in stats_data.get('player_game_logs', {}):
+            game_logs = sorted(stats_data['player_game_logs'][player_name], key=lambda x: x['gameId'])[-5:]
+            game_logs_text = f"\n\nLAST {len(game_logs)} GAMES:\n"
+            for log in game_logs:
+                fg_pct = (log['stats']['fg_made']/log['stats']['fg_att']*100) if log['stats']['fg_att'] > 0 else 0
+                game_logs_text += f"G{log['gameId']} vs {log['opponent']}: {log['stats']['pts']}pts, {log['stats']['oreb']+log['stats']['dreb']}reb, {log['stats']['asst']}ast, {log['stats']['fg_made']}/{log['stats']['fg_att']}FG ({fg_pct:.1f}%)\n"
+        
+        prompt = f"""Analyze {player_name}
 
-Season Baseline:
-{player_stats['ppg']:.1f} PPG | {player_stats['fg_pct']:.1f}% FG | {player_stats['fg3_pct']:.1f}% 3PT | {player_stats['ft_pct']:.1f}% FT | {player_stats['games']} games
+SEASON STATS ({player_stats['games']} games):
+{player_stats['ppg']:.1f} PPG | {player_stats['rpg']:.1f} RPG | {player_stats['apg']:.1f} APG
+Shooting: {player_stats['fg_pct']:.1f}% FG | {player_stats['fg3_pct']:.1f}% 3PT | {player_stats['ft_pct']:.1f}% FT{game_logs_text}{top_players_context}
+TEAM RECORD: {season_stats['win']}-{season_stats['loss']}
 
 REQUIRED ANALYSIS:
-1. PERFORMANCE GAP - Game output vs season baseline
-2. CONSISTENCY PROFILE - Variance indicator using point or efficiency spread
-3. SKILL LIMITATION - Specific efficiency weakness by shot type or usage
-4. ROLE REALITY - Is current usage aligned with efficiency?
+1. SCORING OUTPUT - Is {player_name} meeting expectations? Compare to team needs
+2. EFFICIENCY - Are shooting percentages good/bad? Which shots are working?
+3. CONSISTENCY - Look at recent games - stable or volatile performance?
+4. ROLE & CONTRIBUTION - What does this player do well? Where can they improve?
+5. TREND - Based on recent games, improving or declining?
 
-OUTPUT RULES:
-- Numbers required in every section
-- No praise
-- No inferred intent"""
+Be specific and data-driven. Reference actual numbers from the stats above."""
         
-        system_prompt = f"""Diagnose player performance strictly through measurable outputs. TEAM DATA: {stats_context}"""
+        system_prompt = "You are analyzing an individual player's performance. Focus on their stats, recent trends, and how they compare to teammates. Be honest about strengths and weaknesses using the data provided."
         
-        insights = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-4o-mini")
+        insights = call_openai_api(system_prompt, prompt, max_tokens=800, model="gpt-4o-mini")
         
         return jsonify({
             'player': player_name,
@@ -564,6 +708,7 @@ OUTPUT RULES:
         })
     
     except Exception as e:
+        logger.error(f"Player insights error for {player_name}: {str(e)}")
         return jsonify({'error': f'Failed to generate insights: {str(e)}'}), 500
 
 @app.route('/api/ai/game-analysis/<int:game_id>', methods=['GET'])
@@ -582,27 +727,53 @@ def ai_game_analysis(game_id):
         if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
-        stats_context = get_stats_context()
+        # Build lightweight context for game analysis (not full stats context)
+        season_stats = stats_data['season_team_stats']
+        games = sorted(stats_data['games'], key=lambda x: x['gameId'])
         
-        fg_pct_game = (game['team_stats']['fg']/game['team_stats']['fga']*100) if game['team_stats']['fga'] > 0 else 0
-        prompt = f"""VC vs {game['opponent']} | {game['date']}
-Score: {game['vc_score']}-{game['opp_score']}
+        # Get all games summary for comparison
+        games_summary = f"\n\nALL GAMES THIS SEASON ({season_stats['win']}-{season_stats['loss']}):\n"
+        for g in games:
+            games_summary += f"G{g['gameId']} vs {g['opponent']}: {g['result']} {g['vc_score']}-{g['opp_score']}\n"
+        
+        # Build detailed game stats
+        team_stats = game['team_stats']
+        fg_pct_game = (team_stats['fg']/team_stats['fga']*100) if team_stats['fga'] > 0 else 0
+        fg3_pct_game = (team_stats['fg3']/team_stats['fg3a']*100) if team_stats['fg3a'] > 0 else 0
+        ft_pct_game = (team_stats['ft']/team_stats['fta']*100) if team_stats['fta'] > 0 else 0
+        
+        # Player performances in this game with season averages
+        player_performances = "\n\nPLAYER PERFORMANCES (with season averages):\n"
+        if 'player_stats' in game:
+            sorted_players = sorted([p for p in game['player_stats'] if p['name'] not in EXCLUDED_PLAYERS], 
+                                   key=lambda x: x['pts'], reverse=True)
+            for p in sorted_players:
+                player_season = stats_data['season_player_stats'].get(p['name'], {})
+                season_ppg = player_season.get('ppg', 0)
+                player_performances += f"{p['name']}: {p['pts']}pts (avg {season_ppg:.1f}), {p.get('reb', 0)}reb, {p.get('asst', 0)}ast, {p.get('fg_made', 0)}/{p.get('fg_att', 0)}FG, {p.get('fg3_made', 0)}/{p.get('fg3_att', 0)}3P, {p.get('to', 0)}TO\n"
+        
+        prompt = f"""VC vs {game['opponent']} | {game['date']} ({game.get('location', 'home')})
+Final Score: {game['vc_score']}-{game['opp_score']} ({game['result']})
 
-Team Line:
-FG {game['team_stats']['fg']}/{game['team_stats']['fga']} ({fg_pct_game:.1f}%)
-3PT {game['team_stats']['fg3']}/{game['team_stats']['fg3a']}
-FT {game['team_stats']['ft']}/{game['team_stats']['fta']}
-REB {game['team_stats']['reb']}
-AST {game['team_stats']['asst']}
-TO {game['team_stats']['to']}
+GAME STATS:
+FG: {team_stats['fg']}/{team_stats['fga']} ({fg_pct_game:.1f}%) [Season Avg: {season_stats['fg_pct']:.1f}%]
+3PT: {team_stats['fg3']}/{team_stats['fg3a']} ({fg3_pct_game:.1f}%) [Season Avg: {season_stats['fg3_pct']:.1f}%]
+FT: {team_stats['ft']}/{team_stats['fta']} ({ft_pct_game:.1f}%) [Season Avg: {season_stats['ft_pct']:.1f}%]
+REB: {team_stats['reb']} [Season Avg: {season_stats['rpg']:.1f}]
+AST: {team_stats['asst']} [Season Avg: {season_stats['apg']:.1f}]
+TO: {team_stats['to']} [Season Avg: {season_stats.get('to_pg', 0):.1f}]
+STL: {team_stats.get('stl', 0)} [Season Avg: {season_stats.get('stl_pg', 0):.1f}]
+BLK: {team_stats.get('blk', 0)} [Season Avg: {season_stats.get('blk_pg', 0):.1f}]{player_performances}{games_summary}
 
 REQUIRED OUTPUT:
-- SHOOTING DEVIATION vs season
-- POSSESSION CONTROL (TO, REB)
-- SCORING CONCENTRATION
-- FAILURE OR SUCCESS DRIVER"""
+- SHOOTING DEVIATION vs season (by shot type - explain the difference)
+- POSSESSION CONTROL (TO, REB compared to season avg - better or worse?)
+- SCORING DISTRIBUTION (was scoring balanced or did we rely on 1-2 players?)
+- KEY PLAYER PERFORMANCES (who exceeded their average? who underperformed?)
+- PRIMARY WIN/LOSS DRIVER (what single stat or factor most explains the outcome?)
+- COMPARISON TO OTHER GAMES (reference similar results or opponents)"""
         
-        system_prompt = f"""Diagnose what failed or succeeded in this game using measurable deltas only. TEAM DATA: {stats_context}"""
+        system_prompt = """You are analyzing a single basketball game. Focus on what made this game different from the team's season averages. Compare player performances to their typical output. Be specific about which numbers deviated from normal and what that meant for the outcome."""
         
         analysis = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-4o-mini")
         
@@ -612,6 +783,7 @@ REQUIRED OUTPUT:
         })
     
     except Exception as e:
+        logger.error(f"Game analysis error for game {game_id}: {str(e)}")
         return jsonify({'error': f'Failed to analyze game: {str(e)}'}), 500
 
 @app.route('/api/ai/team-summary', methods=['GET'])
