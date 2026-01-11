@@ -15,7 +15,12 @@
 
     <!-- Team Summary Section -->
     <div id="team-summary" class="insight-section" style="display: none;">
-        <h2>Team Summary & Coaching Insights</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="margin: 0;">Team Summary & Coaching Insights</h2>
+            <button onclick="regenerateTeamSummary()" style="padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                🔄 Regenerate
+            </button>
+        </div>
         <div id="team-summary-content" class="loading">Loading AI analysis...</div>
     </div>
 

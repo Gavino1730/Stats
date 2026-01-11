@@ -79,6 +79,26 @@ function showGameAnalysis() {
     document.getElementById('game-analysis-section').style.display = 'block';
 }
 
+async function regenerateTeamSummary() {
+    if (!confirm('Regenerate team summary? This will create a new AI analysis for all users.')) {
+        return;
+    }
+    
+    try {
+        const content = document.getElementById('team-summary-content');
+        content.innerHTML = '<div class="loading">Clearing cache and regenerating...</div>';
+        
+        // Delete the cached summary
+        await fetch('/api/ai/team-summary', { method: 'DELETE' });
+        
+        // Wait a moment then reload
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await loadTeamSummary();
+    } catch (error) {
+        document.getElementById('team-summary-content').innerHTML = `<div class="error-message">Error regenerating: ${error.message}</div>`;
+    }
+}
+
 async function loadTeamSummary() {
     try {
         document.getElementById('team-summary').style.display = 'block';
