@@ -353,7 +353,7 @@ Game Details (by date):
     
     return context
 
-def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7, model="gpt-5.2"):
+def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7, model="gpt-4o-mini"):
     """Make API call to OpenAI using requests library"""
     try:
         headers = {
@@ -506,7 +506,7 @@ REQUIRED OUTPUT STRUCTURE:
         
         system_prompt = system_prompts.get(analysis_type, system_prompts['general'])
         
-        analysis = call_openai_api(system_prompt, query, max_tokens=1500, model="gpt-5.2")
+        analysis = call_openai_api(system_prompt, query, max_tokens=1500, model="gpt-4o-mini")
         
         return jsonify({
             'analysis': analysis,
@@ -556,7 +556,7 @@ OUTPUT RULES:
         
         system_prompt = f"""Diagnose player performance strictly through measurable outputs. TEAM DATA: {stats_context}"""
         
-        insights = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-5.2")
+        insights = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-4o-mini")
         
         return jsonify({
             'player': player_name,
@@ -604,7 +604,7 @@ REQUIRED OUTPUT:
         
         system_prompt = f"""Diagnose what failed or succeeded in this game using measurable deltas only. TEAM DATA: {stats_context}"""
         
-        analysis = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-5.2")
+        analysis = call_openai_api(system_prompt, prompt, max_tokens=1000, model="gpt-4o-mini")
         
         return jsonify({
             'game': f"{game['opponent']} ({game['date']})",
@@ -668,7 +668,7 @@ Write like you're briefing a coach who needs actionable intelligence, not surfac
 
 TEAM DATA: {stats_context}"""
         
-        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0, model="gpt-5.2")
+        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0, model="gpt-4o-mini")
         
         # Cache the result
         result = {'summary': summary}
@@ -859,7 +859,7 @@ Analyze comprehensively:
 6. Season trajectory and momentum"""
         
         system_prompt = "You are an expert basketball coach providing detailed season analysis. Be thorough and specific."
-        season_summary = call_openai_api(system_prompt, season_prompt, max_tokens=2000, model="gpt-5.2")
+        season_summary = call_openai_api(system_prompt, season_prompt, max_tokens=2000, model="gpt-4o-mini")
         
         # Cache the analysis
         analysis_data = {
@@ -1065,7 +1065,7 @@ Use specific statistics and metrics to support every observation. Be thorough bu
 Focus on measurable performance indicators and tactical insights. Format your response in clear sections with bullet points."""
         
         # Generate analysis
-        analysis = call_openai_api(system_prompt, analysis_prompt, max_tokens=2000, temperature=0.7, model="gpt-5.2")
+        analysis = call_openai_api(system_prompt, analysis_prompt, max_tokens=2000, temperature=0.7, model="gpt-4o-mini")
         
         # Prepare response
         response_data = {
