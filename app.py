@@ -132,9 +132,9 @@ def api_leaderboards():
     players = list(stats_data['season_player_stats'].values())
     
     leaderboards = {
-        'ppg': sorted(players, key=lambda x: x['ppg'], reverse=True)[:10],
-        'rpg': sorted(players, key=lambda x: x['rpg'], reverse=True)[:10],
-        'apg': sorted(players, key=lambda x: x['apg'], reverse=True)[:10],
+        'pts': sorted(players, key=lambda x: x['pts'], reverse=True)[:10],
+        'reb': sorted(players, key=lambda x: x['reb'], reverse=True)[:10],
+        'asst': sorted(players, key=lambda x: x['asst'], reverse=True)[:10],
         'fg_pct': sorted([p for p in players if p['fga'] > 0], key=lambda x: x['fg_pct'], reverse=True)[:10],
         'fg3_pct': sorted([p for p in players if p['fg3a'] > 0], key=lambda x: x['fg3_pct'], reverse=True)[:10],
         'ft_pct': sorted([p for p in players if p['fta'] > 0], key=lambda x: x['ft_pct'], reverse=True)[:10],

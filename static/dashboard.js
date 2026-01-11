@@ -67,30 +67,30 @@ async function loadLeaderboards() {
         const leaderboards = await response.json();
 
         // Top Scorers
-        const scorersHtml = leaderboards.ppg.slice(0, 5).map(p => `
+        const scorersHtml = leaderboards.pts.slice(0, 5).map(p => `
             <tr>
                 <td><strong>${p.name}</strong></td>
-                <td>${p.ppg.toFixed(1)}</td>
+                <td>${p.pts}</td>
                 <td>${p.games}</td>
             </tr>
         `).join('');
         document.getElementById('top-scorers').innerHTML = scorersHtml;
 
         // Top Rebounders
-        const reboundersHtml = leaderboards.rpg.slice(0, 5).map(p => `
+        const reboundersHtml = leaderboards.reb.slice(0, 5).map(p => `
             <tr>
                 <td><strong>${p.name}</strong></td>
-                <td>${p.rpg.toFixed(1)}</td>
+                <td>${p.reb}</td>
                 <td>${p.games}</td>
             </tr>
         `).join('');
         document.getElementById('top-rebounders').innerHTML = reboundersHtml;
 
         // Top Assist Leaders
-        const assistsHtml = leaderboards.apg.slice(0, 5).map(p => `
+        const assistsHtml = leaderboards.asst.slice(0, 5).map(p => `
             <tr>
                 <td><strong>${p.name}</strong></td>
-                <td>${p.apg.toFixed(1)}</td>
+                <td>${p.asst}</td>
                 <td>${p.games}</td>
             </tr>
         `).join('');
