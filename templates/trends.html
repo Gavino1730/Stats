@@ -11,6 +11,25 @@
 
     <!-- Team Trends Tab -->
     <div id="team-tab" class="tab-content active">
+        <!-- Volatility & Patterns -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-label">PPG Range</div>
+                <div class="stat-value" id="ppg-range">--</div>
+                <div class="stat-detail">Scoring Variance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">FG% Std Dev</div>
+                <div class="stat-value" id="fg-std">--</div>
+                <div class="stat-detail">Shooting Consistency</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TO Std Dev</div>
+                <div class="stat-value" id="to-std">--</div>
+                <div class="stat-detail">Turnover Consistency</div>
+            </div>
+        </div>
+        
         <div class="chart-container">
             <h2>Scoring by Game</h2>
             <canvas id="teamScoringChart"></canvas>

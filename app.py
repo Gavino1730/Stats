@@ -4,6 +4,11 @@ import json
 import os
 from datetime import datetime
 import requests
+from dotenv import load_dotenv
+from advanced_stats import AdvancedStatsCalculator
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
@@ -24,6 +29,9 @@ with open(STATS_FILE) as f:
     stats_data = json.load(f)
 with open(ROSTER_FILE) as f:
     roster_data = json.load(f)
+
+# Initialize advanced stats calculator
+advanced_calc = AdvancedStatsCalculator(stats_data)
 
 @app.route('/')
 def dashboard():
@@ -178,6 +186,65 @@ def api_team_trends():
     }
     return jsonify(trends)
 
+# ==============================================================================
+# ADVANCED STATS API ENDPOINTS
+# ==============================================================================
+
+@app.route('/api/advanced/team')
+@lru_cache(maxsize=1)
+def api_team_advanced():
+    """Get comprehensive advanced team statistics"""
+    return jsonify(advanced_calc.calculate_team_advanced_stats())
+
+@app.route('/api/advanced/player/<player_name>')
+def api_player_advanced(player_name):
+    """Get advanced statistics for a specific player"""
+    stats = advanced_calc.calculate_player_advanced_stats(player_name)
+    if not stats:
+        return jsonify({'error': 'Player not found'}), 404
+    return jsonify(stats)
+
+@app.route('/api/advanced/game/<int:game_id>')
+def api_game_advanced(game_id):
+    """Get advanced statistics for a specific game"""
+    stats = advanced_calc.calculate_game_advanced_stats(game_id)
+    if not stats:
+        return jsonify({'error': 'Game not found'}), 404
+    return jsonify(stats)
+
+@app.route('/api/advanced/patterns')
+@lru_cache(maxsize=1)
+def api_patterns():
+    """Get win/loss patterns and conditions"""
+    return jsonify(advanced_calc.calculate_win_loss_patterns())
+
+@app.route('/api/advanced/volatility')
+@lru_cache(maxsize=1)
+def api_volatility():
+    """Get volatility and consistency metrics"""
+    return jsonify(advanced_calc.calculate_volatility_metrics())
+
+@app.route('/api/advanced/insights')
+@lru_cache(maxsize=1)
+def api_auto_insights():
+    """Get auto-generated insights"""
+    return jsonify({'insights': advanced_calc.generate_auto_insights()})
+
+@app.route('/api/advanced/all')
+@lru_cache(maxsize=1)
+def api_all_advanced():
+    """Get all advanced statistics in one call"""
+    return jsonify({
+        'team': advanced_calc.calculate_team_advanced_stats(),
+        'patterns': advanced_calc.calculate_win_loss_patterns(),
+        'volatility': advanced_calc.calculate_volatility_metrics(),
+        'insights': advanced_calc.generate_auto_insights()
+    })
+
+# ==============================================================================
+# AI ANALYSIS HELPER FUNCTIONS
+# ==============================================================================
+
 def get_stats_context():
     """Generate comprehensive stats context for AI analysis"""
     games = sorted(stats_data['games'], key=lambda x: x['gameId'])
@@ -256,32 +323,90 @@ def ai_analyze():
         
         # Build system prompt based on analysis type
         system_prompts = {
-            'general': f"""You are an expert basketball coach and sports analyst specializing in player development, 
-team strategy, and performance optimization. You have deep knowledge of basketball statistics and trends. 
-Analyze the data and provide detailed, actionable insights.
+            'general': f"""You are a diagnostic basketball analyst. Your task is to translate raw box score data into cause-effect insights.
 
-TEAM DATA:
-{stats_context}""",
-            'player': f"""You are an expert basketball coach specializing in player analysis and development.
-Provide detailed performance insights, strengths, areas for improvement, and specific coaching recommendations.
+Identify:
+- MEASURABLE GAPS vs season averages or internal benchmarks
+- ROOT CAUSES expressed only through measurable conditions
+- ACTIONABLE TACTICAL ADJUSTMENTS limited to rotations, usage, or lineup logic
 
-TEAM DATA:
-{stats_context}""",
-            'team': f"""You are a basketball strategy expert and performance analyst.
-Analyze team dynamics, strengths, weaknesses, and provide strategic recommendations.
+Do NOT:
+- Speculate beyond data
+- Offer practice or skill drills
+- Use narrative filler
 
-TEAM DATA:
-{stats_context}""",
-            'trends': f"""You are a basketball analytics expert specializing in identifying patterns and trends.
-Look for performance patterns, consistency issues, and predictive insights.
+BANNED WORDS: likely, may, might, suggests, chemistry, refined, momentum, run, collapse
 
-TEAM DATA:
-{stats_context}""",
-            'coaching': f"""You are an elite basketball coach with championship experience.
-Provide actionable coaching recommendations, practice focus areas, and game strategies.
+TEAM DATA: {stats_context}
 
-TEAM DATA:
-{stats_context}"""
+REQUIRED OUTPUT STRUCTURE:
+A. KEY DEVIATIONS (3–5 bullets)
+B. ROOT CAUSE CONDITIONS (linked numerically to A)
+C. TACTICAL ADJUSTMENTS (ranked by estimated impact)""",
+            'player': f"""Perform a diagnostic evaluation of a single player using box score data only.
+
+Identify:
+- PERFORMANCE DELTA vs season baseline
+- EFFICIENCY vs usage relationship
+- ROLE ALIGNMENT (is output consistent with how player is used)
+
+Do NOT infer effort, confidence, or intent.
+
+TEAM DATA: {stats_context}
+
+REQUIRED OUTPUT STRUCTURE:
+- PERFORMANCE GAP
+- EFFICIENCY PROFILE
+- USAGE VS OUTPUT
+- ROLE FIT CONCLUSION""",
+            'team': f"""Analyze team-level tactics using season and game box score data.
+
+Identify:
+- STAT-DRIVEN WIN / LOSS CONDITIONS
+- OFFENSIVE DEPENDENCIES (efficiency vs volume)
+- DEFENSIVE FAILURE SIGNALS using available metrics only
+- TOP 3 TACTICAL ADJUSTMENTS ranked by impact
+
+DO NOT reference individual opponent players or positions.
+
+TEAM DATA: {stats_context}
+
+REQUIRED OUTPUT STRUCTURE:
+1. PRIMARY WIN CONDITION
+2. SECONDARY SUPPORT CONDITION
+3. FAILURE THRESHOLDS
+4. TACTICAL FIXES (ranked)""",
+            'trends': f"""Identify patterns across games using only numeric trends.
+
+Analyze:
+- VOLATILITY (players or stats with highest variance)
+- DIRECTIONAL SHIFTS (efficiency, usage, scoring concentration)
+- RISK SIGNALS (conditions correlated with losses or narrow margins)
+
+NO play-by-play assumptions.
+
+TEAM DATA: {stats_context}
+
+REQUIRED OUTPUT STRUCTURE:
+- MOST VOLATILE VARIABLES
+- STABLE VARIABLES
+- LOSS-ASSOCIATED CONDITIONS
+- PREDICTIVE RISK FLAGS""",
+            'coaching': f"""Evaluate game management strictly from box score outcomes.
+
+Analyze:
+- ROTATION IMPACT using +/- only
+- LINEUP DEPENDENCE (scoring concentration)
+- GAME CONTROL METRICS (turnovers, fouls, rebounds)
+
+Do NOT suggest practices or skill development.
+
+TEAM DATA: {stats_context}
+
+REQUIRED OUTPUT STRUCTURE:
+- ROTATION EFFECTIVENESS
+- DEPTH RELIANCE
+- MANAGEMENT FAILURE POINTS"""
         }
         
         system_prompt = system_prompts.get(analysis_type, system_prompts['general'])
@@ -307,27 +432,30 @@ def ai_player_insights(player_name):
         if not client.api_key:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
+        excluded_players = ['Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter']
+        if player_name in excluded_players:
+            return jsonify({'error': 'Analysis not available for this player'}), 404
+        
         player_stats = stats_data['season_player_stats'][player_name]
         stats_context = get_stats_context()
         
-        prompt = f"""Analyze {player_name}'s performance this season:
-- PPG: {player_stats['ppg']:.1f}
-- RPG: {player_stats['rpg']:.1f}
-- APG: {player_stats['apg']:.1f}
-- FG%: {player_stats['fg_pct']:.1f}%
-- 3P%: {player_stats['fg3_pct']:.1f}%
-- FT%: {player_stats['ft_pct']:.1f}%
-- Games: {player_stats['games']}
+        prompt = f"""Diagnose {player_name}
 
-Provide:
-1. Performance summary (strengths and areas for improvement)
-2. Comparison to team averages
-3. Specific coaching recommendations
-4. Development areas and potential
-5. Role on the team"""
+Season Baseline:
+{player_stats['ppg']:.1f} PPG | {player_stats['fg_pct']:.1f}% FG | {player_stats['fg3_pct']:.1f}% 3PT | {player_stats['ft_pct']:.1f}% FT | {player_stats['games']} games
+
+REQUIRED ANALYSIS:
+1. PERFORMANCE GAP - Game output vs season baseline
+2. CONSISTENCY PROFILE - Variance indicator using point or efficiency spread
+3. SKILL LIMITATION - Specific efficiency weakness by shot type or usage
+4. ROLE REALITY - Is current usage aligned with efficiency?
+
+OUTPUT RULES:
+- Numbers required in every section
+- No praise
+- No inferred intent"""
         
-        system_prompt = f"""You are an expert basketball coach analyzing player performance.
-{stats_context}"""
+        system_prompt = f"""Diagnose player performance strictly through measurable outputs. TEAM DATA: {stats_context}"""
         
         insights = call_openai_api(system_prompt, prompt, max_tokens=1000)
         
@@ -357,25 +485,25 @@ def ai_game_analysis(game_id):
         
         stats_context = get_stats_context()
         
-        prompt = f"""Analyze Valley Catholic's game vs {game['opponent']} on {game['date']}:
-VC {game['vc_score']} - {game['opponent']} {game['opp_score']} ({game['result']})
+        fg_pct_game = (game['team_stats']['fg']/game['team_stats']['fga']*100) if game['team_stats']['fga'] > 0 else 0
+        prompt = f"""VC vs {game['opponent']} | {game['date']}
+Score: {game['vc_score']}-{game['opp_score']}
 
-Team Stats:
-- FG: {game['team_stats']['fg']}-{game['team_stats']['fga']} ({game['team_stats']['fg']/game['team_stats']['fga']*100:.1f}%)
-- 3P: {game['team_stats']['fg3']}-{game['team_stats']['fg3a']}
-- Rebounds: {game['team_stats']['reb']}
-- Assists: {game['team_stats']['asst']}
-- Turnovers: {game['team_stats']['to']}
+Team Line:
+FG {game['team_stats']['fg']}/{game['team_stats']['fga']} ({fg_pct_game:.1f}%)
+3PT {game['team_stats']['fg3']}/{game['team_stats']['fg3a']}
+FT {game['team_stats']['ft']}/{game['team_stats']['fta']}
+REB {game['team_stats']['reb']}
+AST {game['team_stats']['asst']}
+TO {game['team_stats']['to']}
 
-Provide:
-1. Game summary and key moments
-2. What went well
-3. What needs improvement
-4. Individual player performances (top performers)
-5. Coaching adjustments for next game"""
+REQUIRED OUTPUT:
+- SHOOTING DEVIATION vs season
+- POSSESSION CONTROL (TO, REB)
+- SCORING CONCENTRATION
+- FAILURE OR SUCCESS DRIVER"""
         
-        system_prompt = f"""You are an expert basketball coach analyzing game performance.
-{stats_context}"""
+        system_prompt = f"""Diagnose what failed or succeeded in this game using measurable deltas only. TEAM DATA: {stats_context}"""
         
         analysis = call_openai_api(system_prompt, prompt, max_tokens=1000)
         
@@ -396,18 +524,50 @@ def ai_team_summary():
         
         stats_context = get_stats_context()
         
-        prompt = """Provide a comprehensive team analysis including:
-1. Season performance summary
-2. Team strengths
-3. Areas needing improvement
-4. Key players and their roles
-5. Trends and patterns (winning/losing patterns, momentum)
-6. Coaching recommendations for rest of season
-7. Potential for playoffs/championship run
-8. Individual player development focus areas"""
+        prompt = """Diagnose season performance using box score data only.
+
+STRICT RULES:
+- Every stat must answer: "What does this enable?" or "What breaks without it?"
+- Zero speculation (banned: likely, implied, resilience, chemistry, mental, psychological, effort)
+- Zero hedging (banned: might, may, depending on, could be)
+- No evolution/development claims without time-series proof
+- If data is insufficient, state "INSUFFICIENT DATA — {reason}"
+
+REQUIRED OUTPUT FORMAT (bullet points only, max 15 bullets total):
+
+1. STAT → OUTCOME CONNECTIONS (5-6 bullets)
+   Format: "{Stat} = {Measured Value} → Enables {specific capability} OR Limits {specific risk}"
+   Example: "47% FG = Scores 1.0 pts/possession → Sustains scoring without elite 3PT volume"
+   Example: "18.4 APG with 47% FG → 78% of FGs are assisted → Team cannot score in isolation"
+
+2. FAILURE CONDITIONS (exactly 3 bullets)
+   Format: "IF {metric} {operator} {threshold} THEN {consequence} (Record: {W-L})"
+   Example: "IF TO > 15 THEN cannot maintain leads (Team is 1-3 in games with 15+ TO)"
+   Use actual game data to prove thresholds.
+
+3. DEPENDENCY STATEMENT (exactly 1 bullet)
+   Choose ONE: "Team wins via {X} rather than {Y}"
+   Examples:
+   - "Team wins via FG efficiency (47%) rather than 3PT volume (32%)"
+   - "Team wins via ball movement (18.4 APG) rather than isolation scoring"
+
+4. FAILURE MODES (exactly 2 bullets)
+   Format: "IF {metric drops/rises to X} THEN {specific breakdown} BECAUSE {measurable reason}"
+   Example: "IF FG% drops below 42% THEN scoring falls under 70 PPG BECAUSE 3PT% (32%) cannot compensate"
+
+5. TACTICAL ADJUSTMENTS (exactly 2 bullets, ranked by impact)
+   Format: "{Action} → {Expected change in metric} → {Expected win impact}"
+   Example: "Reduce TO from 13.8 to 11 → +2 possessions/game → +4-6 pts → Flips 2 close losses"
+   Must be provable from existing data patterns.
+
+ABSOLUTE PROHIBITIONS:
+✗ Do NOT infer defensive ability beyond STL/BLK
+✗ Do NOT claim improvement/development without comparing early vs late season splits
+✗ Do NOT mention pace, tempo, or per-possession stats unless you calculate them
+✗ Do NOT say "strong," "good," "concern," or "impressive" without a comparison
+✗ Do NOT create sections not listed above"""
         
-        system_prompt = f"""You are an elite basketball coach providing strategic analysis.
-{stats_context}"""
+        system_prompt = f"""You are a mechanical data translator. Convert stats into cause-effect statements. No speculation. No adjectives without benchmarks. TEAM DATA: {stats_context}"""
         
         summary = call_openai_api(system_prompt, prompt, max_tokens=2000)
         
@@ -444,8 +604,11 @@ def get_season_analysis():
             team_stats = game['team_stats']
             fg_pct = (team_stats['fg']/team_stats['fga']*100) if team_stats['fga'] > 0 else 0
             
-            # Get top performers and their stats
-            player_stats_game = game['player_stats']
+            # Exclude specified players from analysis
+            excluded_players = {'Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter'}
+            
+            # Get top performers and their stats (excluding specified players)
+            player_stats_game = [p for p in game['player_stats'] if p['name'] not in excluded_players]
             player_stats_game = sorted(player_stats_game, key=lambda x: x['pts'], reverse=True)
             
             # Top 3 performers
@@ -529,17 +692,12 @@ UNDERPERFORMERS:
                 game_prompt += f"- {under['name']}: {under['pts']}pts (Season Avg: {under['season_ppg']:.1f}ppg) - {under['diff']:+.1f}pts vs avg\n"
             
             game_prompt += f"""
-ANALYSIS REQUIRED:
-1. TOP PERFORMERS - Why did they excel? What worked in their game?
-2. UNDERPERFORMERS - Why the struggles? Defensive pressure? Off night?
-3. SHOOTING EFFICIENCY - How did we shoot compared to season average? Cold/hot streaks evident?
-4. KEY TURNING POINTS - What moments changed the game? When did momentum shift?
-5. WHAT WORKED - Specific plays, strategies, lineups that were effective
-6. WHAT NEEDS IMPROVEMENT - Defensive gaps, offensive struggles, turnover issues
-7. COACHING ADJUSTMENTS - Specific drills, strategies, lineup changes for next game
-8. PLAYER COMPARISONS - Who exceeded expectations? Who underperformed? Track patterns."""
+REQUIRED OUTPUT:
+- PRIMARY GAME DRIVER
+- SECONDARY DRIVER
+- RISK EXPOSED"""
             
-            system_prompt = f"You are an elite basketball coach providing ultra-detailed game analysis. Be specific about player performances, shooting efficiency, and actionable coaching recommendations."
+            system_prompt = "Generate compact, UI-safe game diagnostics using measurable deltas only."
             
             try:
                 analysis_text = call_openai_api(system_prompt, game_prompt, max_tokens=800)
@@ -611,4 +769,6 @@ def clear_analysis():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV', 'production') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug)

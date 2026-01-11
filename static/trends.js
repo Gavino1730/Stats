@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load data in parallel for faster page interaction
     await Promise.all([
         loadPlayers(),
-        loadTeamTrends()
+        loadTeamTrends(),
+        loadVolatilityStats()
     ]);
     setupTabs();
     setupPlayerSelector();
@@ -19,6 +20,19 @@ async function loadPlayers() {
         allPlayers = await response.json();
     } catch (error) {
         console.error('Error loading players:', error);
+    }
+}
+
+async function loadVolatilityStats() {
+    try {
+        const response = await fetch('/api/advanced/volatility');
+        const data = await response.json();
+        
+        document.getElementById('ppg-range').textContent = data.team_volatility.ppg_range;
+        document.getElementById('fg-std').textContent = data.team_volatility.fg_pct_std_dev.toFixed(1) + '%';
+        document.getElementById('to-std').textContent = data.team_volatility.to_std_dev.toFixed(1);
+    } catch (error) {
+        console.error('Error loading volatility stats:', error);
     }
 }
 

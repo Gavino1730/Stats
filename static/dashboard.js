@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load critical data in parallel
     await Promise.all([
         loadSeasonStats(),
-        loadLeaderboards()
+        loadLeaderboards(),
+        loadAdvancedStats(),
+        loadInsights()
     ]);
     
     // Load charts after critical data is ready (don't block)
@@ -23,9 +25,39 @@ async function loadSeasonStats() {
         document.getElementById('fg-pct').textContent = stats.fg_pct.toFixed(1) + '%';
         document.getElementById('rpg').textContent = stats.rpg.toFixed(1);
         document.getElementById('apg').textContent = stats.apg.toFixed(1);
-        document.getElementById('three-pct').textContent = stats.fg3_pct.toFixed(1) + '%';
     } catch (error) {
         console.error('Error loading season stats:', error);
+    }
+}
+
+async function loadAdvancedStats() {
+    try {
+        const response = await fetch('/api/advanced/team');
+        const stats = await response.json();
+        
+        // Update advanced efficiency metrics
+        document.getElementById('efg-pct').textContent = stats.scoring_efficiency.efg_pct.toFixed(1) + '%';
+        document.getElementById('ts-pct').textContent = stats.scoring_efficiency.ts_pct.toFixed(1) + '%';
+        document.getElementById('ppp').textContent = stats.scoring_efficiency.ppp.toFixed(2);
+        document.getElementById('ast-rate').textContent = stats.ball_movement.assisted_scoring_rate.toFixed(1) + '%';
+    } catch (error) {
+        console.error('Error loading advanced stats:', error);
+    }
+}
+
+async function loadInsights() {
+    try {
+        const response = await fetch('/api/advanced/insights');
+        const data = await response.json();
+        
+        const insightsHtml = data.insights.map(insight => 
+            `<div class="insight-item">• ${insight}</div>`
+        ).join('');
+        
+        document.getElementById('auto-insights').innerHTML = insightsHtml || '<p>No insights available</p>';
+    } catch (error) {
+        console.error('Error loading insights:', error);
+        document.getElementById('auto-insights').innerHTML = '<p>Unable to load insights</p>';
     }
 }
 

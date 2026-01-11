@@ -84,8 +84,13 @@ function sortPlayers() {
 
 async function showPlayerDetail(playerName) {
     try {
-        const response = await fetch(`/api/player/${playerName}`);
-        const data = await response.json();
+        const [playerResponse, advancedResponse] = await Promise.all([
+            fetch(`/api/player/${playerName}`),
+            fetch(`/api/advanced/player/${playerName}`)
+        ]);
+        
+        const data = await playerResponse.json();
+        const advancedData = advancedResponse.ok ? await advancedResponse.json() : null;
         
         // Build roster info section if available
         let rosterHtml = '';
@@ -106,6 +111,44 @@ async function showPlayerDetail(playerName) {
             `;
         }
         
+        // Build advanced stats section if available
+        let advancedHtml = '';
+        if (advancedData) {
+            advancedHtml = `
+                <div style="margin: 1.5rem 0; padding: 1rem; background: var(--light-bg); border-radius: 6px; border: 1px solid var(--border);">
+                    <h3 style="margin: 0 0 1rem 0; font-size: 0.9rem; text-transform: uppercase; color: var(--text-light);">Advanced Stats</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;">
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">eFG%</div>
+                            <div style="font-weight: 700;">${advancedData.scoring_efficiency.efg_pct.toFixed(1)}%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">TS%</div>
+                            <div style="font-weight: 700;">${advancedData.scoring_efficiency.ts_pct.toFixed(1)}%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">Usage %</div>
+                            <div style="font-weight: 700;">${advancedData.usage_role.usage_proxy.toFixed(1)}%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">Scoring Share</div>
+                            <div style="font-weight: 700;">${advancedData.usage_role.scoring_share.toFixed(1)}%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">AST/TO</div>
+                            <div style="font-weight: 700;">${advancedData.ball_handling.ast_to_ratio.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: var(--text-light);">Role</div>
+                            <div style="font-weight: 700; font-size: 0.75rem;">
+                                ${advancedData.usage_role.primary_scorer ? 'Primary' : advancedData.usage_role.secondary_scorer ? 'Secondary' : 'Role Player'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
         const detailHtml = `
             <div class="player-detail-header">
                 <div class="player-detail-info">
@@ -115,6 +158,7 @@ async function showPlayerDetail(playerName) {
             </div>
 
             ${rosterHtml}
+            ${advancedHtml}
 
             <div class="player-detail-stats">
                 <div class="detail-stat">
