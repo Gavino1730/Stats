@@ -21,6 +21,7 @@ OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 # Analysis cache file
 ANALYSIS_CACHE_FILE = 'season_analysis.json'
+PLAYER_ANALYSIS_CACHE_FILE = 'player_analysis_cache.json'
 
 # Load stats data
 STATS_FILE = 'vc_stats_output.json'
@@ -446,7 +447,7 @@ def ai_player_insights(player_name):
         if player_name not in stats_data['season_player_stats']:
             return jsonify({'error': 'Player not found'}), 404
         
-        if not client.api_key:
+        if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
         excluded_players = ['Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter']
@@ -497,7 +498,7 @@ def ai_game_analysis(game_id):
         if not game:
             return jsonify({'error': 'Game not found'}), 404
         
-        if not client.api_key:
+        if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
         stats_context = get_stats_context()
@@ -543,7 +544,7 @@ def ai_team_summary():
             with open(TEAM_SUMMARY_CACHE) as f:
                 return jsonify(json.load(f))
         
-        if not client.api_key:
+        if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
         stats_context = get_stats_context()
@@ -638,13 +639,13 @@ def get_season_analysis():
             # Exclude specified players from analysis
             excluded_players = {'Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter'}
             
-            # Get top performers and their stats (excluding specified players)
+            # Get all player performances (excluding specified players)
             player_stats_game = [p for p in game['player_stats'] if p['name'] not in excluded_players]
             player_stats_game = sorted(player_stats_game, key=lambda x: x['pts'], reverse=True)
             
-            # Top 3 performers
-            top_performers = []
-            for j, player in enumerate(player_stats_game[:3]):
+            # All player performances with performance indicators
+            player_performances = []
+            for j, player in enumerate(player_stats_game):
                 fg_pct_p = float(player['fg_pct'].rstrip('%')) if '%' in player['fg_pct'] else 0
                 fg3_pct_p = float(player['fg3_pct'].rstrip('%')) if '%' in player['fg3_pct'] else 0
                 ft_pct_p = float(player['ft_pct'].rstrip('%')) if '%' in player['ft_pct'] else 0
@@ -653,9 +654,19 @@ def get_season_analysis():
                 season_ppg = season_avg.get('ppg', 0)
                 
                 perf_vs_avg = player['pts'] - season_ppg
-                status = "Above Average" if perf_vs_avg > 0 else "Below Average"
                 
-                top_performers.append({
+                # Performance indicator: ↑ above, → at, ↓ below average
+                if perf_vs_avg > 1:
+                    indicator = "↑"
+                    status = "Above Avg"
+                elif perf_vs_avg < -1:
+                    indicator = "↓"
+                    status = "Below Avg"
+                else:
+                    indicator = "→"
+                    status = "At Avg"
+                
+                player_performances.append({
                     'rank': j+1,
                     'name': player['name'],
                     'pts': player['pts'],
@@ -669,21 +680,9 @@ def get_season_analysis():
                     'asst': player['asst'],
                     'season_ppg': season_ppg,
                     'diff': perf_vs_avg,
+                    'indicator': indicator,
                     'status': status
                 })
-            
-            # Underperformers (players with low points)
-            underperformers = []
-            for player in player_stats_game[-3:]:
-                if player['pts'] > 0:
-                    season_avg = player_season_stats.get(player['name'], {})
-                    season_ppg = season_avg.get('ppg', 0)
-                    underperformers.append({
-                        'name': player['name'],
-                        'pts': player['pts'],
-                        'season_ppg': season_ppg,
-                        'diff': player['pts'] - season_ppg
-                    })
             
             # Shooting analysis
             team_2pt_made = team_stats['fg'] - team_stats['fg3']
@@ -711,16 +710,10 @@ TEAM SHOOTING EFFICIENCY:
 TEAM STATS:
 - Rebounds: {team_stats['reb']} | Assists: {team_stats['asst']} | Turnovers: {team_stats['to']} | Steals: {team_stats['stl']} | Blocks: {team_stats['blk']}
 
-TOP PERFORMERS:
+PLAYER PERFORMANCES (ranked by points):
 """
-            for perf in top_performers:
-                game_prompt += f"- {perf['rank']}. {perf['name']}: {perf['pts']}pts ({perf['fg_pct']:.0f}% FG, {perf['fg3_pct']:.0f}% 3P, {perf['ft_pct']:.0f}% FT) | {perf['reb']}reb {perf['asst']}ast | Season Avg: {perf['season_ppg']:.1f}ppg | {perf['status']} by {abs(perf['diff']):.1f}pts\n"
-            
-            game_prompt += f"""
-UNDERPERFORMERS:
-"""
-            for under in underperformers:
-                game_prompt += f"- {under['name']}: {under['pts']}pts (Season Avg: {under['season_ppg']:.1f}ppg) - {under['diff']:+.1f}pts vs avg\n"
+            for perf in player_performances:
+                game_prompt += f"{perf['indicator']} {perf['rank']}. {perf['name']}: {perf['pts']}pts ({perf['fg_pct']:.0f}% FG, {perf['fg3_pct']:.0f}% 3P, {perf['ft_pct']:.0f}% FT) | {perf['reb']}reb {perf['asst']}ast | Season Avg: {perf['season_ppg']:.1f}ppg ({perf['diff']:+.1f}pts vs avg)\n"
             
             game_prompt += f"""
 REQUIRED OUTPUT:
@@ -743,8 +736,7 @@ REQUIRED OUTPUT:
                         '3pt': f"{team_stats['fg3']}/{team_stats['fg3a']} ({team_3pt_pct:.1f}%)",
                         'ft': f"{team_stats['ft']}/{team_stats['fta']} ({team_ft_pct:.1f}%)"
                     },
-                    'top_performers': top_performers,
-                    'underperformers': underperformers,
+                    'player_performances': player_performances,
                     'analysis': analysis_text
                 })
             except Exception as e:
@@ -796,6 +788,201 @@ def clear_analysis():
         if os.path.exists(ANALYSIS_CACHE_FILE):
             os.remove(ANALYSIS_CACHE_FILE)
         return jsonify({'message': 'Analysis cache cleared'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==============================================================================
+# PLAYER AI ANALYSIS ENDPOINTS
+# ==============================================================================
+
+def load_player_analysis_cache():
+    """Load cached player analysis from file"""
+    if os.path.exists(PLAYER_ANALYSIS_CACHE_FILE):
+        try:
+            with open(PLAYER_ANALYSIS_CACHE_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_player_analysis_cache(cache_data):
+    """Save player analysis cache to file"""
+    try:
+        with open(PLAYER_ANALYSIS_CACHE_FILE, 'w') as f:
+            json.dump(cache_data, f, indent=2)
+    except Exception as e:
+        print(f"Error saving player analysis cache: {e}")
+
+@app.route('/api/ai/player-analysis/<player_name>', methods=['GET'])
+def get_player_analysis(player_name):
+    """Get comprehensive AI analysis for a specific player with caching"""
+    try:
+        if player_name not in stats_data['season_player_stats']:
+            return jsonify({'error': 'Player not found'}), 404
+        
+        if not OPENAI_API_KEY:
+            return jsonify({'error': 'OpenAI API key not configured'}), 500
+        
+        # Check if force regeneration is requested
+        force_regenerate = request.args.get('regenerate', 'false').lower() == 'true'
+        
+        # Load cache
+        cache = load_player_analysis_cache()
+        
+        # Check if cached analysis exists and is not being regenerated
+        if not force_regenerate and player_name in cache:
+            cached_data = cache[player_name]
+            cached_data['cached'] = True
+            return jsonify(cached_data)
+        
+        # Generate new analysis
+        player_stats = stats_data['season_player_stats'][player_name]
+        game_logs = stats_data.get('player_game_logs', {}).get(player_name, [])
+        
+        # Get advanced stats if available
+        advanced_stats = advanced_calc.calculate_player_advanced_stats(player_name)
+        
+        # Build comprehensive player context
+        player_context = f"""
+PLAYER: {player_name}
+
+SEASON STATISTICS ({player_stats['games']} Games):
+- Points Per Game: {player_stats['ppg']:.1f}
+- Rebounds Per Game: {player_stats['rpg']:.1f}
+- Assists Per Game: {player_stats['apg']:.1f}
+- Field Goal %: {player_stats['fg_pct']:.1f}% ({player_stats['fg']}/{player_stats['fga']})
+- 3-Point %: {player_stats['fg3_pct']:.1f}% ({player_stats['fg3']}/{player_stats['fg3a']})
+- Free Throw %: {player_stats['ft_pct']:.1f}% ({player_stats['ft']}/{player_stats['fta']})
+- Steals Per Game: {player_stats.get('stl', 0) / player_stats['games']:.1f}
+- Blocks Per Game: {player_stats.get('blk', 0) / player_stats['games']:.1f}
+- Turnovers Per Game: {player_stats.get('to', 0) / player_stats['games']:.1f}
+"""
+        
+        if advanced_stats:
+            player_context += f"""
+
+ADVANCED METRICS:
+- Effective FG%: {advanced_stats['scoring_efficiency']['efg_pct']:.1f}%
+- True Shooting %: {advanced_stats['scoring_efficiency']['ts_pct']:.1f}%
+- Points Per Shot: {advanced_stats['scoring_efficiency']['pts_per_shot']:.2f}
+- Usage Rate Proxy: {advanced_stats['usage_role']['usage_proxy']:.1f}%
+- Scoring Share: {advanced_stats['usage_role']['scoring_share']:.1f}%
+- Assist/Turnover Ratio: {advanced_stats['ball_handling']['ast_to_ratio']:.2f}
+"""
+        
+        # Add game-by-game performance variance
+        if game_logs:
+            game_logs_sorted = sorted(game_logs, key=lambda x: x['gameId'])
+            pts_list = [g['stats']['pts'] for g in game_logs_sorted]
+            fg_pct_list = [(g['stats']['fg_made']/g['stats']['fg_att']*100) if g['stats']['fg_att'] > 0 else 0 for g in game_logs_sorted]
+            
+            if len(pts_list) > 1:
+                pts_variance = sum((x - player_stats['ppg'])**2 for x in pts_list) / len(pts_list)
+                pts_std = pts_variance ** 0.5
+                player_context += f"""
+
+PERFORMANCE CONSISTENCY:
+- Point Standard Deviation: {pts_std:.1f} (Variance: {pts_variance:.1f})
+- Highest Scoring Game: {max(pts_list)} pts
+- Lowest Scoring Game: {min(pts_list)} pts
+- Average FG% Range: {min(fg_pct_list):.1f}% to {max(fg_pct_list):.1f}%
+"""
+            
+            # Recent trend (last 3 games)
+            if len(game_logs_sorted) >= 3:
+                recent_games = game_logs_sorted[-3:]
+                recent_avg_pts = sum(g['stats']['pts'] for g in recent_games) / 3
+                player_context += f"""
+
+RECENT TREND (Last 3 Games):
+- Recent PPG: {recent_avg_pts:.1f} vs Season Avg: {player_stats['ppg']:.1f} ({recent_avg_pts - player_stats['ppg']:+.1f})
+"""
+        
+        # Create analysis prompt
+        analysis_prompt = f"""{player_context}
+
+PERFORM COMPREHENSIVE PLAYER ANALYSIS:
+
+1. PERFORMANCE PROFILE
+   - Overall season performance assessment
+   - Statistical strengths (specific numbers)
+   - Key weaknesses and limitations (with data)
+
+2. SCORING ANALYSIS
+   - Shot selection efficiency by type (2PT, 3PT, FT)
+   - Scoring consistency and reliability
+   - Volume vs efficiency balance
+
+3. ROLE & IMPACT
+   - Primary role on team (based on usage and stats)
+   - Impact on team success (quantitative assessment)
+   - Optimal usage patterns
+
+4. CONSISTENCY & TRENDS
+   - Game-to-game variance analysis
+   - Recent performance trends
+   - Reliability factors
+
+5. DEVELOPMENT AREAS
+   - Specific statistical improvements needed
+   - Skills requiring attention (data-driven)
+   - Tactical adjustments for optimization
+
+6. KEY INSIGHTS
+   - 3-5 data-driven observations
+   - Performance patterns
+   - Strategic recommendations
+
+REQUIREMENTS:
+- Use specific numbers and percentages
+- Compare to season averages where relevant
+- Be objective and analytical
+- Focus on measurable metrics
+- Provide actionable insights"""
+        
+        system_prompt = """You are an expert basketball analyst providing comprehensive, data-driven player analysis. 
+Use specific statistics and metrics to support every observation. Be thorough but concise. 
+Focus on measurable performance indicators and tactical insights. Format your response in clear sections with bullet points."""
+        
+        # Generate analysis
+        analysis = call_openai_api(system_prompt, analysis_prompt, max_tokens=2000, temperature=0.7)
+        
+        # Prepare response
+        response_data = {
+            'player': player_name,
+            'analysis': analysis,
+            'generated_at': datetime.now().isoformat(),
+            'stats_summary': {
+                'games': player_stats['games'],
+                'ppg': round(player_stats['ppg'], 1),
+                'rpg': round(player_stats['rpg'], 1),
+                'apg': round(player_stats['apg'], 1),
+                'fg_pct': round(player_stats['fg_pct'], 1),
+                'fg3_pct': round(player_stats['fg3_pct'], 1),
+                'ft_pct': round(player_stats['ft_pct'], 1)
+            },
+            'cached': False
+        }
+        
+        # Cache the result
+        cache[player_name] = response_data
+        save_player_analysis_cache(cache)
+        
+        return jsonify(response_data)
+    
+    except Exception as e:
+        return jsonify({'error': f'Failed to generate player analysis: {str(e)}'}), 500
+
+@app.route('/api/ai/player-analysis/<player_name>', methods=['DELETE'])
+def clear_player_analysis(player_name):
+    """Clear cached analysis for a specific player"""
+    try:
+        cache = load_player_analysis_cache()
+        if player_name in cache:
+            del cache[player_name]
+            save_player_analysis_cache(cache)
+            return jsonify({'message': f'Analysis cache cleared for {player_name}'})
+        return jsonify({'message': 'No cached analysis found'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

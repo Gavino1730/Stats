@@ -84,13 +84,15 @@ function sortPlayers() {
 
 async function showPlayerDetail(playerName) {
     try {
-        const [playerResponse, advancedResponse] = await Promise.all([
+        const [playerResponse, advancedResponse, aiAnalysisResponse] = await Promise.all([
             fetch(`/api/player/${playerName}`),
-            fetch(`/api/advanced/player/${playerName}`)
+            fetch(`/api/advanced/player/${playerName}`),
+            fetch(`/api/ai/player-analysis/${playerName}`)
         ]);
         
         const data = await playerResponse.json();
         const advancedData = advancedResponse.ok ? await advancedResponse.json() : null;
+        const aiAnalysis = aiAnalysisResponse.ok ? await aiAnalysisResponse.json() : null;
         
         // Build roster info section if available
         let rosterHtml = '';
@@ -155,9 +157,9 @@ async function showPlayerDetail(playerName) {
                         </div>
                     </div>
                     
-                    <!-- Usage & Role -->
+                    <!-- Usage -->
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; border-left: 3px solid #4169E1;">
-                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Usage & Role</h4>
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Usage</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Usage %</div>
@@ -170,12 +172,6 @@ async function showPlayerDetail(playerName) {
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Shot Volume %</div>
                                 <div style="font-weight: 700; font-size: 1.1rem;">${usage.shot_volume_share.toFixed(1)}%</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Role</div>
-                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">
-                                    ${usage.primary_scorer ? 'PRIMARY' : usage.secondary_scorer ? 'SECONDARY' : 'ROLE PLAYER'}
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -333,6 +329,32 @@ async function showPlayerDetail(playerName) {
             </div>
 
             ${advancedHtml}
+            
+            <!-- AI Analysis Section -->
+            ${aiAnalysis ? `
+                <div style="margin: 1.5rem 0; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.5rem;">🤖</span>
+                            <span>AI Performance Analysis</span>
+                        </h3>
+                        <button 
+                            id="regeneratePlayerAnalysis" 
+                            data-player="${playerName}"
+                            style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+                            onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            🔄 Regenerate
+                        </button>
+                    </div>
+                    <div style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 1rem;">
+                        ${aiAnalysis.cached ? '📦 Cached' : '✨ Freshly Generated'} • ${new Date(aiAnalysis.generated_at).toLocaleString()}
+                    </div>
+                    <div id="aiAnalysisContent" style="background: rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 6px; backdrop-filter: blur(10px); line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem;">
+${aiAnalysis.analysis}
+                    </div>
+                </div>
+            ` : ''}
 
             <h3 style="margin-top: 2rem; color: var(--primary); margin-bottom: 1rem;">Game-by-Game Performance</h3>
             <table class="box-score-table">
@@ -399,8 +421,62 @@ async function showPlayerDetail(playerName) {
         
         document.getElementById('playerDetail').innerHTML = detailHtml;
         playerModal.classList.add('show');
+        
+        // Setup regenerate button if AI analysis exists
+        if (aiAnalysis) {
+            setupRegenerateButton();
+        }
     } catch (error) {
         console.error('Error loading player detail:', error);
+    }
+}
+
+function setupRegenerateButton() {
+    const regenerateBtn = document.getElementById('regeneratePlayerAnalysis');
+    if (regenerateBtn) {
+        regenerateBtn.addEventListener('click', async function() {
+            const playerName = this.getAttribute('data-player');
+            const contentDiv = document.getElementById('aiAnalysisContent');
+            const originalText = contentDiv.textContent;
+            
+            try {
+                // Show loading state
+                this.disabled = true;
+                this.innerHTML = '⏳ Regenerating...';
+                contentDiv.textContent = 'Generating fresh analysis... This may take 10-20 seconds.';
+                
+                // Force regenerate by adding query parameter
+                const response = await fetch(`/api/ai/player-analysis/${playerName}?regenerate=true`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to regenerate analysis');
+                }
+                
+                const data = await response.json();
+                
+                // Update content
+                contentDiv.textContent = data.analysis;
+                
+                // Update timestamp
+                const timestampDiv = contentDiv.parentElement.querySelector('div[style*=\"font-size: 0.75rem\"]');
+                if (timestampDiv) {
+                    timestampDiv.textContent = `✨ Freshly Generated • ${new Date(data.generated_at).toLocaleString()}`;
+                }
+                
+                // Reset button
+                this.disabled = false;
+                this.innerHTML = '🔄 Regenerate';
+                
+            } catch (error) {
+                console.error('Error regenerating analysis:', error);
+                contentDiv.textContent = originalText;
+                this.disabled = false;
+                this.innerHTML = '❌ Failed - Try Again';
+                setTimeout(() => {
+                    this.innerHTML = '🔄 Regenerate';
+                }, 3000);
+            }
+        });
     }
 }
 
