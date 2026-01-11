@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="trends-page">
+    <h1>Trends</h1>
+    
+    <div class="trends-tabs">
+        <button class="tab-button active" data-tab="team">Team Trends</button>
+        <button class="tab-button" data-tab="player">Player Trends</button>
+    </div>
+
+    <!-- Team Trends Tab -->
+    <div id="team-tab" class="tab-content active">
+        <div class="chart-container">
+            <h2>Scoring by Game</h2>
+            <canvas id="teamScoringChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Shooting Efficiency by Game</h2>
+            <canvas id="teamShootingChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Assists vs Turnovers</h2>
+            <canvas id="teamAstChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Player Trends Tab -->
+    <div id="player-tab" class="tab-content">
+        <div class="player-selector">
+            <select id="playerSelect">
+                <option value="">Select a player...</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <h2>Points by Game</h2>
+            <canvas id="playerPtsChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Shooting Efficiency</h2>
+            <canvas id="playerShootingChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Rebounds & Assists</h2>
+            <canvas id="playerRebAstChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='trends.js') }}"></script>
+{% endblock %}

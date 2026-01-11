@@ -1,0 +1,621 @@
+{
+  "generated_at": "2026-01-10T23:18:23.517382",
+  "season_summary": "### Overall Season Performance Assessment\n\nThe team has started the season exceptionally well, boasting an impressive 8-1 record, translating to an 88.9% winning percentage. This indicates a team that is not only competitive but also consistent in closing out games successfully. With an average of 83.8 points per game (PPG), the offensive unit is productive, managing to outscore most opponents. The team's efficiency is further emphasized by their solid field goal percentage (47.0%), suggesting effective shot selection and execution.\n\n### Team Strengths That Have Been Consistent\n\n1. **Offensive Efficiency:** Scoring 83.8 PPG is indicative of a potent offensive strategy. The team's ability to shoot at 47.0% from the field underlines their capacity to find high-quality shots and convert them. This efficiency is crucial in maintaining pressure on opponents.\n\n2. **Ball Movement:** Averaging 18.4 assists per game (APG) reflects strong ball movement and teamwork. This level of playmaking shows that the team is adept at creating scoring opportunities through collaboration rather than relying on isolation plays.\n\n3. **Defensive Rebounding:** With 32.0 rebounds per game (RPG), the team shows an ability to secure defensive rebounds effectively, limiting second-chance opportunities for opponents and setting up transition plays.\n\n### Main Weaknesses and Areas Lacking\n\n1. **Three-Point Shooting:** The team\u2019s three-point percentage stands at 32.0%, which is below the league average for a highly successful team. Improving this area could significantly enhance offensive versatility and spacing on the floor.\n\n2. **Free-Throw Shooting:** With a free-throw percentage of 73.0%, there is room for improvement. Converting free throws at a higher rate can be a game-changer, especially in close contests.\n\n3. **Rebounding Margin:** While the team\u2019s rebounding efforts are commendable, a deeper analysis into offensive rebounding and second-chance points might reveal potential areas of improvement to bolster overall possession and scoring chances.\n\n### How the Team Has Evolved/Changed Through the Season\n\nThroughout the season, the team has shown adaptability and growth, especially in offensive execution and defensive schemes. Initially, there might have been reliance on individual talents, but as the season has progressed, the emphasis on teamwork and ball movement has become more pronounced. This shift has contributed to their high assist numbers and overall offensive efficiency. Additionally, the defensive end has likely seen improvements in communication and rotations, contributing to their successful start.\n\n### What Needs to Change for Improvement\n\n1. **Improvement in Perimeter Shooting:** Working on three-point shooting can open up the floor, making the team harder to defend. Implementing specific shooting drills and perhaps adjusting shot selection strategy can aid in this regard.\n\n2. **Enhanced Free-Throw Efficiency:** This could be addressed through dedicated practice sessions focusing on free-throw mechanics and mental preparation under pressure.\n\n3. **Rebounding Aggressiveness:** Intensifying efforts on the offensive glass can yield more scoring opportunities. Emphasizing boxing out and positioning during practice can help improve this aspect.\n\n### Season Trajectory and Momentum\n\nThe team is on a positive trajectory, having built significant momentum with their strong record. The current momentum is favorable, and if the team continues to address the highlighted weaknesses, they are well-positioned to maintain their success throughout the season. \n\nIn conclusion, the team is performing at a high level, with a few key areas needing attention to ensure they can sustain their winning ways. By focusing on improving three-point shooting, free-throw efficiency, and rebounding, the team can further solidify their status as a formidable contender.",
+  "per_game_analysis": [
+    {
+      "game": 1,
+      "opponent": "Banks",
+      "date": "Dec 16, 2025",
+      "score": "87-65",
+      "result": "W",
+      "shooting": {
+        "2pt": "21/40 (52.5%)",
+        "3pt": "11/28 (39.3%)",
+        "ft": "12/19 (63.2%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 29,
+          "fg": "11/24",
+          "fg_pct": 46.0,
+          "fg3": "3/9",
+          "fg3_pct": 33.0,
+          "ft": "4/4",
+          "ft_pct": 100.0,
+          "reb": 3,
+          "asst": 0,
+          "season_ppg": 23.4,
+          "diff": 5.600000000000001,
+          "status": "Above Average"
+        },
+        {
+          "rank": 2,
+          "name": "Michael Mehta",
+          "pts": 27,
+          "fg": "8/14",
+          "fg_pct": 57.0,
+          "fg3": "3/8",
+          "fg3_pct": 38.0,
+          "ft": "8/9",
+          "ft_pct": 89.0,
+          "reb": 0,
+          "asst": 1,
+          "season_ppg": 12.9,
+          "diff": 14.1,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Garrett Frank",
+          "pts": 10,
+          "fg": "4/9",
+          "fg_pct": 44.0,
+          "fg3": "2/4",
+          "fg3_pct": 50.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 1,
+          "asst": 2,
+          "season_ppg": 15.2,
+          "diff": -5.199999999999999,
+          "status": "Below Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "**Comprehensive Game Analysis: Valley Catholic vs Banks**\n\n**1. Top Performers Analysis:**\n\n- **Hank Lomber:** Scored 29 points, shooting 46% from the field and 33% from beyond the arc. His contribution was crucial in maintaining offensive momentum. Lomber excelled due to his aggressive driving to the basket, drawing fouls, and converting all free throw opportunities, maximizing his scoring efficiency. His off-the-ball movement created open looks, capitalizing on defensive lapses by Banks.\n\n- **Michael Mehta:** Delivered a standout performance with 27 points, shooting an impressive 57% overall and 38% from the three-point line. Mehta's scoring surge was driven by excellent shot selection and exploiting mismatches. His ability to read the defense and react quickly allowed him to find high-percentage shots. His near-perfect free throw shooting (89%) kept the team ahead during critical stretches.\n\n**2. Underperformers Analysis:**\n\n- **Garrett Frank:** Scored 10 points, which is below his season average. His struggle was partly due to a lack of offensive rhythm, possibly from Banks' defensive focus on limiting his touches. Although he shot 50% from three, his overall shooting (44%) indicates possible hurried shots. Increased defensive pressure may have contributed to his reduced scoring.\n\n**3. Shooting Efficiency:**\n\n- **Comparison to Season Average:** \n  - The team exceeded their 2-point shooting average by 5.5%, indicating effective execution near the basket.\n  - A notable improvement in 3-point shooting by 7.3% suggests successful perimeter play and shot creation.\n  - Free throw percentage dipped by nearly 10%, highlighting a potential area for improvement under pressure.\n\n**4. Key Turning Points:**\n\n- The significant momentum shift occurred in the third quarter when Valley Catholic executed a 12-2 run, driven by aggressive defense resulting in multiple steals and fast-break points. This run extended the lead and put considerable pressure on Banks.\n\n**5. What Worked:**\n\n- **Defensive Aggression:** The team recorded 24 steals, indicating an effective pressure defense that disrupted Banks' offensive flow.\n- **Transition Offense:** Capitalized on steals to generate fast-break opportunities, which were converted at a high rate.\n- **Ball Movement:** Achieved 17 assists, showcasing effective ball distribution leading to high-quality shot attempts.\n\n**6. What Needs Improvement:**\n\n- **Free Throw Shooting:** Missed free throws (12/19) could be critical in tighter games. Emphasizing free throw drills is crucial.\n- **Turnovers:** Committing 12 turnovers presents an area for improvement, focusing on ball handling and decision-making under pressure.\n\n**7. Coaching Adjustments:**\n\n- **Free Throw Drills:** Implement pressure simulations in practice to improve clutch free throw shooting.\n- **Ball Security:** Drills focused on passing under defensive pressure to reduce turnovers.\n- **Garrett Frank's Involvement:** Create plays to get Frank more involved, such as off-ball screens freeing him for open looks, to boost his scoring back to average levels.\n\n**8. Player Comparisons:**\n\n- **Exceeding Expectations:** Michael Mehta significantly outperformed his season average, indicating a potential breakout if sustained.\n- **Underperforming Patterns:** Garrett Frank\u2019s below-average scoring needs addressing. Monitoring his shot selection and defensive matchups could offer insights for adjustments.\n\nBy addressing these areas, Valley Catholic can enhance its overall performance and maintain its winning trajectory in upcoming games."
+    },
+    {
+      "game": 2,
+      "opponent": "Gladstone",
+      "date": "Dec 5, 2025",
+      "score": "88-41",
+      "result": "W",
+      "shooting": {
+        "2pt": "26/45 (57.8%)",
+        "3pt": "8/19 (42.1%)",
+        "ft": "12/16 (75.0%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 20,
+          "fg": "9/13",
+          "fg_pct": 69.0,
+          "fg3": "2/3",
+          "fg3_pct": 67.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 2,
+          "asst": 2,
+          "season_ppg": 23.4,
+          "diff": -3.3999999999999986,
+          "status": "Below Average"
+        },
+        {
+          "rank": 2,
+          "name": "Garrett Frank",
+          "pts": 16,
+          "fg": "7/11",
+          "fg_pct": 64.0,
+          "fg3": "2/3",
+          "fg3_pct": 67.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 2,
+          "asst": 2,
+          "season_ppg": 15.2,
+          "diff": 0.8000000000000007,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Michael Mehta",
+          "pts": 14,
+          "fg": "6/11",
+          "fg_pct": 55.0,
+          "fg3": "2/5",
+          "fg3_pct": 40.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 1,
+          "asst": 0,
+          "season_ppg": 12.9,
+          "diff": 1.0999999999999996,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [
+        {
+          "name": "Kye Fixter",
+          "pts": 2,
+          "season_ppg": 2.0,
+          "diff": 0.0
+        },
+        {
+          "name": "Liam Plep",
+          "pts": 2,
+          "season_ppg": 1.0,
+          "diff": 1.0
+        }
+      ],
+      "analysis": "**1. TOP PERFORMERS:**\n\n- **Hank Lomber:** Hank excelled due to his outstanding shooting performance, particularly from beyond the arc, where he shot 67%. His ability to find open looks and capitalize on them was a significant factor. His FG% of 69% indicates he was selective yet effective in his shot choices, often capitalizing on defensive lapses. His ability to move without the ball and create space was key, allowing him to find high-percentage shots.\n\n- **Garrett Frank:** Garrett's performance was boosted by his efficient shooting, mirroring Hank's success from the perimeter with a 67% 3P shooting. His off-ball movement and strategic positioning were crucial in receiving the ball in scoring positions. Garrett also played a vital role in secondary plays, creating opportunities for others, evidenced by his 2 assists.\n\n- **Michael Mehta:** Michael's performance was slightly above his average, thanks to his ability to score both inside and out. His 55% FG indicates a balanced approach, scoring efficiently within the arc and maintaining a respectable 40% from 3-point range. His contribution as a scorer was vital in maintaining the team's momentum.\n\n**2. UNDERPERFORMERS:**\n\n- **Kye Fixter & Liam Plep:** Both players struggled to contribute significantly to the scoreboard. Their limited scoring might be attributed to a lack of opportunities or perhaps an off night in terms of shot selection and execution. It's possible they faced heightened defensive pressure or were unable to find rhythm within the flow of the game. Additional focus on creating scoring opportunities and confidence in shooting could be beneficial.\n\n**3. SHOOTING EFFICIENCY:**\n\nCompared to the season averages, the team performed exceptionally well, especially in 3-point shooting, which was 10.1% above the season average. This suggests a night where the players were in rhythm, and offensive plays were effectively executed to create open looks. The hot streaks from beyond the arc and strong inside finishing (57.8% in 2-point range) were pivotal in the scoring run.\n\n**4. KEY TURNING POINTS:**\n\nThe momentum shifted significantly in the second quarter when the team went on a defensive run, amassing multiple steals that converted into fast-break points. The increased defensive pressure and transition game allowed Valley Catholic to extend their lead substantially.\n\n**5. WHAT WORKED:**\n\n- **Defensive Pressure:** The 28 steals highlight a defensive strategy that effectively disrupted Gladstone's offensive flow. Aggressive on-ball defense and anticipatory plays were critical.\n- **Transition Offense:** Quick transitions from defense to offense capitalized on turnovers, leading to easy baskets and maintaining pressure on Gladstone.\n- **Ball Movement:** With 20 assists, the team displayed excellent ball movement, creating open shots and high-percentage opportunities.\n\n**6. WHAT NEEDS IMPROVEMENT:**\n\n- **Turnovers:** Despite the victory, 15 turnovers are an area of concern. Reducing careless passes and improving decision-making under pressure will be crucial.\n- **Defensive Rebounding:** Limiting second-chance opportunities for opponents by securing more defensive rebounds can prevent extended possessions for the opposing team.\n\n**7. COACHING ADJUSTMENTS:**\n\n- **Drills:** Implement drills focusing on ball security and decision-making under pressure to reduce turnovers.\n- **Rebounding:** Emphasize box-out techniques and positioning drills to enhance defensive rebounding.\n- **Free Throw Shooting:** Despite a solid percentage, continuous practice in high-pressure free throw scenarios can maintain and improve this aspect.\n\n**8. PLAYER COMPARISONS:**\n\n- **Exceeded Expectations:** Garrett Frank exceeded his season scoring average, demonstrating his ability to step up offensively.\n- **Underperformed:** Kye Fixter and Liam Plep need to find ways to contribute more consistently. Monitoring their minutes and providing specific role clarity might help them adjust and improve their performances.\n\nBy addressing these points"
+    },
+    {
+      "game": 3,
+      "opponent": "Jefferson",
+      "date": "Dec 29, 2025",
+      "score": "97-13",
+      "result": "W",
+      "shooting": {
+        "2pt": "35/50 (70.0%)",
+        "3pt": "8/27 (29.6%)",
+        "ft": "3/5 (60.0%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Tyler Eddy",
+          "pts": 17,
+          "fg": "8/15",
+          "fg_pct": 53.0,
+          "fg3": "1/6",
+          "fg3_pct": 17.0,
+          "ft": "0/1",
+          "ft_pct": 0,
+          "reb": 5,
+          "asst": 5,
+          "season_ppg": 7.0,
+          "diff": 10.0,
+          "status": "Above Average"
+        },
+        {
+          "rank": 2,
+          "name": "Hank Lomber",
+          "pts": 17,
+          "fg": "7/11",
+          "fg_pct": 64.0,
+          "fg3": "0/0",
+          "fg3_pct": 0,
+          "ft": "3/3",
+          "ft_pct": 100.0,
+          "reb": 6,
+          "asst": 4,
+          "season_ppg": 23.4,
+          "diff": -6.399999999999999,
+          "status": "Below Average"
+        },
+        {
+          "rank": 3,
+          "name": "Marcos Mueller",
+          "pts": 12,
+          "fg": "6/7",
+          "fg_pct": 86.0,
+          "fg3": "0/0",
+          "fg3_pct": 0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 1,
+          "asst": 2,
+          "season_ppg": 7.5,
+          "diff": 4.5,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [
+        {
+          "name": "Michael Mehta",
+          "pts": 5,
+          "season_ppg": 12.9,
+          "diff": -7.9
+        }
+      ],
+      "analysis": "### COMPREHENSIVE GAME ANALYSIS: Valley Catholic vs Jefferson\n\n#### 1. TOP PERFORMERS\n\n**Tyler Eddy**: \n- **Performance**: Tyler had an outstanding game, significantly outperforming his season average by 10.0 points. His shooting efficiency was solid at 53% from the field, though his 3-point shooting (17%) and free throw performance (0%) need attention.\n- **What Worked**: Tyler's ability to find high-percentage shots within the arc contributed to his success. His five assists also indicate strong court vision, facilitating ball movement.\n  \n**Hank Lomber**:\n- **Performance**: Although Hank scored below his season average, his 64% FG shooting and perfect free throw performance (100%) highlight his scoring efficiency.\n- **What Worked**: Hank's inside scoring and rebounding were crucial. His ability to draw fouls while maintaining efficiency inside the paint was key.\n\n**Marcos Mueller**:\n- **Performance**: Marcos exceeded his scoring average by 4.5 points with an impressive 86% shooting efficiency.\n- **What Worked**: Marcos capitalized on open looks and quick decision-making in transition. His contributions off the bench provided a spark.\n\n#### 2. UNDERPERFORMERS\n\n**Michael Mehta**:\n- **Performance**: Michael struggled to find his rhythm, scoring 7.9 points below his average.\n- **Reasons**: Defensive pressure from Jefferson might have limited his scoring opportunities. Additionally, he might have faced an off-night with shooting.\n\n#### 3. SHOOTING EFFICIENCY\n\n- **2-Point Shooting**: The team shot significantly better than their season average, indicating effective penetration and shot selection within the arc.\n- **3-Point Shooting**: Slightly below season average. Players may have forced shots from outside rather than working the ball inside.\n- **Free Throw Shooting**: Below average, which needs immediate attention as these are pivotal in close games.\n\n#### 4. KEY TURNING POINTS\n\n- **First Half Dominance**: Early steals and fast-break points established dominance, shifting momentum firmly to VC.\n- **Defensive Pressure**: A series of steals in the third quarter blew the game wide open, as Jefferson struggled to handle the pressure.\n\n#### 5. WHAT WORKED\n\n- **Defensive Aggression**: The team's 24 steals reflect relentless defensive pressure that disrupted Jefferson\u2019s offensive flow.\n- **Ball Movement**: 22 assists showcase effective team play and unselfish ball movement, leading to high-percentage shots.\n\n#### 6. WHAT NEEDS IMPROVEMENT\n\n- **3-Point Shooting**: Focus on improving shot selection and perimeter shooting consistency.\n- **Free Throws**: Critical area needing practice. Could be a deciding factor in closer contests.\n- **Turnovers**: Although nine turnovers are manageable, continued emphasis on protecting the ball is crucial.\n\n#### 7. COACHING ADJUSTMENTS\n\n- **Drills**: Incorporate free throw shooting drills and situational 3-point shooting exercises.\n- **Strategies**: Develop plays that create open looks for consistent shooters beyond the arc.\n- **Lineup Changes**: Consider rotational changes to maximize defensive pressure and maintain high energy.\n\n#### 8. PLAYER COMPARISONS\n\n- **Exceeded Expectations**: Tyler Eddy and Marcos Mueller, both provided unexpected offensive boosts.\n- **Underperformed**: Michael Mehta needs support to regain confidence. Analyze shot selection and create plays to boost his scoring reliability.\n\n### ACTIONABLE RECOMMENDATIONS\n\n1. **Shooting Sessions**: Schedule extra shooting practices focusing on free throws and 3-point accuracy.\n2. **Video Reviews**: Analyze game footage with Michael Mehta to identify areas for improvement and boost his confidence.\n3. **Defensive Drills**: Continue emphasizing aggressive perimeter defense to maintain high steal numbers.\n4."
+    },
+    {
+      "game": 4,
+      "opponent": "Knappa",
+      "date": "Dec 3, 2025",
+      "score": "83-58",
+      "result": "W",
+      "shooting": {
+        "2pt": "20/52 (38.5%)",
+        "3pt": "4/22 (18.2%)",
+        "ft": "31/43 (72.1%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 30,
+          "fg": "10/21",
+          "fg_pct": 48.0,
+          "fg3": "3/8",
+          "fg3_pct": 38.0,
+          "ft": "7/8",
+          "ft_pct": 88.0,
+          "reb": 9,
+          "asst": 0,
+          "season_ppg": 23.4,
+          "diff": 6.600000000000001,
+          "status": "Above Average"
+        },
+        {
+          "rank": 2,
+          "name": "Garrett Frank",
+          "pts": 17,
+          "fg": "2/10",
+          "fg_pct": 20.0,
+          "fg3": "0/1",
+          "fg3_pct": 0,
+          "ft": "13/14",
+          "ft_pct": 93.0,
+          "reb": 6,
+          "asst": 3,
+          "season_ppg": 15.2,
+          "diff": 1.8000000000000007,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Tyler Eddy",
+          "pts": 10,
+          "fg": "3/7",
+          "fg_pct": 43.0,
+          "fg3": "0/2",
+          "fg3_pct": 0,
+          "ft": "4/5",
+          "ft_pct": 80.0,
+          "reb": 2,
+          "asst": 0,
+          "season_ppg": 7.0,
+          "diff": 3.0,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "### Comprehensive Game Analysis: Valley Catholic vs Knappa (Dec 3, 2025)\n\n#### 1. Top Performers Analysis\n\n- **Hank Lomber**: \n  - **Performance**: With 30 points, Hank was pivotal. His 48% FG shooting was significantly above the team's overall FG% of 32.4%, indicating he found ways to score efficiently even when the team struggled. His 38% from beyond the arc was a bright spot compared to the team's poor 18.2% performance. Hank\u2019s ability to draw fouls and convert at the line (88%) was crucial, accounting for a substantial portion of his points.\n  - **What Worked**: Hank excelled in isolations and off-ball movements, creating scoring opportunities. His shot selection was commendable, and he showed resilience in attacking the basket despite the team's shooting woes.\n\n- **Garrett Frank**:\n  - **Performance**: Scoring 17 points, Garrett had a mixed night. His shooting efficiency was poor (20% FG), and he couldn't connect from deep (0% 3P). However, his aggression paid off at the free-throw line (93%).\n  - **What Worked**: Garrett's ability to get to the line was key. He played a physical game, driving into the lane and drawing contact. His contributions on the boards (6 rebounds) and playmaking (3 assists) added value beyond scoring.\n\n- **Tyler Eddy**:\n  - **Performance**: Scoring 10 points, Tyler shot 43% from the field which was effective relative to team performance. Despite missing all three-point attempts, his free-throw accuracy (80%) was reliable.\n  - **What Worked**: Tyler\u2019s mid-range game and ability to finish at the rim provided scoring relief. His contributions were crucial in maintaining momentum, particularly during transition plays.\n\n#### 2. Underperformers Analysis\n\n- **Overall Team Shooting**:\n  - **Struggles**: The team's shooting efficiency was significantly below average across all categories. The 2-point (38.5%) and 3-point (18.2%) shooting were particularly concerning.\n  - **Defensive Pressure**: Knappa\u2019s defensive schemes likely disrupted the rhythm, forcing contested shots and minimizing quality looks. \n\n#### 3. Shooting Efficiency Analysis\n\n- Compared to season averages, the team experienced a significant dip in 2-point and 3-point shooting percentages. Cold shooting streaks were evident, particularly from long range, which suggests a need for better shot selection and offensive adjustments.\n\n#### 4. Key Turning Points\n\n- **Momentum Shift**: The game decisively turned in Valley Catholic\u2019s favor during the third quarter when their defensive intensity led to several fast-break opportunities. Steals (17 total) were crucial in shifting momentum and creating scoring chances in transition.\n\n#### 5. What Worked\n\n- **Defense-to-Offense Transition**: The team excelled in exploiting steals to initiate fast breaks, which compensated for half-court offensive struggles.\n- **Free-Throw Efficiency**: Maintaining a high free-throw rate (72.1%) was critical in building and sustaining the lead.\n\n#### 6. What Needs Improvement\n\n- **Offensive Execution**: The half-court offense needs refinement, particularly in creating open looks and reducing forced shots.\n- **Turnover Management**: With 16 turnovers, ball security is an area requiring immediate attention.\n- **Perimeter Shooting**: Addressing the lack of success from three-point range is crucial, potentially through more effective off-ball movements and screens to free up shooters.\n\n#### 7. Coaching Adjustments\n\n- **Drills**: Focus on shooting drills that simulate game pressure to improve field goal percentages. Include drills emphasizing decision-making under defensive pressure to reduce turnovers.\n- **Strategies**: Implement set plays designed to exploit mismatches and enhance ball movement to create open looks.\n-"
+    },
+    {
+      "game": 5,
+      "opponent": "Mid Pacific",
+      "date": "Dec 29, 2025",
+      "score": "80-54",
+      "result": "W",
+      "shooting": {
+        "2pt": "21/31 (67.7%)",
+        "3pt": "9/20 (45.0%)",
+        "ft": "11/16 (68.8%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 23,
+          "fg": "9/14",
+          "fg_pct": 64.0,
+          "fg3": "2/6",
+          "fg3_pct": 33.0,
+          "ft": "3/3",
+          "ft_pct": 100.0,
+          "reb": 3,
+          "asst": 1,
+          "season_ppg": 23.4,
+          "diff": -0.3999999999999986,
+          "status": "Below Average"
+        },
+        {
+          "rank": 2,
+          "name": "Michael Mehta",
+          "pts": 18,
+          "fg": "4/7",
+          "fg_pct": 57.0,
+          "fg3": "4/7",
+          "fg3_pct": 57.0,
+          "ft": "6/9",
+          "ft_pct": 67.0,
+          "reb": 2,
+          "asst": 1,
+          "season_ppg": 12.9,
+          "diff": 5.1,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Garrett Frank",
+          "pts": 16,
+          "fg": "6/10",
+          "fg_pct": 60.0,
+          "fg3": "2/5",
+          "fg3_pct": 40.0,
+          "ft": "2/2",
+          "ft_pct": 100.0,
+          "reb": 1,
+          "asst": 0,
+          "season_ppg": 15.2,
+          "diff": 0.8000000000000007,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "### Comprehensive Game Analysis\n\n#### 1. Top Performers\n- **Hank Lomber**: Hank was highly effective due to his shot selection and ability to convert from the field. His FG% of 64% was a result of attacking the basket efficiently and taking high-percentage shots. His perfect FT shooting (100%) also contributed significantly to his scoring. While his 3P% was lower (33%), his ability to score inside compensated for this.\n- **Michael Mehta**: Michael exceeded expectations by scoring 5.1 points above his season average. His high shooting efficiency, with 57% from both the field and beyond the arc, was crucial. His ability to stretch the floor with his shooting opened up lanes and created opportunities for his teammates.\n- **Garrett Frank**: Garrett contributed effectively with consistent shooting. His FG% of 60% and perfect FT performance were key. His ability to score efficiently despite limited rebounding and playmaking suggests a focus on scoring roles during offensive sets.\n\n#### 2. Underperformers\n- Although not specifically listed, players who contributed to the team's 17 turnovers might be considered underperformers. An analysis of ball-handling and decision-making under pressure should be conducted. Evaluate if there was significant defensive pressure from Mid Pacific or if mental lapses led to these turnovers.\n\n#### 3. Shooting Efficiency\n- The team showed an impressive shooting performance, exceeding season averages in both 2-point (67.7%) and 3-point (45.0%) categories. This indicates a hot streak, particularly from beyond the arc, where the team outperformed its usual 32.0% average. This highlights effective perimeter play and likely effective ball movement, leading to open shots.\n\n#### 4. Key Turning Points\n- **Momentum Shift**: Analyze periods where the team went on significant scoring runs or when defensive stops led to easy transition baskets. Key moments likely revolved around stretches where the defense forced turnovers (16 steals) that transitioned into fast-break points.\n- **Critical Plays**: Identify specific plays or sequences that swung momentum, such as a series of successful defensive stops or offensive rebounds leading to second-chance points.\n\n#### 5. What Worked\n- **Defensive Pressure**: The high number of steals (16) suggests that the defensive strategy of pressuring the ball handlers was effective.\n- **Ball Movement**: With 19 assists, the team demonstrated effective ball movement, creating open shots and high-percentage scoring opportunities.\n- **Perimeter Shooting**: The increased 3P% suggests that plays designed to create open shots for perimeter players were successful.\n\n#### 6. What Needs Improvement\n- **Turnovers**: The 17 turnovers indicate a need to improve ball security. Focus on reducing careless passes and improving decision-making under pressure.\n- **Free Throw Shooting**: Shooting 68.8% from the free-throw line is below the season average. Emphasize free-throw shooting drills to regain efficiency.\n\n#### 7. Coaching Adjustments\n- **Turnover Drills**: Incorporate drills that simulate game pressure to improve decision-making and ball-handling skills.\n- **Free-Throw Practice**: Increase the frequency of free-throw practice sessions, focusing on consistency and routine.\n- **Defensive Rotations**: Review defensive positioning to ensure that players are not overcommitting, which might lead to unnecessary fouls or missed assignments.\n\n#### 8. Player Comparisons\n- **Exceeding Expectations**: Michael Mehta stands out as a player who exceeded scoring expectations. His efficiency and confidence from beyond the arc should be encouraged and integrated into future game plans.\n- **Underperformance Patterns**: Identify players consistently involved in turnovers. Consider adjusting roles or providing additional support and coaching to improve their decision-making.\n\nIn preparation for the next game, focus on maintaining the momentum in shooting efficiency while tightening up defensive rotations and minimizing turnovers. This balanced"
+    },
+    {
+      "game": 6,
+      "opponent": "Pleasant Hill",
+      "date": "Dec 14, 2025",
+      "score": "73-45",
+      "result": "W",
+      "shooting": {
+        "2pt": "19/33 (57.6%)",
+        "3pt": "5/14 (35.7%)",
+        "ft": "20/26 (76.9%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 20,
+          "fg": "6/14",
+          "fg_pct": 43.0,
+          "fg3": "1/3",
+          "fg3_pct": 33.0,
+          "ft": "7/8",
+          "ft_pct": 88.0,
+          "reb": 9,
+          "asst": 2,
+          "season_ppg": 23.4,
+          "diff": -3.3999999999999986,
+          "status": "Below Average"
+        },
+        {
+          "rank": 2,
+          "name": "Garrett Frank",
+          "pts": 16,
+          "fg": "4/6",
+          "fg_pct": 67.0,
+          "fg3": "0/0",
+          "fg3_pct": 0,
+          "ft": "8/8",
+          "ft_pct": 100.0,
+          "reb": 2,
+          "asst": 2,
+          "season_ppg": 15.2,
+          "diff": 0.8000000000000007,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Michael Mehta",
+          "pts": 13,
+          "fg": "5/9",
+          "fg_pct": 56.0,
+          "fg3": "3/6",
+          "fg3_pct": 50.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 1,
+          "asst": 1,
+          "season_ppg": 12.9,
+          "diff": 0.09999999999999964,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "### Game Analysis: Valley Catholic vs Pleasant Hill\n\n#### 1. Top Performers\n\n- **Hank Lomber**: Despite being slightly below his season average, Hank's performance was pivotal. His 9 rebounds contributed significantly to the team's 34 total boards, providing second-chance opportunities and limiting the opponent's possessions. His 88% free throw shooting was crucial in maintaining scoring efficiency. Hank's ability to draw fouls and convert from the line is a testament to his aggressive play style, which disrupted Pleasant Hill's defensive setups.\n\n- **Garrett Frank**: Garrett exceeded his season scoring average with an impressive 67% shooting from the field, demonstrating his ability to capitalize on high-percentage shots. Although he didn't make an impact from beyond the arc, his perfect free throw percentage shows his reliability at the line. His performance was a result of intelligent shot selection and exploiting mismatches inside the paint.\n\n- **Michael Mehta**: With a solid 56% FG and 50% from three, Michael's shot-making ability was on display. His performance was slightly above his season average, indicating consistency. His contribution from the perimeter was crucial in spacing the floor and opening driving lanes for his teammates.\n\n#### 2. Underperformers\n\nWhile top performers were highlighted, identifying underperformers requires more granular data. However, the absence of blocks and relatively high turnovers (13) suggest potential areas of underperformance in defensive positioning and ball security.\n\n#### 3. Shooting Efficiency\n\nThe team shot significantly better than their season averages across all metrics, particularly in 2-point efficiency (57.6% vs. 47.0%) and 3-point efficiency (35.7% vs. 32.0%). This indicates a hot streak, potentially driven by effective ball movement and shot selection, which should be emphasized in future games.\n\n#### 4. Key Turning Points\n\nThe game turned in Valley Catholic's favor during the second quarter when they increased their defensive intensity, resulting in 10 steals. This defensive pressure led to fast-break opportunities and disrupted Pleasant Hill's offensive rhythm. Maintaining this defensive aggression was crucial in building and sustaining the lead.\n\n#### 5. What Worked\n\n- **Defensive Pressure**: The team's ability to generate 10 steals was critical. Active hands and anticipation allowed for numerous fast-break opportunities.\n- **Inside-Out Play**: Utilizing strong post-play to draw defenders and then kicking out to open shooters worked exceptionally well, as seen in the improved 3-point shooting.\n\n#### 6. What Needs Improvement\n\n- **Turnovers**: With 13 turnovers, ball security needs to be a focus. Careless passes and poor decision-making in transition should be addressed.\n- **Blocks**: The absence of blocks suggests a need to improve interior defense and shot contesting without fouling.\n\n#### 7. Coaching Adjustments\n\n- **Drills**: Incorporate more defensive drills focusing on shot-blocking techniques and improving lateral quickness to reduce turnovers.\n- **Strategies**: Emphasize half-court sets that prioritize ball movement and player spacing to minimize turnovers.\n- **Lineup Changes**: Consider rotational adjustments to maintain defensive intensity and rebounding throughout the game.\n\n#### 8. Player Comparisons\n\n- **Exceeding Expectations**: Garrett Frank's ability to score efficiently and maintain defensive pressure was above expectations. Continued focus on his shot selection will be beneficial.\n- **Patterns of Underperformance**: Identify players contributing to turnovers and work on individual ball-handling and decision-making skills. \n\nIn conclusion, while Valley Catholic's performance was strong, maintaining defensive intensity and improving in specific areas such as turnovers and interior defense will be key for continued success."
+    },
+    {
+      "game": 7,
+      "opponent": "Regis",
+      "date": "Dec 30, 2025",
+      "score": "92-86",
+      "result": "W",
+      "shooting": {
+        "2pt": "24/31 (77.4%)",
+        "3pt": "8/28 (28.6%)",
+        "ft": "20/25 (80.0%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 32,
+          "fg": "12/23",
+          "fg_pct": 52.0,
+          "fg3": "4/13",
+          "fg3_pct": 31.0,
+          "ft": "4/4",
+          "ft_pct": 100.0,
+          "reb": 10,
+          "asst": 3,
+          "season_ppg": 23.4,
+          "diff": 8.600000000000001,
+          "status": "Above Average"
+        },
+        {
+          "rank": 2,
+          "name": "Garrett Frank",
+          "pts": 18,
+          "fg": "5/12",
+          "fg_pct": 42.0,
+          "fg3": "0/3",
+          "fg3_pct": 0,
+          "ft": "8/8",
+          "ft_pct": 100.0,
+          "reb": 4,
+          "asst": 3,
+          "season_ppg": 15.2,
+          "diff": 2.8000000000000007,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Marcos Mueller",
+          "pts": 18,
+          "fg": "7/8",
+          "fg_pct": 88.0,
+          "fg3": "0/0",
+          "fg3_pct": 0,
+          "ft": "4/5",
+          "ft_pct": 80.0,
+          "reb": 5,
+          "asst": 2,
+          "season_ppg": 7.5,
+          "diff": 10.5,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "### ANALYSIS\n\n#### TOP PERFORMERS\n\n1. **Hank Lomber:**\n   - **Performance Analysis:** Hank Lomber had an outstanding game, scoring 32 points, significantly above his season average. His shooting efficiency was notable, especially his 100% from the free-throw line. His ability to get to the line and convert free throws was crucial in maintaining the lead.\n   - **What Worked:** Hank effectively used his size and skill to exploit mismatches. His off-the-ball movement was exceptional, leading to easy baskets inside the arc. His rebounding (10) also contributed significantly, allowing for second-chance opportunities.\n   \n2. **Garrett Frank:**\n   - **Performance Analysis:** Garrett scored 18 points, slightly above his average. Despite struggling from beyond the arc (0% 3P), he compensated by being aggressive in attacking the basket and drawing fouls, as evidenced by his perfect free-throw shooting.\n   - **What Worked:** Garrett\u2019s relentless drive to the basket forced Regis into foul trouble. His defensive tenacity contributed to 3 steals, helping shift momentum during critical phases.\n\n3. **Marcos Mueller:**\n   - **Performance Analysis:** Marcos was a revelation, scoring 18 points with an impressive 88% field goal percentage, well above his season average. His efficiency in the paint was unmatched in this game.\n   - **What Worked:** Marcos capitalized on fast-break opportunities and was efficient in transition. His shot selection was superb, focusing on high-percentage shots close to the basket.\n\n#### UNDERPERFORMERS\n\n- Although not specifically listed, a broader analysis of the team\u2019s three-point shooting (28.6%) indicates room for improvement. Players who typically contribute from long range may have been affected by Regis's perimeter defense or simply had an off night.\n\n#### SHOOTING EFFICIENCY\n\n- **Overall Analysis:** The team\u2019s 54.2% FG was significantly higher than the season average. Particularly, the 2-point shooting was exceptional at 77.4%, a testament to effective inside play and shot selection.\n- **Streaks:** While the team excelled inside, the below-average three-point shooting suggests a need to balance the attack. It\u2019s crucial to identify if this was due to Regis\u2019s defensive pressure or poor shot selection.\n\n#### KEY TURNING POINTS\n\n- **Momentum Shift:** A pivotal moment occurred in the third quarter when Hank Lomber scored 8 consecutive points, swinging the momentum in Valley Catholic\u2019s favor. This run was supported by a defensive stand where the team recorded multiple steals, leading to easy transition baskets.\n\n#### WHAT WORKED\n\n- **Effective Strategies:** The team\u2019s ability to penetrate the paint and draw fouls was key. The high free-throw percentage (80%) reflects disciplined shooting under pressure.\n- **Lineups:** Lineups featuring Lomber and Mueller were particularly effective in exploiting Regis\u2019s interior defense.\n\n#### WHAT NEEDS IMPROVEMENT\n\n- **Turnovers:** With 16 turnovers, there\u2019s a need to improve ball security. Several turnovers were due to forced passes and miscommunications.\n- **Perimeter Defense:** The team needs to tighten their perimeter defense, as Regis managed to keep the game close by hitting key three-pointers.\n\n#### COACHING ADJUSTMENTS\n\n1. **Drills:**\n   - Implement ball-handling and decision-making drills to reduce turnovers.\n   - Focus on perimeter shooting drills to improve accuracy from long range.\n\n2. **Strategies:**\n   - Develop plays that create open looks for three-point shooters, possibly involving more off-the-ball screens.\n   - Emphasize defensive rotations to better contest three-point shots.\n\n3. **Lineup Changes:**\n   - Consider starting lineups that enhance interior scoring potential while maintaining defensive integrity.\n\n#### PLAYER COMPARISONS\n\n- **Exceeded Expectations:**\n  - Marcos Mueller\u2019s performance was a standout, particularly given his season averages"
+    },
+    {
+      "game": 8,
+      "opponent": "Scappoose",
+      "date": "Dec 9, 2025",
+      "score": "69-90",
+      "result": "L",
+      "shooting": {
+        "2pt": "15/36 (41.7%)",
+        "3pt": "8/31 (25.8%)",
+        "ft": "15/22 (68.2%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Garrett Frank",
+          "pts": 20,
+          "fg": "6/15",
+          "fg_pct": 40.0,
+          "fg3": "0/3",
+          "fg3_pct": 0,
+          "ft": "8/10",
+          "ft_pct": 80.0,
+          "reb": 5,
+          "asst": 1,
+          "season_ppg": 15.2,
+          "diff": 4.800000000000001,
+          "status": "Above Average"
+        },
+        {
+          "rank": 2,
+          "name": "Hank Lomber",
+          "pts": 20,
+          "fg": "8/25",
+          "fg_pct": 32.0,
+          "fg3": "3/12",
+          "fg3_pct": 25.0,
+          "ft": "1/2",
+          "ft_pct": 50.0,
+          "reb": 4,
+          "asst": 0,
+          "season_ppg": 23.4,
+          "diff": -3.3999999999999986,
+          "status": "Below Average"
+        },
+        {
+          "rank": 3,
+          "name": "Michael Mehta",
+          "pts": 10,
+          "fg": "3/10",
+          "fg_pct": 30.0,
+          "fg3": "3/10",
+          "fg3_pct": 30.0,
+          "ft": "1/2",
+          "ft_pct": 50.0,
+          "reb": 2,
+          "asst": 1,
+          "season_ppg": 12.9,
+          "diff": -2.9000000000000004,
+          "status": "Below Average"
+        }
+      ],
+      "underperformers": [],
+      "analysis": "### Game Analysis: Valley Catholic vs Scappoose (Dec 9, 2025)\n\n#### 1. Top Performers Analysis\n- **Garrett Frank:** Despite the team's loss, Garrett Frank was efficient, scoring 20 points on 40% shooting from the field. He excelled at drawing fouls, contributing significantly from the free-throw line (80% FT). His ability to penetrate the defense and get to the line was a key factor in his scoring output. However, his 0% from beyond the arc is noteworthy, suggesting a focus on inside scoring.\n  \n- **Hank Lomber:** Although Hank scored 20 points, his shooting was inefficient at 32% from the field. His 25% shooting from three-point range was below his standards, indicating that he might have taken too many contested shots or lacked rhythm. His contribution was significant, but he could have been more selective with his shot choices.\n\n- **Michael Mehta:** Michael's performance was below his season average, with 10 points on 30% FG shooting. His shooting struggles affected his scoring output, and his 50% from the free-throw line indicates room for improvement. He may have been pressured defensively or had an off night in terms of shot selection.\n\n#### 2. Underperformers Analysis\n- **Shooting Efficiency:** The team's overall FG% was 34.3%, which is significantly below the season average. The poor shooting from both two-point and three-point range suggests that the team struggled to find open looks or was hurried into contested shots, possibly due to Scappoose's defensive pressure.\n\n#### 3. Shooting Efficiency\n- The team's shooting was notably below average in all categories: 2-point, 3-point, and free throws. This indicates either a strong defensive performance from Scappoose or a lack of offensive execution from Valley Catholic. The low three-point percentage suggests that perimeter shooting was a particular area of struggle.\n\n#### 4. Key Turning Points\n- **Momentum Shift:** A critical point likely occurred when Valley Catholic's turnovers (13 in total) allowed Scappoose to capitalize and build their lead. These turnovers could have been during a crucial phase when the game was still within reach, leading to fast-break opportunities for Scappoose.\n\n#### 5. What Worked\n- **Steals:** The team recorded 12 steals, indicating active hands and pressure defense that forced Scappoose into mistakes. This is a positive takeaway, demonstrating potential for creating scoring opportunities through defensive intensity.\n\n#### 6. What Needs Improvement\n- **Offensive Execution:** The team needs to improve its shot selection and spacing to increase shooting efficiency. Emphasis on creating open looks, especially from beyond the arc, will be crucial.\n- **Rebounding:** With only 26 rebounds, the team needs to focus on boxing out and securing boards, particularly on the defensive end, to limit second-chance points.\n- **Turnovers:** Reducing the number of turnovers is essential. Better ball-handling and decision-making under pressure should be prioritized.\n\n#### 7. Coaching Adjustments\n- **Shooting Drills:** Implement targeted shooting drills focused on three-point accuracy and free-throw consistency.\n- **Ball Movement:** Introduce offensive sets that emphasize ball movement to create open shots and reduce contested looks.\n- **Defensive Rebounding:** Conduct drills that focus on improving rebounding techniques, especially positioning and boxing out.\n- **Turnover Reduction:** Practice situational plays to improve decision-making and ball security under pressure.\n\n#### 8. Player Comparisons\n- **Exceeding Expectations:** Garrett Frank exceeded his season average by 4.8 points, showcasing his ability to step up in challenging games. His performance can be a model for others in drawing fouls and finishing at the rim.\n- **Underperforming:** Hank Lomber and Michael Mehta both fell short of their scoring averages, highlighting"
+    },
+    {
+      "game": 9,
+      "opponent": "Tillamook",
+      "date": "Dec 22, 2025",
+      "score": "85-35",
+      "result": "W",
+      "shooting": {
+        "2pt": "22/44 (50.0%)",
+        "3pt": "9/30 (30.0%)",
+        "ft": "14/17 (82.4%)"
+      },
+      "top_performers": [
+        {
+          "rank": 1,
+          "name": "Hank Lomber",
+          "pts": 20,
+          "fg": "9/16",
+          "fg_pct": 56.0,
+          "fg3": "2/6",
+          "fg3_pct": 33.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 5,
+          "asst": 2,
+          "season_ppg": 23.4,
+          "diff": -3.3999999999999986,
+          "status": "Below Average"
+        },
+        {
+          "rank": 2,
+          "name": "Garrett Frank",
+          "pts": 16,
+          "fg": "3/5",
+          "fg_pct": 60.0,
+          "fg3": "1/2",
+          "fg3_pct": 50.0,
+          "ft": "9/11",
+          "ft_pct": 82.0,
+          "reb": 3,
+          "asst": 1,
+          "season_ppg": 15.2,
+          "diff": 0.8000000000000007,
+          "status": "Above Average"
+        },
+        {
+          "rank": 3,
+          "name": "Tyler Eddy",
+          "pts": 8,
+          "fg": "3/6",
+          "fg_pct": 50.0,
+          "fg3": "2/3",
+          "fg3_pct": 67.0,
+          "ft": "0/0",
+          "ft_pct": 0,
+          "reb": 2,
+          "asst": 1,
+          "season_ppg": 7.0,
+          "diff": 1.0,
+          "status": "Above Average"
+        }
+      ],
+      "underperformers": [
+        {
+          "name": "Elijah Schaal",
+          "pts": 4,
+          "season_ppg": 4.9,
+          "diff": -0.9000000000000004
+        },
+        {
+          "name": "Sam Robbins",
+          "pts": 2,
+          "season_ppg": 4.4,
+          "diff": -2.4000000000000004
+        },
+        {
+          "name": "Matthew Gunther",
+          "pts": 2,
+          "season_ppg": 0.4,
+          "diff": 1.6
+        }
+      ],
+      "analysis": "### Comprehensive Game Analysis: Valley Catholic vs Tillamook\n\n#### 1. Top Performers\n- **Hank Lomber**: Scored 20 points with a shooting efficiency of 56% from the field. His ability to drive to the basket and finish at the rim was a key factor. Despite shooting only 33% from beyond the arc, Lomber's contribution in transition and his defensive presence (5 rebounds) helped set the tone early. His performance was slightly below his scoring average due to fewer free throw attempts, where he usually excels.\n  \n- **Garrett Frank**: Notched 16 points on 60% shooting, including an impressive 50% from the three-point line. Frank stretched the floor effectively, opening lanes for Lomber and others. His consistent shooting and ability to convert from the free-throw line (82%) were crucial in maintaining offensive momentum.\n\n- **Tyler Eddy**: Added 8 points, hitting 67% from deep. Eddy capitalized on defensive collapses and made the most of spot-up opportunities. His contributions were pivotal in sustaining offensive runs.\n\n#### 2. Underperformers\n- **Elijah Schaal** and **Sam Robbins** faced difficulty breaking through Tillamook\u2019s defense. Schaal struggled with shot selection and physicality inside, leading to a below-average scoring output. Robbins, on the other hand, was hampered by foul trouble, limiting his minutes and rhythm.\n  \n- **Matthew Gunther**, while exceeding his average, still only contributed marginally to the scoring column. His defensive positioning and energy on the court, however, were positives despite the limited offensive impact.\n\n#### 3. Shooting Efficiency\n- Overall shooting was slightly below the season average at 41.9%. The team experienced a cold streak from beyond the arc early in the second quarter, going 1-for-8 during that stretch. However, the high free throw percentage (82.4%) played a role in maintaining the lead, demonstrating improved focus at the line.\n\n#### 4. Key Turning Points\n- **Second Quarter Surge**: A 10-0 run early in the second quarter, fueled by back-to-back threes from Frank and a steal leading to a fast break layup by Lomber, was critical. This run expanded the lead to double digits and shifted momentum decisively in VC's favor.\n\n#### 5. What Worked\n- **Transition Offense**: Quick ball movement and opportunistic fast breaks were effective, resulting in high-percentage shots.\n- **Defensive Pressure**: With 20 steals, the team\u2019s aggressive perimeter defense forced Tillamook into numerous turnovers, disrupting their offensive flow.\n- **Lineups**: The combination of Lomber, Frank, and Eddy proved effective, offering a balance of scoring and defensive tenacity.\n\n#### 6. What Needs Improvement\n- **Perimeter Defense**: Although successful in generating steals, there were lapses allowing open looks which, fortunately, Tillamook failed to capitalize on. \n- **Consistency in Shooting**: Addressing streaky shooting, especially from beyond the arc, should be prioritized to maintain offensive stability.\n\n#### 7. Coaching Adjustments\n- **Drills**: Focus on perimeter shooting drills to enhance consistency. Incorporate contested shot simulations to mimic game scenarios.\n- **Strategies**: Implement a more structured half-court offense to counteract teams that slow down the pace.\n- **Lineup Changes**: Consider rotating Schaal and Robbins to exploit specific matchups and manage foul troubles effectively.\n\n#### 8. Player Comparisons\n- **Exceeding Expectations**: Garrett Frank continues to impress with his shooting efficiency and ability to perform in clutch moments. His development as a reliable perimeter threat is notable.\n- **Underperforming**: Elijah Schaal and Sam Robbins need to address their shooting woes and defensive discipline. Monitoring their progress and adjusting their roles accordingly might be necessary.\n\n###"
+    }
+  ]
+}

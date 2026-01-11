@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="header">
+        <h1>Varsity Basketball</h1>
+        <p class="subtitle">Statistics & Analysis</p>
+    </div>
+
+    <!-- Record and Highlights -->
+    <div class="stats-grid">
+        <div class="stat-card record">
+            <div class="stat-label">Record</div>
+            <div class="stat-value" id="record">8-1</div>
+            <div class="stat-detail">Win Percentage: 89%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">PPG</div>
+            <div class="stat-value" id="ppg">83.3</div>
+            <div class="stat-detail">Points Per Game</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">FG%</div>
+            <div class="stat-value" id="fg-pct">47.0%</div>
+            <div class="stat-detail">Field Goal %</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">RPG</div>
+            <div class="stat-value" id="rpg">32.0</div>
+            <div class="stat-detail">Rebounds Per Game</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">APG</div>
+            <div class="stat-value" id="apg">18.4</div>
+            <div class="stat-detail">Assists Per Game</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">3P%</div>
+            <div class="stat-value" id="three-pct">32.0%</div>
+            <div class="stat-detail">Three Point %</div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-container">
+            <h2>Scoring Trend</h2>
+            <canvas id="scoringChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Shooting Efficiency</h2>
+            <canvas id="shootingChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="top-performers">
+        <div class="performers-column">
+            <h2>Top Scorers</h2>
+            <table class="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>PPG</th>
+                        <th>Games</th>
+                    </tr>
+                </thead>
+                <tbody id="top-scorers"></tbody>
+            </table>
+        </div>
+        <div class="performers-column">
+            <h2>Top Rebounders</h2>
+            <table class="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>RPG</th>
+                        <th>Games</th>
+                    </tr>
+                </thead>
+                <tbody id="top-rebounders"></tbody>
+            </table>
+        </div>
+        <div class="performers-column">
+            <h2>Top Assist Leaders</h2>
+            <table class="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>APG</th>
+                        <th>Games</th>
+                    </tr>
+                </thead>
+                <tbody id="top-assists"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Games removed - see Games page instead -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

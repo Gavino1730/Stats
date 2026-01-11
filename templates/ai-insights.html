@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ai-insights-page">
+    <h1>Analysis</h1>
+    <p class="subtitle">Ask AI Coach anything about your team, get instant insights and coaching recommendations</p>
+    
+    <!-- Quick Insights Section -->
+    <div class="quick-insights">
+        <button class="insight-btn" onclick="loadTeamSummary()">Team Summary</button>
+        <button class="insight-btn" onclick="showAskCoach()">Ask AI Coach</button>
+        <button class="insight-btn" onclick="showPlayerAnalysis()">Analyze Player</button>
+        <button class="insight-btn" onclick="showGameAnalysis()">Game Analysis</button>
+    </div>
+
+    <!-- Team Summary Section -->
+    <div id="team-summary" class="insight-section" style="display: none;">
+        <h2>Team Summary & Coaching Insights</h2>
+        <div id="team-summary-content" class="loading">Loading AI analysis...</div>
+    </div>
+
+    <!-- Ask AI Coach Section -->
+    <div id="ask-coach-section" class="insight-section" style="display: none;">
+        <h2>Ask AI Coach</h2>
+        <div class="ask-coach-container">
+            <div class="question-input-area">
+                <textarea id="question-input" placeholder="Ask anything about your team, players, strategy, trends, coaching... e.g., 'What are our main strengths and weaknesses?' or 'How can we improve our free throw shooting?'" rows="4"></textarea>
+                <div class="analysis-type-selector">
+                    <label>Analysis Type:</label>
+                    <select id="analysis-type">
+                        <option value="general">General Analysis</option>
+                        <option value="player">Player Analysis</option>
+                        <option value="team">Team Strategy</option>
+                        <option value="trends">Trends & Patterns</option>
+                        <option value="coaching">Coaching Recommendations</option>
+                    </select>
+                </div>
+                <button id="ask-btn" onclick="askCoach()" class="ask-button">Get AI Insight</button>
+            </div>
+            <div id="coach-response" class="coach-response" style="display: none;">
+                <div id="coach-answer-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Analysis Section -->
+    <div id="player-analysis-section" class="insight-section" style="display: none;">
+        <h2>Analyze Player Performance</h2>
+        <div class="player-analysis-container">
+            <select id="player-select" onchange="analyzeSelectedPlayer()">
+                <option value="">Select a player...</option>
+            </select>
+            <div id="player-insights-content" class="insights-content"></div>
+        </div>
+    </div>
+
+    <!-- Game Analysis Section -->
+    <div id="game-analysis-section" class="insight-section" style="display: none;">
+        <h2>Game Analysis</h2>
+        <div class="game-analysis-container">
+            <select id="game-select" onchange="analyzeSelectedGame()">
+                <option value="">Select a game...</option>
+            </select>
+            <div id="game-insights-content" class="insights-content"></div>
+        </div>
+    </div>
+
+    <!-- AI Insights Box (appears on every page) -->
+    <div id="ai-chat-widget" class="ai-chat-widget" style="display: none;">
+        <button class="chat-toggle" onclick="toggleAIChat()">💬 AI Coach</button>
+        <div class="chat-box" id="chat-box" style="display: none;">
+            <div class="chat-header">AI Coach Assistant</div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="handleChatKeypress(event)">
+                <button onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='ai-insights.js') }}"></script>
+{% endblock %}

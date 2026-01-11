@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valley Catholic Basketball Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+                <li><a href="/games" class="nav-link" data-page="games">Games</a></li>
+                <li><a href="/players" class="nav-link" data-page="players">Players</a></li>
+                <li><a href="/trends" class="nav-link" data-page="trends">Trends</a></li>
+                <li><a href="/analysis" class="nav-link" data-page="analysis">Analysis</a></li>
+                <li><a href="/ai-insights" class="nav-link" data-page="ai-insights">🤖 AI Coach</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script>
+        // Register service worker for faster subsequent loads
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
