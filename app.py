@@ -125,9 +125,8 @@ def api_player(player_name):
         })
     return jsonify({'error': 'Player not found'}), 404
 
-@app.route('/api/leaderboards')
 @lru_cache(maxsize=1)
-def api_leaderboards():
+def get_leaderboards_data():
     """Get leaderboards for various stats - cached"""
     players = list(stats_data['season_player_stats'].values())
     
@@ -142,7 +141,12 @@ def api_leaderboards():
         'blk': sorted(players, key=lambda x: x.get('blk', 0), reverse=True)[:10],
     }
     
-    return jsonify(leaderboards)
+    return leaderboards
+
+@app.route('/api/leaderboards')
+def api_leaderboards():
+    """Get leaderboards endpoint"""
+    return jsonify(get_leaderboards_data())
 
 @app.route('/api/player-trends/<player_name>')
 def api_player_trends(player_name):
