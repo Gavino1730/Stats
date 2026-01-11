@@ -261,14 +261,17 @@ async function loadAnalysis() {
         
         // Display per-game analysis with detailed stats
         const gamesHtml = data.per_game_analysis.map(game => {
-            let topPerfHtml = '';
-            if (game.top_performers && game.top_performers.length > 0) {
-                topPerfHtml = `
+            let perfHtml = '';
+            if (game.player_performances && game.player_performances.length > 0) {
+                perfHtml = `
                     <div class="player-section">
-                        <h4>🌟 TOP PERFORMERS</h4>
-                        ${game.top_performers.map(p => `
-                            <div class="player-item">
-                                <div class="player-name">${p.rank}. ${p.name}</div>
+                        <h4>📊 PLAYER PERFORMANCES</h4>
+                        ${game.player_performances.map(p => `
+                            <div class="player-item ${p.indicator === '↓' ? 'below-avg-card' : ''}">
+                                <div class="player-name">
+                                    <span class="perf-indicator ${p.indicator === '↑' ? 'perf-up' : p.indicator === '↓' ? 'perf-down' : 'perf-neutral'}">${p.indicator}</span>
+                                    ${p.rank}. ${p.name}
+                                </div>
                                 <div class="player-stats">
                                     <strong>${p.pts}pts</strong> | 
                                     FG: ${p.fg} (${p.fg_pct.toFixed(0)}%) | 
@@ -276,25 +279,11 @@ async function loadAnalysis() {
                                     FT: ${p.ft} (${p.ft_pct.toFixed(0)}%) |
                                     ${p.reb}reb | ${p.asst}ast
                                 </div>
-                                <div class="player-stats"><span class="${p.status === 'Above Average' ? 'above-avg' : 'below-avg'}">
-                                    Season Avg: ${p.season_ppg.toFixed(1)}ppg | ${p.status} by ${Math.abs(p.diff).toFixed(1)}pts
-                                </span></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-            
-            let underPerfHtml = '';
-            if (game.underperformers && game.underperformers.length > 0) {
-                underPerfHtml = `
-                    <div class="player-section">
-                        <h4>📉 UNDERPERFORMERS</h4>
-                        ${game.underperformers.map(p => `
-                            <div class="player-item">
-                                <div class="player-name">${p.name}</div>
-                                <div class="player-stats below-avg">
-                                    ${p.pts}pts (Season Avg: ${p.season_ppg.toFixed(1)}ppg) - ${p.diff > 0 ? '+' : ''}${p.diff.toFixed(1)}pts vs avg
+                                <div class="player-stats">
+                                    Season Avg: ${p.season_ppg.toFixed(1)}ppg | 
+                                    <span class="${p.diff > 1 ? 'perf-up' : p.diff < -1 ? 'perf-down' : 'perf-neutral'}">
+                                        ${p.diff > 0 ? '+' : ''}${p.diff.toFixed(1)} vs avg
+                                    </span>
                                 </div>
                             </div>
                         `).join('')}
@@ -321,8 +310,7 @@ async function loadAnalysis() {
                     <span class="game-result ${game.result.toLowerCase()}">${game.result.toUpperCase()}</span>
                 </div>
                 ${shootingHtml}
-                ${topPerfHtml}
-                ${underPerfHtml}
+                ${perfHtml}
                 <div class="game-analysis">${escapeHtml(game.analysis)}</div>
             </div>
         `}).join('');

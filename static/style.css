@@ -251,6 +251,29 @@ canvas {
 }
 }
 
+/* Player Performances */
+.perf-indicator {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-right: 0.3rem;
+}
+
+.perf-up {
+    color: #4caf50;
+}
+
+.perf-down {
+    color: #f44336;
+}
+
+.perf-neutral {
+    color: #ff9800;
+}
+
+.below-avg-card {
+    opacity: 0.85;
+}
+
 /* Top Performers */
 .top-performers {
     display: grid;
