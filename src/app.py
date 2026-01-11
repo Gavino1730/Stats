@@ -817,7 +817,7 @@ REQUIRED OUTPUT:
             
             try:
                 logger.info(f"Calling OpenAI API for game {i}")
-                analysis_text = call_openai_api(system_prompt, game_prompt, max_tokens=800, model="gpt-5-mini")
+                analysis_text = call_openai_api(system_prompt, game_prompt, max_tokens=800, model="gpt-4o-mini")
                 logger.info(f"Successfully analyzed game {i}")
                 per_game_analysis.append({
                     'game': i,

@@ -5,9 +5,9 @@ Centralizes all magic numbers and configuration constants
 
 # API Configuration
 # Model selection based on task complexity and cost
-OPENAI_MODEL_ANALYSIS = "gpt-5.2"      # For diagnostic analysis, coach-style commentary
-OPENAI_MODEL_CARDS = "gpt-5-mini"      # For game cards, structured summaries, rankings
-OPENAI_MODEL_TAGS = "gpt-5-nano"       # For quick classifications, tags, formatting
+OPENAI_MODEL_ANALYSIS = "gpt-4o"      # For diagnostic analysis, coach-style commentary
+OPENAI_MODEL_CARDS = "gpt-4o-mini"      # For game cards, structured summaries, rankings
+OPENAI_MODEL_TAGS = "gpt-4o-mini"       # For quick classifications, tags, formatting
 OPENAI_TIMEOUT = 30
 OPENAI_MAX_RETRIES = 3
 
