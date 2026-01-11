@@ -7,17 +7,17 @@
     
     <!-- Quick Insights Section -->
     <div class="quick-insights">
-        <button class="insight-btn" onclick="loadTeamSummary()">Team Summary</button>
-        <button class="insight-btn" onclick="showAskCoach()">Ask AI</button>
-        <button class="insight-btn" onclick="showPlayerAnalysis()">Analyze Player</button>
-        <button class="insight-btn" onclick="showGameAnalysis()">Game Analysis</button>
+        <button type="button" class="insight-btn" onclick="loadTeamSummary()">Team Summary</button>
+        <button type="button" class="insight-btn" onclick="showAskCoach()">Ask AI</button>
+        <button type="button" class="insight-btn" onclick="showPlayerAnalysis()">Analyze Player</button>
+        <button type="button" class="insight-btn" onclick="showGameAnalysis()">Game Analysis</button>
     </div>
 
     <!-- Team Summary Section -->
-    <div id="team-summary" class="insight-section" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2 style="margin: 0;">Team Summary & Coaching Insights</h2>
-            <button onclick="regenerateTeamSummary()" style="padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+    <div id="team-summary" class="insight-section hidden">
+        <div class="section-header">
+            <h2 class="section-title">Team Summary & Coaching Insights</h2>
+            <button type="button" onclick="regenerateTeamSummary()" class="regenerate-btn">
                 🔄 Regenerate
             </button>
         </div>
@@ -25,13 +25,13 @@
     </div>
 
     <!-- Ask AI Section -->
-    <div id="ask-coach-section" class="insight-section" style="display: none;">
+    <div id="ask-coach-section" class="insight-section hidden">
         <h2>Ask AI</h2>
         <div class="ask-coach-container">
             <div class="question-input-area">
                 <textarea id="question-input" placeholder="Ask anything about your team, players, strategy, trends, coaching... e.g., 'What are our main strengths and weaknesses?' or 'How can we improve our free throw shooting?'" rows="4"></textarea>
                 <div class="analysis-type-selector">
-                    <label>Analysis Type:</label>
+                    <label for="analysis-type">Analysis Type:</label>
                     <select id="analysis-type">
                         <option value="general">General Analysis</option>
                         <option value="player">Player Analysis</option>
@@ -40,19 +40,19 @@
                         <option value="coaching">Coaching Recommendations</option>
                     </select>
                 </div>
-                <button id="ask-btn" onclick="askCoach()" class="ask-button">Get AI Insight</button>
+                <button type="button" id="ask-btn" onclick="askCoach()" class="ask-button">Get AI Insight</button>
             </div>
-            <div id="coach-response" class="coach-response" style="display: none;">
+            <div id="coach-response" class="coach-response hidden">
                 <div id="coach-answer-content"></div>
             </div>
         </div>
     </div>
 
     <!-- Player Analysis Section -->
-    <div id="player-analysis-section" class="insight-section" style="display: none;">
+    <div id="player-analysis-section" class="insight-section hidden">
         <h2>Analyze Player Performance</h2>
         <div class="player-analysis-container">
-            <select id="player-select" onchange="analyzeSelectedPlayer()">
+            <select id="player-select" aria-label="Select a player" onchange="analyzeSelectedPlayer()">
                 <option value="">Select a player...</option>
             </select>
             <div id="player-insights-content" class="insights-content"></div>
@@ -60,10 +60,10 @@
     </div>
 
     <!-- Game Analysis Section -->
-    <div id="game-analysis-section" class="insight-section" style="display: none;">
+    <div id="game-analysis-section" class="insight-section hidden">
         <h2>Game Analysis</h2>
         <div class="game-analysis-container">
-            <select id="game-select" onchange="analyzeSelectedGame()">
+            <select id="game-select" aria-label="Select a game" onchange="analyzeSelectedGame()">
                 <option value="">Select a game...</option>
             </select>
             <div id="game-insights-content" class="insights-content"></div>
@@ -71,14 +71,14 @@
     </div>
 
     <!-- AI Insights Box (appears on every page) -->
-    <div id="ai-chat-widget" class="ai-chat-widget" style="display: none;">
-        <button class="chat-toggle" onclick="toggleAIChat()">AI</button>
-        <div class="chat-box" id="chat-box" style="display: none;">
+    <div id="ai-chat-widget" class="ai-chat-widget hidden">
+        <button type="button" class="chat-toggle" onclick="toggleAIChat()">AI</button>
+        <div class="chat-box hidden" id="chat-box">
             <div class="chat-header">AI Assistant</div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input">
                 <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="handleChatKeypress(event)">
-                <button onclick="sendChatMessage()">Send</button>
+                <button type="button" onclick="sendChatMessage()">Send</button>
             </div>
         </div>
     </div>

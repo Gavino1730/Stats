@@ -1,6 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .ai-trends-section {
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(65, 105, 225, 0.05), rgba(138, 43, 226, 0.05));
+        border-radius: 8px;
+        border: 1px solid rgba(65, 105, 225, 0.2);
+    }
+    
+    .ai-trends-header {>
+        <div class="ai-trends-header">
+            <h2>🤖 AI Trend Analysis</h2>
+            <button type="button" onclick="analyzeTrends()" class="ai-analyze-button">
+                ✨ Analyze Trends
+            </button>
+        </div>
+        <div id="ai-trends-content
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    
+    .ai-analyze-button {
+        padding: 0.75rem 1.5rem
+        background: linear-gradient(135deg, #4169E1, #8A2BE2);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 8px rgba(65, 105, 225, 0.3);
+    }
+    
+    .ai-analyze-button:hover {
+        transform: scale(1.05);
+    }
+    
+    #ai-trends-content {
+        display: none;
+    }
+</style>
+
 <div class="trends-page">
     <h1>Trends</h1>
     
@@ -58,7 +101,7 @@
     <!-- Player Trends Tab -->
     <div id="player-tab" class="tab-content">
         <div class="player-selector">
-            <select id="playerSelect">
+            <select id="playerSelect" aria-label="Select a player">
                 <option value="">Select a player...</option>
             </select>
         </div>

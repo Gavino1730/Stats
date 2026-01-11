@@ -2,14 +2,10 @@ from flask import Flask, render_template, jsonify, request
 from functools import lru_cache
 import json
 import os
-import sys
 from datetime import datetime
 import requests
 from dotenv import load_dotenv
-
-# Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-from advanced_stats import AdvancedStatsCalculator
+from src.advanced_stats import AdvancedStatsCalculator
 import logging
 
 # Load environment variables from .env file
@@ -19,7 +15,12 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+# Get the project root directory (parent of src/)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+app = Flask(__name__, 
+            template_folder=os.path.join(project_root, 'templates'),
+            static_folder=os.path.join(project_root, 'static'))
 app.config['JSON_SORT_KEYS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 app.config['COMPRESS_LEVEL'] = 6  # Gzip compression
@@ -34,12 +35,12 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 # Analysis cache file
-ANALYSIS_CACHE_FILE = 'season_analysis.json'
-PLAYER_ANALYSIS_CACHE_FILE = 'player_analysis_cache.json'
+ANALYSIS_CACHE_FILE = os.path.join(project_root, 'data/season_analysis.json')
+PLAYER_ANALYSIS_CACHE_FILE = os.path.join(project_root, 'data/player_analysis_cache.json')
 
 # Load stats data
-STATS_FILE = 'data/vc_stats_output.json'
-ROSTER_FILE = 'data/roster.json'
+STATS_FILE = os.path.join(project_root, 'data/vc_stats_output.json')
+ROSTER_FILE = os.path.join(project_root, 'data/roster.json')
 
 try:
     with open(STATS_FILE) as f:
