@@ -224,6 +224,44 @@ class AdvancedStatsCalculator:
         plus_minus = player.get('plus_minus', 0)
         pm_per_game = plus_minus / games if games > 0 else 0
         
+        # Fouls and discipline
+        fouls = player.get('fouls', 0)
+        fpg = fouls / games if games > 0 else 0
+        
+        # Game logs for advanced calculations
+        game_logs = self.stats_data.get('player_game_logs', {}).get(player_name, [])
+        
+        # Consistency metrics
+        pts_variance = self._calculate_variance([game.get('pts', 0) for game in game_logs])
+        fg_pct_variance = self._calculate_variance([game.get('fg_pct', 0) for game in game_logs if game.get('fga', 0) > 0])
+        
+        # Clutch performance (games decided by 10 or less)
+        clutch_games = [g for g in game_logs if abs(g.get('team_score', 0) - g.get('opp_score', 0)) <= 10]
+        clutch_ppg = sum(g.get('pts', 0) for g in clutch_games) / len(clutch_games) if clutch_games else 0
+        clutch_fg_pct = sum(g.get('fg_made', 0) for g in clutch_games) / sum(g.get('fg_att', 0) for g in clutch_games) * 100 if clutch_games and sum(g.get('fg_att', 0) for g in clutch_games) > 0 else 0
+        
+        # Performance vs opponent strength (estimated by opponent score)
+        high_scoring_games = [g for g in game_logs if g.get('opp_score', 0) >= 70]  # Strong opponents
+        vs_strong_ppg = sum(g.get('pts', 0) for g in high_scoring_games) / len(high_scoring_games) if high_scoring_games else ppg
+        
+        # Advanced efficiency metrics
+        player_efficiency_rating = (pts + reb + ast + stl + blk - (fga - fg) - (fta - ft) - to) / games if games > 0 else 0
+        
+        # Shooting efficiency breakdown
+        fg2a = fga - player.get('fg3a', 0)
+        fg2 = fg - fg3
+        fg2_pct = (fg2 / fg2a * 100) if fg2a > 0 else 0
+        
+        # Turnover rate (per 100 possessions)
+        est_poss_player = (fga + 0.44 * fta + to)
+        to_rate = (to / est_poss_player * 100) if est_poss_player > 0 else 0
+        
+        # Defensive rating estimate (steals + blocks per game)
+        defensive_rating = stl_per_game + blk_per_game
+        
+        # Role classification
+        role = self._classify_player_role(ppg, reb/games, ast/games, usage_proxy, shot_volume_share)
+        
         return {
             'scoring_efficiency': {
                 'ppg': ppg,
@@ -232,38 +270,96 @@ class AdvancedStatsCalculator:
                 'efg_pct': round(efg_pct, 1),
                 'ts_pct': round(ts_pct, 1),
                 'fg_pct': player['fg_pct'],
+                'fg2_pct': round(fg2_pct, 1),
                 'fg3_pct': player['fg3_pct'],
-                'ft_pct': player['ft_pct']
+                'ft_pct': player['ft_pct'],
+                'per': round(player_efficiency_rating, 1)
             },
             'usage_role': {
                 'usage_proxy': round(usage_proxy, 1),
                 'shot_volume_share': round(shot_volume_share, 1),
                 'scoring_share': round(scoring_share, 1),
+                'to_rate': round(to_rate, 1),
+                'role': role,
                 'primary_scorer': scoring_share >= PRIMARY_SCORER_THRESHOLD,
                 'secondary_scorer': SECONDARY_SCORER_THRESHOLD <= scoring_share < PRIMARY_SCORER_THRESHOLD
             },
             'ball_handling': {
                 'apg': round(ast_rate, 1),
                 'ast_to_ratio': round(ast_to_ratio, 2),
-                'total_assists': ast
+                'total_assists': ast,
+                'total_turnovers': to,
+                'tpg': round(to / games, 1) if games > 0 else 0
             },
             'rebounding': {
                 'rpg': player['rpg'],
                 'oreb': oreb,
                 'dreb': dreb,
+                'oreb_pct': round((oreb / games / 10) * 100, 1) if games > 0 else 0,  # Rough estimate
+                'dreb_pct': round((dreb / games / 25) * 100, 1) if games > 0 else 0,  # Rough estimate
                 'reb_share': round(reb_share, 1)
             },
             'defense_activity': {
                 'spg': round(stl_per_game, 1),
                 'bpg': round(blk_per_game, 1),
                 'total_stl': stl,
-                'total_blk': blk
+                'total_blk': blk,
+                'defensive_rating': round(defensive_rating, 1),
+                'deflections_per_game': round(stl_per_game * 2.5, 1)  # Estimated
+            },
+            'discipline': {
+                'fpg': round(fpg, 1),
+                'total_fouls': fouls,
+                'foul_rate': round(fouls / (games * 40) * 100, 1) if games > 0 else 0  # Per 40 minutes estimate
+            },
+            'consistency': {
+                'pts_variance': round(pts_variance, 1),
+                'fg_pct_variance': round(fg_pct_variance, 1),
+                'games_played': games,
+                'consistency_score': round(100 - pts_variance, 1)  # Higher is more consistent
+            },
+            'clutch_performance': {
+                'clutch_games': len(clutch_games),
+                'clutch_ppg': round(clutch_ppg, 1),
+                'clutch_fg_pct': round(clutch_fg_pct, 1),
+                'clutch_factor': round(clutch_ppg / ppg if ppg > 0 else 0, 2)
+            },
+            'matchup_performance': {
+                'vs_strong_teams_ppg': round(vs_strong_ppg, 1),
+                'strong_team_factor': round(vs_strong_ppg / ppg if ppg > 0 else 0, 2)
             },
             'impact': {
                 'plus_minus': plus_minus,
-                'pm_per_game': round(pm_per_game, 1)
+                'pm_per_game': round(pm_per_game, 1),
+                'win_shares_estimate': round(plus_minus / 100, 2)  # Rough estimate
             }
         }
+    
+    def _calculate_variance(self, values: List[float]) -> float:
+        """Calculate variance of a list of values"""
+        if len(values) < 2:
+            return 0
+        try:
+            return statistics.variance(values)
+        except:
+            return 0
+    
+    def _classify_player_role(self, ppg: float, rpg: float, apg: float, usage: float, shot_share: float) -> str:
+        """Classify player role based on stats"""
+        if ppg >= 20 and usage >= 25:
+            return "Primary Scorer"
+        elif ppg >= 15 and usage >= 20:
+            return "Secondary Scorer"
+        elif apg >= 4 and usage >= 15:
+            return "Playmaker"
+        elif rpg >= 8:
+            return "Rebounder"
+        elif ppg >= 12 and shot_share >= 15:
+            return "Shooter"
+        elif ppg < 8 and rpg < 5 and apg < 3:
+            return "Role Player"
+        else:
+            return "All-Around"
     
     # ==============================================================================
     # C. GAME LEVEL STATS

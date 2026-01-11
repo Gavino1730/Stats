@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupFilters();
     setupModal();
     setupViewToggle();
+    
+    // Initialize proper view state
+    const rankingSelect = document.getElementById('ranking-stat');
+    if (rankingSelect) {
+        rankingSelect.classList.add('hidden');
+    }
 });
 
 async function loadPlayers() {
@@ -47,6 +53,10 @@ function displayPlayers(players) {
                     <div class="player-stat-value">${player.apg.toFixed(1)}</div>
                 </div>
                 <div class="player-stat-item">
+                    <div class="player-stat-label">TPG</div>
+                    <div class="player-stat-value">${player.tpg.toFixed(1)}</div>
+                </div>
+                <div class="player-stat-item">
                     <div class="player-stat-label">FG%</div>
                     <div class="player-stat-value">${player.fg_pct.toFixed(1)}%</div>
                 </div>
@@ -61,10 +71,6 @@ function displayPlayers(players) {
                 <div class="player-stat-item">
                     <div class="player-stat-label">BPG</div>
                     <div class="player-stat-value">${player.bpg.toFixed(1)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">TPG</div>
-                    <div class="player-stat-value">${player.tpg.toFixed(1)}</div>
                 </div>
             </div>
         `;
@@ -87,25 +93,29 @@ function setupFilters() {
 function setupViewToggle() {
     const cardsBtn = document.getElementById('cards-view-btn');
     const rankingsBtn = document.getElementById('rankings-view-btn');
+    const playersContainer = document.getElementById('players-container');
+    const rankingsContainer = document.getElementById('rankings-container');
+    const statSort = document.getElementById('stat-sort');
+    const rankingSelect = document.getElementById('ranking-stat');
     
     cardsBtn.addEventListener('click', () => {
         currentView = 'cards';
         cardsBtn.classList.add('active');
         rankingsBtn.classList.remove('active');
-        document.getElementById('players-container').style.display = 'grid';
-        document.getElementById('rankings-container').style.display = 'none';
-        document.getElementById('stat-sort').style.display = 'block';
-        document.getElementById('ranking-stat').style.display = 'none';
+        playersContainer.classList.remove('hidden');
+        rankingsContainer.classList.add('hidden');
+        statSort.classList.remove('hidden');
+        rankingSelect.classList.add('hidden');
     });
     
     rankingsBtn.addEventListener('click', () => {
         currentView = 'rankings';
         rankingsBtn.classList.add('active');
         cardsBtn.classList.remove('active');
-        document.getElementById('players-container').style.display = 'none';
-        document.getElementById('rankings-container').style.display = 'block';
-        document.getElementById('stat-sort').style.display = 'none';
-        document.getElementById('ranking-stat').style.display = 'block';
+        playersContainer.classList.add('hidden');
+        rankingsContainer.classList.remove('hidden');
+        statSort.classList.add('hidden');
+        rankingSelect.classList.remove('hidden');
         displayRankings();
     });
 }
@@ -124,10 +134,11 @@ function sortPlayers() {
         if (sortValue === 'apg') return b.apg - a.apg;
         if (sortValue === 'fg_pct') return b.fg_pct - a.fg_pct;
         if (sortValue === 'fg3_pct') return b.fg3_pct - a.fg3_pct;
+        if (sortValue === 'ft_pct') return b.ft_pct - a.ft_pct;
         if (sortValue === 'spg') return b.spg - a.spg;
         if (sortValue === 'bpg') return b.bpg - a.bpg;
         if (sortValue === 'tpg') return a.tpg - b.tpg; // Lower is better for turnovers
-        if (sortValue === 'ft_pct') return b.ft_pct - a.ft_pct;
+        if (sortValue === 'fpg') return a.fpg - b.fpg; // Lower is better for fouls
         return 0;
     });
     displayPlayers(sorted);
@@ -170,6 +181,10 @@ async function showPlayerDetail(playerName) {
             const ballHandling = advancedData.ball_handling;
             const rebounding = advancedData.rebounding;
             const defense = advancedData.defense_activity;
+            const discipline = advancedData.discipline;
+            const consistency = advancedData.consistency;
+            const clutch = advancedData.clutch_performance;
+            const impact = advancedData.impact;
             
             advancedHtml = `
                 <div style="margin: 1.5rem 0;">
@@ -180,66 +195,82 @@ async function showPlayerDetail(playerName) {
                         <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Scoring Efficiency</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">PER</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.per}</div>
+                            </div>
+                            <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">eFG%</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.efg_pct.toFixed(1)}%</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.efg_pct}%</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">TS%</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.ts_pct.toFixed(1)}%</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.ts_pct}%</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Pts/Shot</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.pts_per_shot.toFixed(2)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.pts_per_shot}</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">2PT%</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.fg2_pct.toFixed(1)}%</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.fg2_pct}%</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">3PT%</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.fg3_pct.toFixed(1)}%</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">FT%</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.ft_pct.toFixed(1)}%</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${scoringEff.fg3_pct}%</div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Usage -->
+                    <!-- Usage & Role -->
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; border-left: 3px solid #4169E1;">
-                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Usage</h4>
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Usage & Role</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Role</div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">${usage.role}</div>
+                            </div>
+                            <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Usage %</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.usage_proxy.toFixed(1)}%</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.usage_proxy}%</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Scoring Share</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.scoring_share.toFixed(1)}%</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Scoring %</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.scoring_share}%</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Shot Volume %</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.shot_volume_share.toFixed(1)}%</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Shot Vol %</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.shot_volume_share}%</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">TO Rate</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${usage.to_rate}%</div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Ball Handling & Playmaking -->
+                    <!-- Ball Handling & Turnovers -->
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; border-left: 3px solid #32CD32;">
-                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Ball Handling & Playmaking</h4>
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Ball Handling & Turnovers</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">AST/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.ast_rate.toFixed(1)}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">AST/TO</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.ast_to_ratio.toFixed(2)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.apg}</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">TO/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.to_rate.toFixed(1)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.tpg}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">AST/TO</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.ast_to_ratio}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Total AST</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.total_assists}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Total TO</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${ballHandling.total_turnovers}</div>
                             </div>
                         </div>
                     </div>
@@ -249,20 +280,20 @@ async function showPlayerDetail(playerName) {
                         <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Rebounding</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Total REB/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.reb_rate.toFixed(1)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">REB/G</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.rpg}</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">OREB/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.oreb_rate.toFixed(1)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">OREB</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.oreb}</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">DREB/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.dreb_rate.toFixed(1)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">DREB</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.dreb}</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">OREB %</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${(rebounding.oreb_rate / rebounding.reb_rate * 100).toFixed(1)}%</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">REB Share</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${rebounding.reb_share}%</div>
                             </div>
                         </div>
                     </div>
@@ -273,19 +304,50 @@ async function showPlayerDetail(playerName) {
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">STL/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.stl_rate.toFixed(1)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.spg}</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">BLK/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.blk_rate.toFixed(1)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.bpg}</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">STL+BLK/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${(defense.stl_rate + defense.blk_rate).toFixed(1)}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Def Rating</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.defensive_rating}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Deflections/G</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.deflections_per_game}</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Fouls/G</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${defense.foul_rate.toFixed(1)}</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${discipline.fpg}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clutch & Consistency -->
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; border-left: 3px solid #9932CC;">
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Clutch Performance & Consistency</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch Games</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_games}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch PPG</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_ppg}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch Factor</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_factor}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">Consistency</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${consistency.consistency_score}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-light);">+/- per Game</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">${impact.pm_per_game}</div>
                             </div>
                         </div>
                     </div>
@@ -519,30 +581,11 @@ async function showPlayerDetail(playerName) {
                                 <td>${stats.fouls}</td>
                                 <td style="font-weight: 700; color: ${(game.vc_score - game.opp_score) > 0 ? 'var(--success)' : '#dc3545'};">${(game.vc_score - game.opp_score) > 0 ? '+' : ''}${game.vc_score - game.opp_score}</td>
                             </tr>
-                                <td>${stats.minutes || '-'}</td>
-                                <td><strong style="color: var(--primary);">${stats.pts}</strong></td>
-                                <td>${stats.fg_made}-${stats.fg_att}</td>
-                                <td>${fgPct}%</td>
-                                <td>${stats.fg3_made}-${stats.fg3_att}</td>
-                                <td>${fg3Pct}%</td>
-                                <td>${stats.ft_made}-${stats.ft_att}</td>
-                                <td>${ftPct}%</td>
-                                <td><strong>${reb}</strong></td>
-                                <td>${stats.oreb}</td>
-                                <td>${stats.dreb}</td>
-                                <td>${stats.asst}</td>
-                                <td>${stats.stl}</td>
-                                <td>${stats.blk}</td>
-                                <td>${stats.to}</td>
-                                <td>${stats.fouls}</td>
-                            </tr>
                         `;
                     }).join('')}
                 </tbody>
             </table>
             </div>
-                </tbody>
-            </table>
         `;
         
         document.getElementById('playerDetail').innerHTML = detailHtml;

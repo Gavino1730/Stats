@@ -25,6 +25,16 @@ app.config['JSON_SORT_KEYS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 app.config['COMPRESS_LEVEL'] = 6  # Gzip compression
 
+# Security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+    return response
+
 # Constants
 EXCLUDED_PLAYERS = {'Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter'}
 FREE_THROW_POSSESSION_FACTOR = 0.44
@@ -131,19 +141,47 @@ def api_game(game_id):
 
 @app.route('/api/players')
 def api_players():
-    """Get all player season stats"""
+    """Get all player season stats with enhanced metrics"""
     players = list(stats_data['season_player_stats'].values())
     
     # Merge in roster information (number, grade)
     roster_dict = {p['name']: p for p in roster_data['roster']}
+    
+    enhanced_players = []
     for player in players:
+        enhanced_player = player.copy()
+        
+        # Add roster info
         if player['name'] in roster_dict:
-            player['number'] = roster_dict[player['name']].get('number')
-            player['grade'] = roster_dict[player['name']].get('grade')
+            enhanced_player['number'] = roster_dict[player['name']].get('number')
+            enhanced_player['grade'] = roster_dict[player['name']].get('grade')
+        
+        # Add calculated per-game stats
+        games = player.get('games', 1)
+        enhanced_player['spg'] = player.get('stl', 0) / games
+        enhanced_player['bpg'] = player.get('blk', 0) / games
+        enhanced_player['tpg'] = player.get('to', 0) / games
+        enhanced_player['fpg'] = player.get('fouls', 0) / games
+        
+        # Add some advanced metrics directly
+        advanced_stats = advanced_calc.calculate_player_advanced_stats(player['name'])
+        if advanced_stats:
+            enhanced_player['efg_pct'] = advanced_stats['scoring_efficiency']['efg_pct']
+            enhanced_player['ts_pct'] = advanced_stats['scoring_efficiency']['ts_pct']
+            enhanced_player['per'] = advanced_stats['scoring_efficiency']['per']
+            enhanced_player['usage_rate'] = advanced_stats['usage_role']['usage_proxy']
+            enhanced_player['ast_to_ratio'] = advanced_stats['ball_handling']['ast_to_ratio']
+            enhanced_player['defensive_rating'] = advanced_stats['defense_activity']['defensive_rating']
+            enhanced_player['pm_per_game'] = advanced_stats['impact']['pm_per_game']
+            enhanced_player['role'] = advanced_stats['usage_role']['role']
+            enhanced_player['consistency_score'] = advanced_stats['consistency']['consistency_score']
+            enhanced_player['clutch_factor'] = advanced_stats['clutch_performance']['clutch_factor']
+        
+        enhanced_players.append(enhanced_player)
     
     # Sort by PPG
-    players = sorted(players, key=lambda x: x['ppg'], reverse=True)
-    return jsonify(players)
+    enhanced_players = sorted(enhanced_players, key=lambda x: x['ppg'], reverse=True)
+    return jsonify(enhanced_players)
 
 @app.route('/api/player/<player_name>')
 def api_player(player_name):
@@ -322,61 +360,104 @@ def api_all_advanced():
 
 def get_stats_context():
     """Generate comprehensive stats context for AI analysis"""
-    games = sorted(stats_data['games'], key=lambda x: x['gameId'])
-    season_stats = stats_data['season_team_stats']
-    
-    context = f"""
+    try:
+        games = sorted(stats_data['games'], key=lambda x: x['gameId'])
+        season_stats = stats_data['season_team_stats']
+        
+        # Validate required data
+        if not season_stats:
+            logger.warning("Missing season stats in get_stats_context")
+            return "No season statistics available"
+        
+        # Calculate win percentage safely
+        total_games = season_stats.get('win', 0) + season_stats.get('loss', 0)
+        win_pct = (season_stats.get('win', 0) / total_games * 100) if total_games > 0 else 0
+        
+        context = f"""
 Valley Catholic Varsity Basketball - 2025-2026 Season Stats
 
-TEAM RECORD: {season_stats['win']}-{season_stats['loss']}
-Win Percentage: {season_stats['win']/(season_stats['win']+season_stats['loss'])*100:.1f}%
+TEAM RECORD: {season_stats.get('win', 0)}-{season_stats.get('loss', 0)}
+Win Percentage: {win_pct:.1f}%
 
 TEAM SEASON AVERAGES:
-- Points Per Game: {season_stats['ppg']:.1f}
-- Rebounds Per Game: {season_stats['rpg']:.1f} (ORB: {season_stats.get('oreb_pg', 0):.1f}, DRB: {season_stats.get('dreb_pg', 0):.1f})
-- Assists Per Game: {season_stats['apg']:.1f}
+- Points Per Game: {season_stats.get('ppg', 0):.1f}
+- Rebounds Per Game: {season_stats.get('rpg', 0):.1f} (ORB: {season_stats.get('oreb_pg', 0):.1f}, DRB: {season_stats.get('dreb_pg', 0):.1f})
+- Assists Per Game: {season_stats.get('apg', 0):.1f}
 - Turnovers Per Game: {season_stats.get('to_pg', 0):.1f}
 - Steals Per Game: {season_stats.get('stl_pg', 0):.1f}
 - Blocks Per Game: {season_stats.get('blk_pg', 0):.1f}
-- Field Goal %: {season_stats['fg_pct']:.1f}%
-- Three Point %: {season_stats['fg3_pct']:.1f}%
-- Free Throw %: {season_stats['ft_pct']:.1f}%
+- Field Goal %: {season_stats.get('fg_pct', 0):.1f}%
+- Three Point %: {season_stats.get('fg3_pct', 0):.1f}%
+- Free Throw %: {season_stats.get('ft_pct', 0):.1f}%
 
 GAME-BY-GAME RESULTS ({len(games)} games):
 """
+        
+        for game in games:
+            try:
+                team_stats = game.get('team_stats', {})
+                fg_pct = (team_stats.get('fg', 0)/team_stats.get('fga', 1)*100) if team_stats.get('fga', 0) > 0 else 0
+                fg3_pct = (team_stats.get('fg3', 0)/team_stats.get('fg3a', 1)*100) if team_stats.get('fg3a', 0) > 0 else 0
+                
+                # Get top scorers safely
+                player_stats = game.get('player_stats', [])
+                top_scorers = []
+                if player_stats:
+                    filtered_players = [p for p in player_stats if p.get('name') not in EXCLUDED_PLAYERS and 'pts' in p]
+                    sorted_players = sorted(filtered_players, key=lambda x: x.get('pts', 0), reverse=True)[:3]
+                    top_scorers = [f"{p.get('name', 'Unknown')} {p.get('pts', 0)}pts" for p in sorted_players]
+                
+                context += f"""
+Game {game.get('gameId', 'N/A')} - {game.get('date', 'N/A')} vs {game.get('opponent', 'Unknown')} ({game.get('location', 'home')}): {game.get('result', '?')} {game.get('vc_score', 0)}-{game.get('opp_score', 0)}
+  Team Stats: {team_stats.get('fg', 0)}/{team_stats.get('fga', 0)} FG ({fg_pct:.1f}%), {team_stats.get('fg3', 0)}/{team_stats.get('fg3a', 0)} 3P ({fg3_pct:.1f}%), {team_stats.get('ft', 0)}/{team_stats.get('fta', 0)} FT, {team_stats.get('reb', 0)} REB, {team_stats.get('asst', 0)} AST, {team_stats.get('to', 0)} TO, {team_stats.get('stl', 0)} STL
+  Top Scorers: {', '.join(top_scorers) if top_scorers else 'No scorers data'}"""
+            except Exception as e:
+                logger.warning(f"Error processing game {game.get('gameId', 'unknown')}: {e}")
+                continue
+        
+        context += "\n\nPLAYER SEASON STATISTICS (sorted by PPG):\n"
+        try:
+            player_stats_items = stats_data.get('season_player_stats', {}).items()
+            for player_name, stats in sorted(player_stats_items, 
+                                             key=lambda x: x[1].get('ppg', 0), reverse=True):
+                if player_name in EXCLUDED_PLAYERS or not isinstance(stats, dict):
+                    continue
+                # Calculate TPG if missing
+                tpg = stats.get('to_pg', stats.get('to', 0) / max(stats.get('games', 1), 1))
+                context += f"""
+{player_name}: {stats.get('games', 0)} GP, {stats.get('ppg', 0):.1f} PPG, {stats.get('rpg', 0):.1f} RPG, {stats.get('apg', 0):.1f} APG, {tpg:.1f} TPG, {stats.get('stl_pg', 0):.1f} SPG, {stats.get('blk_pg', 0):.1f} BPG
+  Shooting: {stats.get('fg_pct', 0):.1f}% FG, {stats.get('fg3_pct', 0):.1f}% 3P, {stats.get('ft_pct', 0):.1f}% FT
+  Total Season Stats: {stats.get('pts', 0)} PTS, {stats.get('reb', 0)} REB, {stats.get('asst', 0)} AST, {stats.get('to', 0)} TO, {stats.get('stl', 0)} STL, {stats.get('blk', 0)} BLK"""
+        except Exception as e:
+            logger.warning(f"Error processing player season stats: {e}")
+            context += "\nError loading player statistics"
+        
+        # Add player game logs for top 5 scorers to show trends
+        context += "\n\nTOP PLAYERS GAME-BY-GAME TRENDS:\n"
+        try:
+            season_player_stats = stats_data.get('season_player_stats', {})
+            if season_player_stats:
+                top_scorers = sorted([(name, stats) for name, stats in season_player_stats.items() 
+                                     if name not in EXCLUDED_PLAYERS and isinstance(stats, dict) and 'ppg' in stats], 
+                                    key=lambda x: x[1].get('ppg', 0), reverse=True)[:5]
+                
+                for player_name, _ in top_scorers:
+                    player_game_logs = stats_data.get('player_game_logs', {})
+                    if player_name in player_game_logs:
+                        game_logs = sorted(player_game_logs[player_name], key=lambda x: x.get('gameId', 0))
+                        context += f"\n{player_name} (last {min(5, len(game_logs))} games):\n"
+                        for log in game_logs[-5:]:
+                            log_stats = log.get('stats', {})
+                            context += f"  G{log.get('gameId', 'N/A')} vs {log.get('opponent', 'Unknown')}: {log_stats.get('pts', 0)}pts, {log_stats.get('oreb', 0)+log_stats.get('dreb', 0)}reb, {log_stats.get('asst', 0)}ast, {log_stats.get('to', 0)}to, {log_stats.get('fg_made', 0)}/{log_stats.get('fg_att', 0)}FG, {log_stats.get('fg3_made', 0)}/{log_stats.get('fg3_att', 0)}3P\n"
+        except Exception as e:
+            logger.warning(f"Error processing player game logs: {e}")
+            context += "\nError loading player trends"
+        
+        return context
     
-    for game in games:
-        team_stats = game['team_stats']
-        fg_pct = (team_stats['fg']/team_stats['fga']*100) if team_stats['fga'] > 0 else 0
-        fg3_pct = (team_stats['fg3']/team_stats['fg3a']*100) if team_stats['fg3a'] > 0 else 0
-        context += f"""
-Game {game['gameId']} - {game['date']} vs {game['opponent']} ({game.get('location', 'home')}): {game['result']} {game['vc_score']}-{game['opp_score']}
-  Team Stats: {team_stats['fg']}/{team_stats['fga']} FG ({fg_pct:.1f}%), {team_stats['fg3']}/{team_stats['fg3a']} 3P ({fg3_pct:.1f}%), {team_stats['ft']}/{team_stats['fta']} FT, {team_stats['reb']} REB, {team_stats['asst']} AST, {team_stats['to']} TO, {team_stats['stl']} STL
-  Top Scorers: {', '.join([f"{p['name']} {p['pts']}pts" for p in sorted([p for p in game.get('player_stats', []) if p['name'] not in EXCLUDED_PLAYERS], key=lambda x: x['pts'], reverse=True)[:3]])}"""
-    
-    context += "\n\nPLAYER SEASON STATISTICS (sorted by PPG):\n"
-    for player_name, stats in sorted(stats_data['season_player_stats'].items(), 
-                                     key=lambda x: x[1]['ppg'], reverse=True):
-        if player_name in EXCLUDED_PLAYERS:
-            continue
-        context += f"""
-{player_name}: {stats['games']} GP, {stats['ppg']:.1f} PPG, {stats['rpg']:.1f} RPG, {stats['apg']:.1f} APG, {stats.get('stl_pg', 0):.1f} SPG, {stats.get('blk_pg', 0):.1f} BPG
-  Shooting: {stats['fg_pct']:.1f}% FG, {stats['fg3_pct']:.1f}% 3P, {stats['ft_pct']:.1f}% FT"""
-    
-    # Add player game logs for top 5 scorers to show trends
-    context += "\n\nTOP PLAYERS GAME-BY-GAME TRENDS:\n"
-    top_scorers = sorted([(name, stats) for name, stats in stats_data['season_player_stats'].items() 
-                         if name not in EXCLUDED_PLAYERS], 
-                        key=lambda x: x[1]['ppg'], reverse=True)[:5]
-    
-    for player_name, _ in top_scorers:
-        if player_name in stats_data.get('player_game_logs', {}):
-            game_logs = sorted(stats_data['player_game_logs'][player_name], key=lambda x: x['gameId'])
-            context += f"\n{player_name} (last {min(5, len(game_logs))} games):\n"
-            for log in game_logs[-5:]:
-                context += f"  G{log['gameId']} vs {log['opponent']}: {log['stats']['pts']}pts, {log['stats']['oreb']+log['stats']['dreb']}reb, {log['stats']['asst']}ast, {log['stats']['fg_made']}/{log['stats']['fg_att']}FG, {log['stats']['fg3_made']}/{log['stats']['fg3_att']}3P\n"
-    
-    return context
+    except Exception as e:
+        logger.error(f"Error in get_stats_context: {e}")
+        return "Error loading comprehensive stats context"
 
 def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.7, model="gpt-4o-mini"):
     """Make API call to OpenAI using requests library"""
@@ -429,12 +510,24 @@ def call_openai_api(system_prompt, user_message, max_tokens=1500, temperature=0.
 def ai_analyze():
     """General AI analysis endpoint"""
     try:
+        if not request.json:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
         data = request.json
-        query = data.get('query', '')
-        analysis_type = data.get('type', 'general')  # general, player, team, game, trends
+        query = data.get('query', '').strip()
+        analysis_type = data.get('type', 'general').strip().lower()
         
+        # Input validation
         if not query:
             return jsonify({'error': 'No query provided'}), 400
+        
+        if len(query) > 1000:  # Prevent extremely long queries
+            return jsonify({'error': 'Query too long (max 1000 characters)'}), 400
+            
+        # Validate analysis type
+        valid_types = {'general', 'player', 'team', 'game', 'trends', 'coaching'}
+        if analysis_type not in valid_types:
+            analysis_type = 'general'
         
         if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
@@ -546,12 +639,34 @@ REQUIRED OUTPUT STRUCTURE:
 def ai_chat():
     """Chatbot endpoint with conversation history support"""
     try:
+        if not request.json:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
         data = request.json
-        message = data.get('message', '')
+        message = data.get('message', '').strip()
         history = data.get('history', [])
         
+        # Input validation
         if not message:
             return jsonify({'error': 'No message provided'}), 400
+            
+        if len(message) > 1000:  # Prevent extremely long messages
+            return jsonify({'error': 'Message too long (max 1000 characters)'}), 400
+        
+        # Validate history is a list and limit its size
+        if not isinstance(history, list):
+            history = []
+        history = history[-20:]  # Keep only last 20 messages to prevent context overflow
+        
+        # Sanitize history messages
+        cleaned_history = []
+        for msg in history:
+            if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+                if msg['role'] in ['user', 'assistant'] and len(str(msg['content'])) <= 2000:
+                    cleaned_history.append({
+                        'role': msg['role'],
+                        'content': str(msg['content']).strip()
+                    })
         
         if not OPENAI_API_KEY:
             return jsonify({'error': 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.'}), 500
@@ -560,33 +675,19 @@ def ai_chat():
         stats_context = get_stats_context()
         
         # Build system prompt with stats context
-        system_prompt = f"""You are an expert basketball statistics analyst and coaching assistant. You have access to comprehensive team and player statistics.
+        system_prompt = f"""You are an expert basketball statistics analyst. You must use ONLY the provided stats data to answer questions.
 
-Your role is to:
-- Answer questions about team and player performance using ONLY the stats data provided
-- Provide actionable insights based on measurable data
-- Compare players, games, and trends when asked
-- Suggest tactical improvements based on statistical analysis
-- Be conversational but data-driven
-
-Guidelines:
-- Reference specific stats and numbers in your responses
-- When comparing players, show their actual stats
-- For trends, identify patterns across games
-- Keep responses concise but informative (2-4 paragraphs typically)
-- Use bullet points for lists of stats or recommendations
-- If asked about something not in the data, clearly state that
-
-Available data includes:
-- Team record and season statistics
-- Player season averages (PPG, RPG, APG, FG%, 3P%, FT%, etc.)
-- Individual game results and box scores
-- Player game-by-game performance logs
+CRITICAL INSTRUCTIONS:
+- You MUST reference the exact numbers from the data provided below
+- Never make up or estimate statistics
+- If asked about a specific player's stats, find that player in the data and quote their exact numbers
+- For player stats, look in the "PLAYER SEASON STATISTICS" section
+- Always cite the specific stat you're referencing (e.g., "Cooper Bonnett has 24 TO total turnovers")
 
 TEAM STATS DATA:
 {stats_context}
 
-Respond naturally to the user's question while referencing the actual stats."""
+Answer the user's question using ONLY the stats shown above. Be direct and specific."""
         
         # Prepare messages for API call
         messages = [{"role": "system", "content": system_prompt}]

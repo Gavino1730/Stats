@@ -17,6 +17,11 @@ async function loadStatsContext() {
             fetch('/api/season-stats')
         ]);
         
+        // Check if responses are ok
+        if (!playersRes.ok || !gamesRes.ok || !statsRes.ok) {
+            throw new Error('Failed to load stats data from server');
+        }
+        
         const players = await playersRes.json();
         const games = await gamesRes.json();
         const seasonStats = await statsRes.json();
@@ -27,6 +32,8 @@ async function loadStatsContext() {
         updateStatsPanel();
     } catch (error) {
         console.error('Error loading stats context:', error);
+        // Set a fallback stats context
+        statsContext = { players: [], games: [], seasonStats: { season_team_stats: {}, season_player_stats: {} } };
     }
 }
 
@@ -37,25 +44,37 @@ function updateStatsPanel() {
     const teamStats = statsContext.seasonStats.season_team_stats;
     const playerStats = statsContext.seasonStats.season_player_stats;
     
-    // Team Record
+    // Validate required data
+    if (!teamStats || !playerStats) {
+        console.warn('Missing team or player stats in context');
+        return;
+    }
+    
+    // Team Record - add null checks
+    const wins = teamStats.win || 0;
+    const losses = teamStats.loss || 0;
+    const totalGames = wins + losses;
+    const winRate = totalGames > 0 ? (wins / totalGames * 100).toFixed(1) : '0.0';
+    
     document.getElementById('team-record-info').innerHTML = `
         <div class="stat-item">
-            <strong>${teamStats.win}-${teamStats.loss}</strong>
-            <span>${(teamStats.win / (teamStats.win + teamStats.loss) * 100).toFixed(1)}% Win Rate</span>
+            <strong>${wins}-${losses}</strong>
+            <span>${winRate}% Win Rate</span>
         </div>
         <div class="stat-item">
-            <span>PPG:</span> <strong>${teamStats.ppg.toFixed(1)}</strong>
+            <span>PPG:</span> <strong>${(teamStats.ppg || 0).toFixed(1)}</strong>
         </div>
         <div class="stat-item">
-            <span>RPG:</span> <strong>${teamStats.rpg.toFixed(1)}</strong>
+            <span>RPG:</span> <strong>${(teamStats.rpg || 0).toFixed(1)}</strong>
         </div>
         <div class="stat-item">
-            <span>APG:</span> <strong>${teamStats.apg.toFixed(1)}</strong>
+            <span>APG:</span> <strong>${(teamStats.apg || 0).toFixed(1)}</strong>
         </div>
     `;
     
-    // Top Players by PPG
+    // Top Players by PPG - add validation
     const topPlayers = Object.entries(playerStats)
+        .filter(([name, stats]) => stats && typeof stats.ppg === 'number')
         .sort((a, b) => b[1].ppg - a[1].ppg)
         .slice(0, 5);
     
@@ -66,14 +85,18 @@ function updateStatsPanel() {
         </div>
     `).join('');
     
-    // Recent Games (last 5)
-    const recentGames = statsContext.games.slice(-5).reverse();
-    document.getElementById('recent-games-info').innerHTML = recentGames.map(game => `
-        <div class="game-item ${game.result === 'W' ? 'win' : 'loss'}">
-            <span class="game-result">${game.result}</span>
-            <span class="game-info">${game.opponent} ${game.vc_score}-${game.opp_score}</span>
-        </div>
-    `).join('');
+    // Recent Games (last 5) - add validation
+    if (Array.isArray(statsContext.games) && statsContext.games.length > 0) {
+        const recentGames = statsContext.games.slice(-5).reverse();
+        document.getElementById('recent-games-info').innerHTML = recentGames.map(game => `
+            <div class="game-item ${game.result === 'W' ? 'win' : 'loss'}">
+                <span class="game-result">${game.result || '?'}</span>
+                <span class="game-info">${game.opponent || 'Unknown'} ${game.vc_score || 0}-${game.opp_score || 0}</span>
+            </div>
+        `).join('');
+    } else {
+        document.getElementById('recent-games-info').innerHTML = '<div class="game-item">No games data available</div>';
+    }
 }
 
 // Toggle stats panel visibility
@@ -195,7 +218,8 @@ async function sendMessage() {
         saveConversationHistory();
     } catch (error) {
         hideTypingIndicator();
-        const errorMsg = `⚠️ Connection error: ${error.message}`;
+        console.error('Chat error:', error);
+        const errorMsg = `⚠️ Connection error: Unable to reach AI service. Please check your internet connection and try again.`;
         conversationHistory.push({ role: 'assistant', content: errorMsg });
         addMessageToUI('assistant', errorMsg);
         saveConversationHistory();
@@ -270,9 +294,22 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Convert markdown-like formatting to HTML
+// Convert markdown-like formatting to HTML (XSS-safe)
 function formatAIResponse(text) {
-    return text
+    if (!text || typeof text !== 'string') {
+        return 'No response available';
+    }
+    
+    // First escape HTML to prevent XSS
+    const escapeHtml = (str) => {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
+    
+    let escapedText = escapeHtml(text);
+    
+    return escapedText
         // Convert headers (### Header -> <h3>Header</h3>)
         .replace(/^### (.+)$/gm, '<h3>$1</h3>')
         .replace(/^## (.+)$/gm, '<h2>$1</h2>')

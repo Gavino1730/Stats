@@ -20,6 +20,11 @@
     box-sizing: border-box;
 }
 
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 12px;

@@ -3,6 +3,7 @@ let teamCharts = {};
 let playerCharts = {};
 let allPlayers = [];
 let currentTrendsData = null;
+let comprehensiveInsights = null;
 
 // Convert markdown-like formatting to HTML
 function formatAIResponse(text) {
@@ -24,10 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Promise.all([
         loadPlayers(),
         loadTeamTrends(),
-        loadVolatilityStats()
+        loadVolatilityStats(),
+        loadComprehensiveInsights()
     ]);
     setupTabs();
     setupPlayerSelector();
+    setupComparisonSelectors();
 });
 
 async function loadPlayers() {
@@ -36,6 +39,16 @@ async function loadPlayers() {
         allPlayers = await response.json();
     } catch (error) {
         console.error('Error loading players:', error);
+    }
+}
+
+async function loadComprehensiveInsights() {
+    try {
+        const response = await fetch('/api/comprehensive-insights');
+        comprehensiveInsights = await response.json();
+        console.log('Loaded comprehensive insights:', comprehensiveInsights);
+    } catch (error) {
+        console.error('Error loading comprehensive insights:', error);
     }
 }
 
@@ -509,6 +522,249 @@ function setupTabs() {
 
             button.classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Load content for specific tabs
+            if (tabName === 'insights') {
+                displayComprehensiveInsights();
+            } else if (tabName === 'comparison') {
+                // Comparison tab doesn't need auto-loading
+            }
         });
     });
+}
+
+function displayComprehensiveInsights() {
+    if (!comprehensiveInsights) return;
+    
+    // Display team insights
+    displayTeamInsights();
+    
+    // Display recommendations
+    displayRecommendations();
+    
+    // Display player insights
+    displayPlayerInsights();
+}
+
+function displayTeamInsights() {
+    const container = document.getElementById('team-insights-grid');
+    const insights = comprehensiveInsights;
+    
+    if (!insights.team_trends) return;
+    
+    const trends = insights.team_trends;
+    
+    container.innerHTML = `
+        <div class="insight-card">
+            <div class="insight-title">Recent Performance</div>
+            <div class="insight-content">
+                <p><strong>Record:</strong> ${trends.recent_performance?.record || 'N/A'}</p>
+                <p><strong>Avg Score:</strong> ${trends.recent_performance?.avg_score || 'N/A'}</p>
+                <p><strong>Point Differential:</strong> ${trends.recent_performance?.point_differential > 0 ? '+' : ''}${trends.recent_performance?.point_differential || 'N/A'}</p>
+                <p><strong>Trend:</strong> ${trends.recent_performance?.trend || 'N/A'}</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-title">Scoring Trends</div>
+            <div class="insight-content">
+                <p><strong>Recent Avg:</strong> ${trends.scoring_trends?.recent_avg || 'N/A'} PPG</p>
+                <p><strong>Early Season:</strong> ${trends.scoring_trends?.early_avg || 'N/A'} PPG</p>
+                <p><strong>Improvement:</strong> ${trends.scoring_trends?.improvement > 0 ? '+' : ''}${trends.scoring_trends?.improvement || 'N/A'}</p>
+                <p><strong>Trend:</strong> ${trends.scoring_trends?.trend || 'N/A'}</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-title">Defensive Trends</div>
+            <div class="insight-content">
+                <p><strong>Recent Allowed:</strong> ${trends.defensive_trends?.recent_avg_allowed || 'N/A'} PPG</p>
+                <p><strong>Early Season:</strong> ${trends.defensive_trends?.early_avg_allowed || 'N/A'} PPG</p>
+                <p><strong>Improvement:</strong> ${trends.defensive_trends?.improvement > 0 ? '+' : ''}${trends.defensive_trends?.improvement || 'N/A'}</p>
+                <p><strong>Trend:</strong> ${trends.defensive_trends?.trend || 'N/A'}</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-title">Key Metrics</div>
+            <div class="insight-content">
+                <p><strong>Win %:</strong> ${insights.key_metrics?.win_pct || 'N/A'}%</p>
+                <p><strong>FG%:</strong> ${insights.key_metrics?.fg_pct || 'N/A'}%</p>
+                <p><strong>3P%:</strong> ${insights.key_metrics?.fg3_pct || 'N/A'}%</p>
+                <p><strong>AST/TO:</strong> ${((insights.key_metrics?.apg || 0) / (insights.key_metrics?.tpg || 1)).toFixed(2)}</p>
+            </div>
+        </div>
+    `;
+}
+
+function displayRecommendations() {
+    const container = document.getElementById('recommendations-list');
+    const recommendations = comprehensiveInsights?.recommendations || [];
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = '<li>No specific recommendations at this time.</li>';
+        return;
+    }
+    
+    container.innerHTML = recommendations.map(rec => `
+        <li class="rec-${rec.priority.toLowerCase()}">
+            <strong>${rec.category} (${rec.priority} Priority):</strong> ${rec.recommendation}
+            <br><small><em>${rec.reason}</em></small>
+        </li>
+    `).join('');
+}
+
+function displayPlayerInsights() {
+    const container = document.getElementById('player-insights-grid');
+    const playerInsights = comprehensiveInsights?.player_insights || [];
+    
+    if (playerInsights.length === 0) {
+        container.innerHTML = '<div class="player-insight-card">No player insights available.</div>';
+        return;
+    }
+    
+    container.innerHTML = playerInsights.slice(0, 12).map(player => `
+        <div class="player-insight-card">
+            <div class="player-insight-name">${player.name}</div>
+            <div class="player-insight-role">${player.role}</div>
+            
+            <div class="strengths">
+                <h4>Strengths</h4>
+                <div class="strength-tags">
+                    ${(player.strengths || []).map(strength => `<span class="strength-tag">${strength}</span>`).join('')}
+                </div>
+            </div>
+            
+            <div class="improvements">
+                <h4>Areas for Improvement</h4>
+                <div class="improvement-tags">
+                    ${(player.areas_for_improvement || []).map(area => `<span class="improvement-tag">${area}</span>`).join('')}
+                </div>
+            </div>
+            
+            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-light);">
+                Efficiency Grade: <strong>${player.efficiency_grade}</strong>
+            </div>
+        </div>
+    `).join('');
+}
+
+function setupComparisonSelectors() {
+    const player1Select = document.getElementById('player1Select');
+    const player2Select = document.getElementById('player2Select');
+    const compareButton = document.getElementById('compareButton');
+    
+    // Populate player options
+    allPlayers.forEach(player => {
+        const option1 = new Option(player.name, player.name);
+        const option2 = new Option(player.name, player.name);
+        player1Select.appendChild(option1);
+        player2Select.appendChild(option2);
+    });
+    
+    // Setup compare button
+    compareButton.addEventListener('click', compareSelectedPlayers);
+}
+
+async function compareSelectedPlayers() {
+    const player1 = document.getElementById('player1Select').value;
+    const player2 = document.getElementById('player2Select').value;
+    
+    if (!player1 || !player2) {
+        alert('Please select both players to compare');
+        return;
+    }
+    
+    if (player1 === player2) {
+        alert('Please select two different players');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/player-comparison?players=${player1}&players=${player2}`);
+        const comparison = await response.json();
+        
+        displayComparison(comparison);
+    } catch (error) {
+        console.error('Error comparing players:', error);
+    }
+}
+
+function displayComparison(comparison) {
+    const container = document.getElementById('comparison-results');
+    
+    if (!comparison.players || comparison.players.length < 2) {
+        container.innerHTML = '<div class="error">Unable to load comparison data</div>';
+        return;
+    }
+    
+    const player1 = comparison.players[0];
+    const player2 = comparison.players[1];
+    
+    const compareStats = [
+        { key: 'ppg', label: 'Points Per Game' },
+        { key: 'rpg', label: 'Rebounds Per Game' },
+        { key: 'apg', label: 'Assists Per Game' },
+        { key: 'tpg', label: 'Turnovers Per Game', lowerBetter: true },
+        { key: 'fg_pct', label: 'Field Goal %' },
+        { key: 'fg3_pct', label: '3-Point %' },
+        { key: 'ft_pct', label: 'Free Throw %' }
+    ];
+    
+    container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; margin-bottom: 1rem;">
+            <h3>${player1.name} vs ${player2.name}</h3>
+        </div>
+        
+        ${compareStats.map(stat => {
+            const val1 = player1.basic_stats[stat.key] || 0;
+            const val2 = player2.basic_stats[stat.key] || 0;
+            
+            let winner1 = false, winner2 = false;
+            if (stat.lowerBetter) {
+                winner1 = val1 < val2;
+                winner2 = val2 < val1;
+            } else {
+                winner1 = val1 > val2;
+                winner2 = val2 > val1;
+            }
+            
+            return `
+                <div class="comparison-stat">
+                    <div class="comparison-stat-name">${stat.label}</div>
+                    <div class="comparison-values">
+                        <div class="comparison-value ${winner1 ? 'comparison-winner' : ''}">
+                            ${formatStatValue(val1, stat.key)}
+                        </div>
+                        <div style="color: var(--text-light); font-size: 0.8rem;">vs</div>
+                        <div class="comparison-value ${winner2 ? 'comparison-winner' : ''}">
+                            ${formatStatValue(val2, stat.key)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('')}
+        
+        <div style="grid-column: 1 / -1; margin-top: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 6px;">
+            <h4 style="margin: 0 0 0.5rem 0;">Player Roles</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div><strong>${player1.name}:</strong> ${player1.role}</div>
+                <div><strong>${player2.name}:</strong> ${player2.role}</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <div><strong>Efficiency Grade:</strong> ${player1.efficiency_grade}</div>
+                <div><strong>Efficiency Grade:</strong> ${player2.efficiency_grade}</div>
+            </div>
+        </div>
+    `;
+}
+
+function formatStatValue(value, stat) {
+    if (stat.includes('_pct')) {
+        return `${value.toFixed(1)}%`;
+    }
+    if (stat.includes('pg')) {
+        return value.toFixed(1);
+    }
+    return Math.round(value);
 }
