@@ -534,8 +534,15 @@ REQUIRED OUTPUT:
 
 @app.route('/api/ai/team-summary', methods=['GET'])
 def ai_team_summary():
-    """Get AI-generated team summary and recommendations"""
+    """Get AI-generated team summary and recommendations - cached for consistency"""
+    TEAM_SUMMARY_CACHE = 'team_summary.json'
+    
     try:
+        # Check if summary is cached
+        if os.path.exists(TEAM_SUMMARY_CACHE):
+            with open(TEAM_SUMMARY_CACHE) as f:
+                return jsonify(json.load(f))
+        
         if not client.api_key:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
@@ -579,14 +586,28 @@ Write like you're briefing a coach who needs actionable intelligence, not surfac
 
 TEAM DATA: {stats_context}"""
         
-        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0.9)
+        summary = call_openai_api(system_prompt, prompt, max_tokens=2000, temperature=0)
         
-        return jsonify({
-            'summary': summary
-        })
+        # Cache the result
+        result = {'summary': summary}
+        with open(TEAM_SUMMARY_CACHE, 'w') as f:
+            json.dump(result, f)
+        
+        return jsonify(result)
     
     except Exception as e:
         return jsonify({'error': f'Failed to generate summary: {str(e)}'}), 500
+
+@app.route('/api/ai/team-summary', methods=['DELETE'])
+def clear_team_summary():
+    """Clear team summary cache"""
+    TEAM_SUMMARY_CACHE = 'team_summary.json'
+    try:
+        if os.path.exists(TEAM_SUMMARY_CACHE):
+            os.remove(TEAM_SUMMARY_CACHE)
+        return jsonify({'message': 'Team summary cache cleared'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/season-analysis', methods=['GET'])
 def get_season_analysis():

@@ -60,6 +60,7 @@ Thumbs.db
 
 # Cache files
 season_analysis.json
+team_summary.json
 *.cache
 
 # Local development
