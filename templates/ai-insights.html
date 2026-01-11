@@ -3,12 +3,12 @@
 {% block content %}
 <div class="ai-insights-page">
     <h1>Analysis</h1>
-    <p class="subtitle">Ask AI Coach anything about your team, get instant insights and coaching recommendations</p>
+    <p class="subtitle">Ask AI anything about your team, get instant insights and analysis</p>
     
     <!-- Quick Insights Section -->
     <div class="quick-insights">
         <button class="insight-btn" onclick="loadTeamSummary()">Team Summary</button>
-        <button class="insight-btn" onclick="showAskCoach()">Ask AI Coach</button>
+        <button class="insight-btn" onclick="showAskCoach()">Ask AI</button>
         <button class="insight-btn" onclick="showPlayerAnalysis()">Analyze Player</button>
         <button class="insight-btn" onclick="showGameAnalysis()">Game Analysis</button>
     </div>
@@ -19,9 +19,9 @@
         <div id="team-summary-content" class="loading">Loading AI analysis...</div>
     </div>
 
-    <!-- Ask AI Coach Section -->
+    <!-- Ask AI Section -->
     <div id="ask-coach-section" class="insight-section" style="display: none;">
-        <h2>Ask AI Coach</h2>
+        <h2>Ask AI</h2>
         <div class="ask-coach-container">
             <div class="question-input-area">
                 <textarea id="question-input" placeholder="Ask anything about your team, players, strategy, trends, coaching... e.g., 'What are our main strengths and weaknesses?' or 'How can we improve our free throw shooting?'" rows="4"></textarea>
@@ -67,9 +67,9 @@
 
     <!-- AI Insights Box (appears on every page) -->
     <div id="ai-chat-widget" class="ai-chat-widget" style="display: none;">
-        <button class="chat-toggle" onclick="toggleAIChat()">💬 AI Coach</button>
+        <button class="chat-toggle" onclick="toggleAIChat()">AI</button>
         <div class="chat-box" id="chat-box" style="display: none;">
-            <div class="chat-header">AI Coach Assistant</div>
+            <div class="chat-header">AI Assistant</div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input">
                 <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="handleChatKeypress(event)">
