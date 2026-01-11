@@ -75,7 +75,12 @@ function displayPlayers(players) {
             </div>
         `;
         
-        card.addEventListener('click', () => showPlayerDetail(player.name));
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Player card clicked for:', player.name);
+            showPlayerDetail(player.name);
+        });
         container.appendChild(card);
     });
 }
@@ -146,13 +151,19 @@ function sortPlayers() {
 
 async function showPlayerDetail(playerName) {
     try {
+        console.log('Showing player detail for:', playerName);
+        const encodedPlayerName = encodeURIComponent(playerName);
+        console.log('Encoded player name:', encodedPlayerName);
         const [playerResponse, advancedResponse] = await Promise.all([
-            fetch(`/api/player/${playerName}`),
-            fetch(`/api/advanced/player/${playerName}`)
+            fetch(`/api/player/${encodedPlayerName}`),
+            fetch(`/api/advanced/player/${encodedPlayerName}`)
         ]);
         
         const data = await playerResponse.json();
         const advancedData = advancedResponse.ok ? await advancedResponse.json() : null;
+        
+        console.log('Player data:', data);
+        console.log('Advanced data:', advancedData);
         
         // Build roster info section if available
         let rosterHtml = '';
@@ -589,7 +600,10 @@ async function showPlayerDetail(playerName) {
         `;
         
         document.getElementById('playerDetail').innerHTML = detailHtml;
+        console.log('Modal element:', playerModal);
+        console.log('About to show modal');
         playerModal.classList.add('show');
+        console.log('Modal classes after show:', playerModal.classList.toString());
     } catch (error) {
         console.error('Error loading player detail:', error);
     }
@@ -711,12 +725,19 @@ function setupModal() {
     playerModal = document.getElementById('playerModal');
     const closeBtn = document.querySelector('.close');
     
-    closeBtn.addEventListener('click', () => {
-        playerModal.classList.remove('show');
-    });
+    console.log('Setting up modal:', playerModal);
+    console.log('Close button:', closeBtn);
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            console.log('Close button clicked');
+            playerModal.classList.remove('show');
+        });
+    }
     
     window.addEventListener('click', (e) => {
         if (e.target === playerModal) {
+            console.log('Modal background clicked');
             playerModal.classList.remove('show');
         }
     });
