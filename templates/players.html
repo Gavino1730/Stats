@@ -5,6 +5,10 @@
     <h1>Players</h1>
     
     <div class="players-filter">
+        <div class="view-toggle">
+            <button id="cards-view-btn" class="view-btn active">Cards</button>
+            <button id="rankings-view-btn" class="view-btn">Rankings</button>
+        </div>
         <input type="text" id="player-search" placeholder="Search player...">
         <select id="stat-sort">
             <option value="ppg">Sort by PPG</option>
@@ -12,9 +16,39 @@
             <option value="apg">Sort by APG</option>
             <option value="fg_pct">Sort by FG%</option>
         </select>
+        <select id="ranking-stat" style="display: none;">
+            <optgroup label="Scoring">
+                <option value="ppg">Points Per Game</option>
+                <option value="pts">Total Points</option>
+                <option value="fg_pct">Field Goal %</option>
+                <option value="fg3_pct">3-Point %</option>
+                <option value="ft_pct">Free Throw %</option>
+                <option value="fg">Field Goals Made</option>
+                <option value="fg3">3-Pointers Made</option>
+            </optgroup>
+            <optgroup label="Rebounding">
+                <option value="rpg">Rebounds Per Game</option>
+                <option value="reb">Total Rebounds</option>
+            </optgroup>
+            <optgroup label="Playmaking">
+                <option value="apg">Assists Per Game</option>
+                <option value="asst">Total Assists</option>
+            </optgroup>
+            <optgroup label="Defense">
+                <option value="spg">Steals Per Game</option>
+                <option value="bpg">Blocks Per Game</option>
+                <option value="stl">Total Steals</option>
+                <option value="blk">Total Blocks</option>
+            </optgroup>
+            <optgroup label="Other">
+                <option value="games">Games Played</option>
+                <option value="tpg">Turnovers Per Game</option>
+            </optgroup>
+        </select>
     </div>
 
     <div id="players-container" class="players-container"></div>
+    <div id="rankings-container" class="rankings-container" style="display: none;"></div>
 
     <!-- Player Detail Modal -->
     <div id="playerModal" class="modal">

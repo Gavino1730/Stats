@@ -1,12 +1,14 @@
 // Players Page JavaScript
 let allPlayers = [];
 let playerModal = null;
+let currentView = 'cards'; // 'cards' or 'rankings'
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Load and setup in parallel for faster interaction
     await loadPlayers();
     setupFilters();
     setupModal();
+    setupViewToggle();
 });
 
 async function loadPlayers() {
@@ -59,9 +61,37 @@ function displayPlayers(players) {
 function setupFilters() {
     const searchInput = document.getElementById('player-search');
     const sortSelect = document.getElementById('stat-sort');
+    const rankingSelect = document.getElementById('ranking-stat');
 
     searchInput.addEventListener('input', filterPlayers);
     sortSelect.addEventListener('change', sortPlayers);
+    rankingSelect.addEventListener('change', displayRankings);
+}
+
+function setupViewToggle() {
+    const cardsBtn = document.getElementById('cards-view-btn');
+    const rankingsBtn = document.getElementById('rankings-view-btn');
+    
+    cardsBtn.addEventListener('click', () => {
+        currentView = 'cards';
+        cardsBtn.classList.add('active');
+        rankingsBtn.classList.remove('active');
+        document.getElementById('players-container').style.display = 'grid';
+        document.getElementById('rankings-container').style.display = 'none';
+        document.getElementById('stat-sort').style.display = 'block';
+        document.getElementById('ranking-stat').style.display = 'none';
+    });
+    
+    rankingsBtn.addEventListener('click', () => {
+        currentView = 'rankings';
+        rankingsBtn.classList.add('active');
+        cardsBtn.classList.remove('active');
+        document.getElementById('players-container').style.display = 'none';
+        document.getElementById('rankings-container').style.display = 'block';
+        document.getElementById('stat-sort').style.display = 'none';
+        document.getElementById('ranking-stat').style.display = 'block';
+        displayRankings();
+    });
 }
 
 function filterPlayers() {
@@ -84,15 +114,13 @@ function sortPlayers() {
 
 async function showPlayerDetail(playerName) {
     try {
-        const [playerResponse, advancedResponse, aiAnalysisResponse] = await Promise.all([
+        const [playerResponse, advancedResponse] = await Promise.all([
             fetch(`/api/player/${playerName}`),
-            fetch(`/api/advanced/player/${playerName}`),
-            fetch(`/api/ai/player-analysis/${playerName}`)
+            fetch(`/api/advanced/player/${playerName}`)
         ]);
         
         const data = await playerResponse.json();
         const advancedData = advancedResponse.ok ? await advancedResponse.json() : null;
-        const aiAnalysis = aiAnalysisResponse.ok ? await aiAnalysisResponse.json() : null;
         
         // Build roster info section if available
         let rosterHtml = '';
@@ -329,32 +357,6 @@ async function showPlayerDetail(playerName) {
             </div>
 
             ${advancedHtml}
-            
-            <!-- AI Analysis Section -->
-            ${aiAnalysis ? `
-                <div style="margin: 1.5rem 0; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.5rem;">🤖</span>
-                            <span>AI Performance Analysis</span>
-                        </h3>
-                        <button 
-                            id="regeneratePlayerAnalysis" 
-                            data-player="${playerName}"
-                            style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
-                            onmouseover="this.style.background='rgba(255,255,255,0.3)'"
-                            onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                            🔄 Regenerate
-                        </button>
-                    </div>
-                    <div style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 1rem;">
-                        ${aiAnalysis.cached ? '📦 Cached' : '✨ Freshly Generated'} • ${new Date(aiAnalysis.generated_at).toLocaleString()}
-                    </div>
-                    <div id="aiAnalysisContent" style="background: rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 6px; backdrop-filter: blur(10px); line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem;">
-${aiAnalysis.analysis}
-                    </div>
-                </div>
-            ` : ''}
 
             <h3 style="margin-top: 2rem; color: var(--primary); margin-bottom: 1rem;">Game-by-Game Performance</h3>
             <table class="box-score-table">
@@ -421,63 +423,121 @@ ${aiAnalysis.analysis}
         
         document.getElementById('playerDetail').innerHTML = detailHtml;
         playerModal.classList.add('show');
-        
-        // Setup regenerate button if AI analysis exists
-        if (aiAnalysis) {
-            setupRegenerateButton();
-        }
     } catch (error) {
         console.error('Error loading player detail:', error);
     }
 }
 
-function setupRegenerateButton() {
-    const regenerateBtn = document.getElementById('regeneratePlayerAnalysis');
-    if (regenerateBtn) {
-        regenerateBtn.addEventListener('click', async function() {
-            const playerName = this.getAttribute('data-player');
-            const contentDiv = document.getElementById('aiAnalysisContent');
-            const originalText = contentDiv.textContent;
-            
-            try {
-                // Show loading state
-                this.disabled = true;
-                this.innerHTML = '⏳ Regenerating...';
-                contentDiv.textContent = 'Generating fresh analysis... This may take 10-20 seconds.';
+function displayRankings() {
+    const container = document.getElementById('rankings-container');
+    const statSelect = document.getElementById('ranking-stat');
+    const searchValue = document.getElementById('player-search').value.toLowerCase();
+    const stat = statSelect.value;
+    
+    // Filter players based on search
+    let filteredPlayers = searchValue 
+        ? allPlayers.filter(p => p.name.toLowerCase().includes(searchValue))
+        : allPlayers;
+    
+    // Calculate per-game stats if needed
+    const playersWithStats = filteredPlayers.map(p => {
+        const enhanced = {...p};
+        enhanced.spg = p.stl / p.games;
+        enhanced.bpg = p.blk / p.games;
+        enhanced.tpg = p.to / p.games;
+        return enhanced;
+    });
+    
+    // Sort by selected stat
+    const sortedPlayers = [...playersWithStats].sort((a, b) => {
+        const valA = a[stat] || 0;
+        const valB = b[stat] || 0;
+        // For turnovers, lower is better
+        return stat === 'tpg' || stat === 'to' ? valA - valB : valB - valA;
+    });
+    
+    // Get stat display info
+    const statInfo = getStatDisplayInfo(stat);
+    
+    container.innerHTML = `
+        <div class="rankings-header">
+            <h2>Player Rankings: ${statInfo.label}</h2>
+            <p class="rankings-subtitle">${filteredPlayers.length} players ranked</p>
+        </div>
+        <div class="rankings-list">
+            ${sortedPlayers.map((player, index) => {
+                const rank = index + 1;
+                const value = formatStatValue(player[stat], stat);
+                const rankClass = rank <= 3 ? 'top-rank' : '';
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
                 
-                // Force regenerate by adding query parameter
-                const response = await fetch(`/api/ai/player-analysis/${playerName}?regenerate=true`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to regenerate analysis');
-                }
-                
-                const data = await response.json();
-                
-                // Update content
-                contentDiv.textContent = data.analysis;
-                
-                // Update timestamp
-                const timestampDiv = contentDiv.parentElement.querySelector('div[style*=\"font-size: 0.75rem\"]');
-                if (timestampDiv) {
-                    timestampDiv.textContent = `✨ Freshly Generated • ${new Date(data.generated_at).toLocaleString()}`;
-                }
-                
-                // Reset button
-                this.disabled = false;
-                this.innerHTML = '🔄 Regenerate';
-                
-            } catch (error) {
-                console.error('Error regenerating analysis:', error);
-                contentDiv.textContent = originalText;
-                this.disabled = false;
-                this.innerHTML = '❌ Failed - Try Again';
-                setTimeout(() => {
-                    this.innerHTML = '🔄 Regenerate';
-                }, 3000);
-            }
-        });
+                return `
+                    <div class="ranking-item ${rankClass}" onclick="showPlayerDetail('${player.name}')">
+                        <div class="ranking-position">
+                            <span class="rank-number">${rank}</span>
+                            ${medal ? `<span class="rank-medal">${medal}</span>` : ''}
+                        </div>
+                        <div class="ranking-player-info">
+                            <div class="ranking-player-number">#${player.number || '-'}</div>
+                            <div class="ranking-player-name">${player.name}</div>
+                            ${player.grade ? `<div class="ranking-player-grade">${player.grade}</div>` : ''}
+                        </div>
+                        <div class="ranking-stat-value">
+                            <div class="ranking-stat-number">${value}</div>
+                            <div class="ranking-stat-label">${statInfo.shortLabel}</div>
+                        </div>
+                        <div class="ranking-context">
+                            <div class="context-stat">PPG: ${player.ppg.toFixed(1)}</div>
+                            <div class="context-stat">RPG: ${player.rpg.toFixed(1)}</div>
+                            <div class="context-stat">APG: ${player.apg.toFixed(1)}</div>
+                            <div class="context-stat">GP: ${player.games}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+function getStatDisplayInfo(stat) {
+    const statMap = {
+        ppg: { label: 'Points Per Game', shortLabel: 'PPG' },
+        pts: { label: 'Total Points', shortLabel: 'PTS' },
+        rpg: { label: 'Rebounds Per Game', shortLabel: 'RPG' },
+        reb: { label: 'Total Rebounds', shortLabel: 'REB' },
+        apg: { label: 'Assists Per Game', shortLabel: 'APG' },
+        asst: { label: 'Total Assists', shortLabel: 'AST' },
+        spg: { label: 'Steals Per Game', shortLabel: 'SPG' },
+        stl: { label: 'Total Steals', shortLabel: 'STL' },
+        bpg: { label: 'Blocks Per Game', shortLabel: 'BPG' },
+        blk: { label: 'Total Blocks', shortLabel: 'BLK' },
+        fg_pct: { label: 'Field Goal Percentage', shortLabel: 'FG%' },
+        fg3_pct: { label: '3-Point Percentage', shortLabel: '3P%' },
+        ft_pct: { label: 'Free Throw Percentage', shortLabel: 'FT%' },
+        fg: { label: 'Field Goals Made', shortLabel: 'FGM' },
+        fg3: { label: '3-Pointers Made', shortLabel: '3PM' },
+        games: { label: 'Games Played', shortLabel: 'GP' },
+        tpg: { label: 'Turnovers Per Game', shortLabel: 'TPG' },
+        to: { label: 'Total Turnovers', shortLabel: 'TO' }
+    };
+    return statMap[stat] || { label: stat.toUpperCase(), shortLabel: stat.toUpperCase() };
+}
+
+function formatStatValue(value, stat) {
+    if (value == null || isNaN(value)) return '-';
+    
+    // Percentages
+    if (stat.includes('_pct') || stat.includes('%')) {
+        return value.toFixed(1) + '%';
     }
+    
+    // Per-game stats (show one decimal)
+    if (stat.endsWith('pg')) {
+        return value.toFixed(1);
+    }
+    
+    // Whole numbers
+    return Math.round(value).toString();
 }
 
 function setupModal() {
