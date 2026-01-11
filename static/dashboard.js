@@ -71,7 +71,6 @@ async function loadLeaderboards() {
             <tr>
                 <td><strong>${p.name}</strong></td>
                 <td>${p.pts}</td>
-                <td>${p.games}</td>
             </tr>
         `).join('');
         document.getElementById('top-scorers').innerHTML = scorersHtml;
@@ -81,7 +80,6 @@ async function loadLeaderboards() {
             <tr>
                 <td><strong>${p.name}</strong></td>
                 <td>${p.reb}</td>
-                <td>${p.games}</td>
             </tr>
         `).join('');
         document.getElementById('top-rebounders').innerHTML = reboundersHtml;
@@ -91,7 +89,6 @@ async function loadLeaderboards() {
             <tr>
                 <td><strong>${p.name}</strong></td>
                 <td>${p.asst}</td>
-                <td>${p.games}</td>
             </tr>
         `).join('');
         document.getElementById('top-assists').innerHTML = assistsHtml;
