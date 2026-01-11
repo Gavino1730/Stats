@@ -9,6 +9,17 @@
         <button class="tab-button" data-tab="player">Player Trends</button>
     </div>
 
+    <!-- AI Analysis Section -->
+    <div class="ai-trends-section" style="margin: 1.5rem 0; padding: 1.5rem; background: linear-gradient(135deg, rgba(65, 105, 225, 0.05), rgba(138, 43, 226, 0.05)); border-radius: 8px; border: 1px solid rgba(65, 105, 225, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="margin: 0; font-size: 1.3rem;">🤖 AI Trend Analysis</h2>
+            <button onclick="analyzeTrends()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #4169E1, #8A2BE2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(65, 105, 225, 0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                ✨ Analyze Trends
+            </button>
+        </div>
+        <div id="ai-trends-content" style="display: none;"></div>
+    </div>
+
     <!-- Team Trends Tab -->
     <div id="team-tab" class="tab-content active">
         <!-- Volatility & Patterns -->

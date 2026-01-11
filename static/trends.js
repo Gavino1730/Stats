@@ -2,6 +2,22 @@
 let teamCharts = {};
 let playerCharts = {};
 let allPlayers = [];
+let currentTrendsData = null;
+
+// Convert markdown-like formatting to HTML
+function formatAIResponse(text) {
+    return text
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__(.+?)__/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/_(.+?)_/g, '<em>$1</em>')
+        .replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+        .replace(/\n/g, '<br>');
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Load data in parallel for faster page interaction
@@ -57,6 +73,7 @@ async function loadTeamTrends() {
     try {
         const response = await fetch('/api/team-trends');
         const trends = await response.json();
+        currentTrendsData = trends;  // Store for AI analysis
         
         // Sort by date to ensure chronological order
         const gameIds = trends.games;
@@ -474,6 +491,84 @@ async function loadPlayerTrends(playerName) {
         });
     } catch (error) {
         console.error('Error loading player trends:', error);
+    }
+}
+
+// AI Trend Analysis
+async function analyzeTrends() {
+    try {
+        const contentDiv = document.getElementById('ai-trends-content');
+        const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+        
+        contentDiv.style.display = 'block';
+        contentDiv.innerHTML = '<div class="loading" style="padding: 1.5rem; text-align: center; color: #4169E1;"><div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div><div>AI analyzing trends and patterns...</div></div>';
+        
+        let query = '';
+        let type = 'trends';
+        
+        if (activeTab === 'team') {
+            // Analyze team trends
+            query = `Analyze our team's performance trends across all games. Look at:
+            
+- Scoring patterns and consistency (PPG range, volatility)
+- Shooting efficiency trends (FG%, 3PT%)
+- Ball movement and turnover patterns (assists vs turnovers)
+- Win/loss patterns and what correlates with success
+- Areas of improvement over the season
+- Key strengths to maintain and weaknesses to address
+
+Provide actionable coaching insights and specific recommendations.`;
+        } else {
+            // Analyze player trends
+            const playerSelect = document.getElementById('playerSelect');
+            const selectedPlayer = playerSelect.value;
+            
+            if (!selectedPlayer) {
+                contentDiv.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: #ff6b6b;">⚠️ Please select a player first</div>';
+                return;
+            }
+            
+            query = `Analyze ${selectedPlayer}'s performance trends across all games. Look at:
+
+- Scoring consistency and patterns
+- Shooting efficiency trends (FG%, 3PT%, FT%)
+- Rebounding and playmaking trends
+- Hot/cold streaks and what might be causing them
+- Areas of improvement and development
+- Role optimization and coaching recommendations
+
+Provide specific, actionable insights for player development.`;
+        }
+        
+        const response = await fetch('/api/ai/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, type })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            contentDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: #ff6b6b;">⚠️ ${data.error}</div>
+                    <p style="margin: 0; color: #666;">Please configure your OpenAI API key as an environment variable: <code>OPENAI_API_KEY</code></p>
+                </div>`;
+        } else {
+            contentDiv.innerHTML = `
+                <div style="padding: 1.5rem; background: white; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 2px solid #4169E1;">
+                        <div style="font-size: 2rem;">📊</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: #4169E1;">AI Insights</div>
+                    </div>
+                    <div class="ai-response" style="line-height: 1.7; color: #333;">${formatAIResponse(data.analysis)}</div>
+                </div>`;
+        }
+    } catch (error) {
+        document.getElementById('ai-trends-content').innerHTML = `
+            <div style="padding: 1.5rem; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;">
+                <div style="font-weight: 600; color: #ff6b6b;">Error: ${error.message}</div>
+            </div>`;
     }
 }
 
