@@ -194,11 +194,28 @@ def api_team_trends():
 # ADVANCED STATS API ENDPOINTS
 # ==============================================================================
 
-@app.route('/api/advanced/team')
+# Advanced stats cached functions
 @lru_cache(maxsize=1)
+def get_team_advanced():
+    return advanced_calc.calculate_team_advanced_stats()
+
+@lru_cache(maxsize=1)
+def get_patterns():
+    return advanced_calc.calculate_win_loss_patterns()
+
+@lru_cache(maxsize=1)
+def get_volatility():
+    return advanced_calc.calculate_volatility_metrics()
+
+@lru_cache(maxsize=1)
+def get_auto_insights():
+    return advanced_calc.generate_auto_insights()
+
+# Advanced stats routes
+@app.route('/api/advanced/team')
 def api_team_advanced():
     """Get comprehensive advanced team statistics"""
-    return jsonify(advanced_calc.calculate_team_advanced_stats())
+    return jsonify(get_team_advanced())
 
 @app.route('/api/advanced/player/<player_name>')
 def api_player_advanced(player_name):
@@ -217,32 +234,28 @@ def api_game_advanced(game_id):
     return jsonify(stats)
 
 @app.route('/api/advanced/patterns')
-@lru_cache(maxsize=1)
 def api_patterns():
     """Get win/loss patterns and conditions"""
-    return jsonify(advanced_calc.calculate_win_loss_patterns())
+    return jsonify(get_patterns())
 
 @app.route('/api/advanced/volatility')
-@lru_cache(maxsize=1)
 def api_volatility():
     """Get volatility and consistency metrics"""
-    return jsonify(advanced_calc.calculate_volatility_metrics())
+    return jsonify(get_volatility())
 
 @app.route('/api/advanced/insights')
-@lru_cache(maxsize=1)
 def api_auto_insights():
     """Get auto-generated insights"""
-    return jsonify({'insights': advanced_calc.generate_auto_insights()})
+    return jsonify({'insights': get_auto_insights()})
 
 @app.route('/api/advanced/all')
-@lru_cache(maxsize=1)
 def api_all_advanced():
     """Get all advanced statistics in one call"""
     return jsonify({
-        'team': advanced_calc.calculate_team_advanced_stats(),
-        'patterns': advanced_calc.calculate_win_loss_patterns(),
-        'volatility': advanced_calc.calculate_volatility_metrics(),
-        'insights': advanced_calc.generate_auto_insights()
+        'team': get_team_advanced(),
+        'patterns': get_patterns(),
+        'volatility': get_volatility(),
+        'insights': get_auto_insights()
     })
 
 # ==============================================================================
