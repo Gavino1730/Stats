@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadComprehensiveInsights()
     ]);
     setupTabs();
-    setupPlayerSelector();
-    setupComparisonSelectors();
+    // Don't set up player/comparison selectors yet - they're in hidden tabs
 });
 
 async function loadPlayers() {
@@ -67,6 +66,11 @@ async function loadVolatilityStats() {
 
 function setupPlayerSelector() {
     const select = document.getElementById('playerSelect');
+    
+    if (!select) {
+        console.error('playerSelect element not found');
+        return;
+    }
     
     allPlayers.forEach(player => {
         const option = document.createElement('option');
@@ -512,6 +516,9 @@ async function loadPlayerTrends(playerName) {
 function setupTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Track which tabs have been initialized
+    const initializedTabs = new Set();
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -523,11 +530,20 @@ function setupTabs() {
             button.classList.add('active');
             document.getElementById(`${tabName}-tab`).classList.add('active');
             
-            // Load content for specific tabs
-            if (tabName === 'insights') {
+            // Initialize tab content on first view
+            if (!initializedTabs.has(tabName)) {
+                initializedTabs.add(tabName);
+                
+                if (tabName === 'insights') {
+                    displayComprehensiveInsights();
+                } else if (tabName === 'player') {
+                    setupPlayerSelector();
+                } else if (tabName === 'comparison') {
+                    setupComparisonSelectors();
+                }
+            } else if (tabName === 'insights') {
+                // Refresh insights each time
                 displayComprehensiveInsights();
-            } else if (tabName === 'comparison') {
-                // Comparison tab doesn't need auto-loading
             }
         });
     });
@@ -653,6 +669,11 @@ function setupComparisonSelectors() {
     const player1Select = document.getElementById('player1Select');
     const player2Select = document.getElementById('player2Select');
     const compareButton = document.getElementById('compareButton');
+    
+    if (!player1Select || !player2Select || !compareButton) {
+        console.error('Comparison selector elements not found');
+        return;
+    }
     
     // Populate player options
     allPlayers.forEach(player => {
