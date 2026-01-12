@@ -32,18 +32,7 @@ const PageStateManager = {
     
     // Check if we should redirect to a saved page
     checkForSavedPage: function() {
-        const currentPath = window.location.pathname;
-        const savedPage = this.getSavedPage();
-        
-        // If we're on the root page and have a saved page, redirect
-        if (currentPath === '/' && savedPage && savedPage !== '/') {
-            // Small delay to ensure page is ready
-            setTimeout(() => {
-                window.location.href = savedPage;
-            }, 100);
-            return true;
-        }
-        
+        // Disabled: Always stay on the current page
         return false;
     }
 };
