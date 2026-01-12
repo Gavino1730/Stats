@@ -1,12 +1,6 @@
 // Service Worker for offline support and caching
-const CACHE_NAME = 'vc-stats-v1.1';  // Updated version for page state support
+const CACHE_NAME = 'vc-stats-v1.2';  // Bumped version to clear stale cache
 const urlsToCache = [
-    '/',
-    '/games',
-    '/players', 
-    '/trends',
-    '/analysis',
-    '/ai-insights',
     '/static/style.css',
     '/static/main.js',
     '/static/dashboard.js',
@@ -16,7 +10,7 @@ const urlsToCache = [
     '/static/ai-insights.js',
 ];
 
-// Install: cache static assets
+// Install: cache static assets only (not pages)
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -40,13 +34,29 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch: network first, fallback to cache
+// Fetch: Network-first for pages, cache-first for static assets
 self.addEventListener('fetch', event => {
-    // Skip API calls that need fresh data
-    if (event.request.url.includes('/api/') && !event.request.url.includes('/api/season-analysis')) {
+    // Skip API calls - always go to network
+    if (event.request.url.includes('/api/')) {
         return;
     }
 
+    // For page navigation requests, always use network-first
+    if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    return response;
+                })
+                .catch(() => {
+                    // Only fall back to cache if network fails
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
+
+    // For static assets, use cache-first
     event.respondWith(
         caches.match(event.request)
             .then(response => {
@@ -65,12 +75,6 @@ self.addEventListener('fetch', event => {
                         });
                     return response;
                 });
-            })
-            .catch(() => {
-                // Return offline page if needed
-                if (event.request.destination === 'document') {
-                    return caches.match('/');
-                }
             })
     );
 });

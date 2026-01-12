@@ -30,28 +30,6 @@
     </div>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
-    <script>
-        // Register service worker for faster subsequent loads
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker registration failed'));
-        }
-        
-        // Emergency fallback to restore page state if main.js fails
-        window.addEventListener('beforeunload', () => {
-            if (typeof PageStateManager !== 'undefined') {
-                PageStateManager.savePage(window.location.pathname);
-            } else {
-                // Fallback localStorage save
-                try {
-                    localStorage.setItem('vc_stats_current_page', window.location.pathname);
-                } catch (e) {
-                    console.warn('Fallback page state save failed:', e);
-                }
-            }
-        });
-    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
