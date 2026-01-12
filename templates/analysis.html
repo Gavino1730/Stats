@@ -253,11 +253,14 @@ async function loadAnalysis() {
         
         if (data.error) {
             document.getElementById('season-summary').innerHTML = `<p class="loading">Error: ${data.error}</p>`;
+            document.getElementById('status').textContent = 'Error loading analysis';
             return;
         }
         
         // Display season summary
-        document.getElementById('season-summary').innerHTML = `<div class="summary-content">${escapeHtml(data.season_summary)}</div>`;
+        const seasonSummary = data.season_summary || 'No season summary available';
+        document.getElementById('season-summary').innerHTML = `<div class="summary-content">${escapeHtml(seasonSummary)}</div>`;
+        document.getElementById('status').textContent = 'Analysis loaded';
         
         // Display per-game analysis with detailed stats
         const gamesHtml = data.per_game_analysis.map(game => {
@@ -345,6 +348,7 @@ async function regenerateAnalysis() {
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
     const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -352,7 +356,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 // Load analysis when page loads
