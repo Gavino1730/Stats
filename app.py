@@ -6,10 +6,13 @@ import sys
 from datetime import datetime
 import requests
 from dotenv import load_dotenv
+from flask_migrate import Migrate
 
 # Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from advanced_stats import AdvancedStatsCalculator
+from models import db, Game, Player, PlayerGameStats, SeasonStats
+from config import Config
 import logging
 
 # Load environment variables from .env file
@@ -20,9 +23,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
-app.config['COMPRESS_LEVEL'] = 6  # Gzip compression
+app.config.from_object(Config)
+
+# Initialize database
+db.init_app(app)
+migrate = Migrate(app, db)
+
+# Create tables if they don't exist
+with app.app_context():
+    db.create_all()
 
 # Constants
 EXCLUDED_PLAYERS = {'Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter'}
@@ -30,40 +39,36 @@ FREE_THROW_POSSESSION_FACTOR = 0.44
 MIN_GAMES_FOR_VARIANCE = 2
 
 # OpenAI API configuration
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+OPENAI_API_KEY = app.config['OPENAI_API_KEY']
 OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 # Analysis cache file
 ANALYSIS_CACHE_FILE = 'season_analysis.json'
 PLAYER_ANALYSIS_CACHE_FILE = 'player_analysis_cache.json'
 
-# Load stats data
-STATS_FILE = 'data/vc_stats_output.json'
-ROSTER_FILE = 'data/roster.json'
+# Initialize advanced stats calculator with database data
+def get_stats_data_from_db():
+    """Convert database data to the format expected by AdvancedStatsCalculator"""
+    games = Game.query.all()
+    players = Player.query.all()
+    season_stats = SeasonStats.query.first()
+    
+    return {
+        'games': [game.to_dict() for game in games],
+        'season_player_stats': {player.name: player.to_dict() for player in players},
+        'season_team_stats': season_stats.to_dict() if season_stats else {},
+        'player_game_logs': {}
+    }
 
-try:
-    with open(STATS_FILE) as f:
-        stats_data = json.load(f)
-    logger.info(f"Loaded stats data: {len(stats_data.get('games', []))} games")
-except FileNotFoundError:
-    logger.error(f"Stats file not found: {STATS_FILE}")
-    stats_data = {'games': [], 'season_team_stats': {}, 'season_player_stats': {}, 'player_game_logs': {}}
-except json.JSONDecodeError as e:
-    logger.error(f"Invalid JSON in stats file: {e}")
-    stats_data = {'games': [], 'season_team_stats': {}, 'season_player_stats': {}, 'player_game_logs': {}}
+# Create a lazy-loaded advanced calculator
+advanced_calc = None
 
-try:
-    with open(ROSTER_FILE) as f:
-        roster_data = json.load(f)
-except FileNotFoundError:
-    logger.warning(f"Roster file not found: {ROSTER_FILE}")
-    roster_data = {'roster': []}
-except json.JSONDecodeError as e:
-    logger.error(f"Invalid JSON in roster file: {e}")
-    roster_data = {'roster': []}
-
-# Initialize advanced stats calculator
-advanced_calc = AdvancedStatsCalculator(stats_data)
+def get_advanced_calc():
+    global advanced_calc
+    if advanced_calc is None:
+        stats_data = get_stats_data_from_db()
+        advanced_calc = AdvancedStatsCalculator(stats_data)
+    return advanced_calc
 
 @app.context_processor
 def inject_timestamp():
@@ -82,12 +87,22 @@ def dashboard():
 @app.route('/health')
 def health_check():
     """Health check endpoint for monitoring"""
-    return jsonify({
-        'status': 'healthy',
-        'games_loaded': len(stats_data.get('games', [])),
-        'players_loaded': len(stats_data.get('season_player_stats', {})),
-        'openai_configured': bool(OPENAI_API_KEY)
-    })
+    try:
+        games_count = Game.query.count()
+        players_count = Player.query.count()
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'games_loaded': games_count,
+            'players_loaded': players_count,
+            'openai_configured': bool(OPENAI_API_KEY)
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'error',
+            'error': str(e)
+        }), 500
 
 @app.route('/games')
 def games():
@@ -119,39 +134,30 @@ def analysis():
 @lru_cache(maxsize=1)
 def api_season_stats():
     """Get season team stats - cached for performance"""
-    return jsonify(stats_data['season_team_stats'])
+    season_stats = SeasonStats.query.first()
+    if season_stats:
+        return jsonify(season_stats.to_dict())
+    return jsonify({})
 
 @app.route('/api/games')
 def api_games():
     """Get all games"""
-    games = stats_data['games']
-    # Sort by gameId
-    games = sorted(games, key=lambda x: x['gameId'])
-    return jsonify(games)
+    games = Game.query.order_by(Game.game_id).all()
+    return jsonify([game.to_dict() for game in games])
 
 @app.route('/api/game/<int:game_id>')
 def api_game(game_id):
     """Get specific game details"""
-    for game in stats_data['games']:
-        if game['gameId'] == game_id:
-            return jsonify(game)
+    game = Game.query.filter_by(game_id=game_id).first()
+    if game:
+        return jsonify(game.to_dict())
     return jsonify({'error': 'Game not found'}), 404
 
 @app.route('/api/players')
 def api_players():
     """Get all player season stats"""
-    players = list(stats_data['season_player_stats'].values())
-    
-    # Merge in roster information (number, grade)
-    roster_dict = {p['name']: p for p in roster_data['roster']}
-    for player in players:
-        if player['name'] in roster_dict:
-            player['number'] = roster_dict[player['name']].get('number')
-            player['grade'] = roster_dict[player['name']].get('grade')
-    
-    # Sort by PPG
-    players = sorted(players, key=lambda x: x['ppg'], reverse=True)
-    return jsonify(players)
+    players = Player.query.order_by(Player.ppg.desc()).all()
+    return jsonify([player.to_dict() for player in players])
 
 @app.route('/api/player/<player_name>')
 def api_player(player_name):
@@ -161,43 +167,68 @@ def api_player(player_name):
     if not player_name or len(player_name) > 100:
         return jsonify({'error': 'Invalid player name'}), 400
     
-    if player_name in stats_data['season_player_stats']:
-        season_stats = stats_data['season_player_stats'][player_name]
-        game_logs = []
-        if player_name in stats_data['player_game_logs']:
-            game_logs = stats_data['player_game_logs'][player_name]
-        
-        # Get roster info
-        roster_info = None
-        for player in roster_data['roster']:
-            if player['name'] == player_name:
-                roster_info = player
-                break
-        
-        return jsonify({
-            'season_stats': season_stats,
-            'game_logs': game_logs,
-            'roster_info': roster_info
-        })
-    return jsonify({'error': 'Player not found'}), 404
+    player = Player.query.filter_by(name=player_name).first()
+    if not player:
+        return jsonify({'error': 'Player not found'}), 404
+    
+    # Get game logs
+    game_logs = []
+    player_game_stats = PlayerGameStats.query.filter_by(player_id=player.id).join(Game).order_by(Game.game_id).all()
+    
+    for pgs in player_game_stats:
+        game_log = {
+            'gameId': pgs.game.game_id,
+            'date': pgs.game.date,
+            'opponent': pgs.game.opponent,
+            'result': pgs.game.result,
+            'pts': pgs.pts,
+            'fg': pgs.fg,
+            'fga': pgs.fga,
+            'fg3': pgs.fg3,
+            'fg3a': pgs.fg3a,
+            'ft': pgs.ft,
+            'fta': pgs.fta,
+            'reb': pgs.reb,
+            'asst': pgs.asst,
+            'to': pgs.to,
+            'stl': pgs.stl,
+            'blk': pgs.blk,
+            'fouls': pgs.fouls
+        }
+        game_logs.append(game_log)
+    
+    return jsonify({
+        'season_stats': player.to_dict(),
+        'game_logs': game_logs,
+        'roster_info': {
+            'name': player.name,
+            'number': player.number,
+            'grade': player.grade
+        }
+    })
 
 @lru_cache(maxsize=1)
 def get_leaderboards_data():
     """Get leaderboards for various stats - cached"""
-    players = list(stats_data['season_player_stats'].values())
+    players = Player.query.all()
     
     leaderboards = {
-        'pts': sorted(players, key=lambda x: x['pts'], reverse=True)[:10],
-        'reb': sorted(players, key=lambda x: x['reb'], reverse=True)[:10],
-        'asst': sorted(players, key=lambda x: x['asst'], reverse=True)[:10],
-        'fg_pct': sorted([p for p in players if p['fga'] > 0], key=lambda x: x['fg_pct'], reverse=True)[:10],
-        'fg3_pct': sorted([p for p in players if p['fg3a'] > 0], key=lambda x: x['fg3_pct'], reverse=True)[:10],
-        'ft_pct': sorted([p for p in players if p['fta'] > 0], key=lambda x: x['ft_pct'], reverse=True)[:10],
-        'stl': sorted(players, key=lambda x: x.get('stl', 0), reverse=True)[:10],
-        'blk': sorted(players, key=lambda x: x.get('blk', 0), reverse=True)[:10],
+        'pts': sorted(players, key=lambda x: x.pts, reverse=True)[:10],
+        'reb': sorted(players, key=lambda x: x.reb, reverse=True)[:10],
+        'asst': sorted(players, key=lambda x: x.asst, reverse=True)[:10],
+        'fg_pct': sorted([p for p in players if p.fga > 0], key=lambda x: x.fg_pct, reverse=True)[:10],
+        'fg3_pct': sorted([p for p in players if p.fg3a > 0], key=lambda x: x.fg3_pct, reverse=True)[:10],
+        'ft_pct': sorted([p for p in players if p.fta > 0], key=lambda x: x.ft_pct, reverse=True)[:10],
+        'stl': sorted(players, key=lambda x: x.stl, reverse=True)[:10],
+        'blk': sorted(players, key=lambda x: x.blk, reverse=True)[:10],
     }
     
-    return leaderboards
+    # Convert to dict format for JSON serialization
+    result = {}
+    for category, player_list in leaderboards.items():
+        result[category] = [player.to_dict() for player in player_list]
+    
+    return result
 
 @app.route('/api/leaderboards')
 def api_leaderboards():

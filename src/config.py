@@ -3,6 +3,45 @@ Configuration file for basketball stats application
 Centralizes all magic numbers and configuration constants
 """
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    # Database
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+        # Fix Railway's postgres:// to postgresql://
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///basketball_stats.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Database engine options - conditional based on database type
+    if DATABASE_URL and ('postgresql' in DATABASE_URL or 'postgres' in DATABASE_URL):
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+            'pool_recycle': 300,
+            'connect_args': {
+                'connect_timeout': 10,
+                'sslmode': 'prefer'
+            }
+        }
+    else:
+        # SQLite or other databases
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+        }
+    
+    # OpenAI
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+    
+    # App
+    JSON_SORT_KEYS = False
+    SEND_FILE_MAX_AGE_DEFAULT = 31536000  # 1 year cache for static files
+    COMPRESS_LEVEL = 6  # Gzip compression
+
 # API Configuration
 # Model selection based on task complexity and cost
 OPENAI_MODEL_ANALYSIS = "gpt-4o"      # For diagnostic analysis, coach-style commentary
