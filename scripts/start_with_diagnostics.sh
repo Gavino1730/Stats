@@ -1,8 +1,8 @@
 #!/bin/bash
-"""
-Railway startup script with database diagnostics
-This replaces your start.sh and adds database checks
-"""
+#
+# Railway startup script with database diagnostics
+# This replaces your start.sh and adds database checks
+#
 
 echo "🚂 Starting Basketball Stats App on Railway"
 echo "============================================"
@@ -26,4 +26,4 @@ fi
 
 # Start the application
 echo "🚀 Starting application..."
-exec gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 600 --keep-alive 5 --max-requests 1000 --max-requests-jitter 50
+exec gunicorn src.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 600 --keep-alive 5 --max-requests 1000 --max-requests-jitter 50
