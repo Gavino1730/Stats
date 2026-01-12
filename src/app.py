@@ -1384,8 +1384,5 @@ def clear_player_analysis(player_name):
         return jsonify({'message': 'No cached analysis found'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV', 'production') != 'production'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+# This is the main Flask application module. 
+# Entry point is through main.py which imports this app instance.
