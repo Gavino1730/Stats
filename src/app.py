@@ -132,6 +132,7 @@ def api_players():
         p['bpg'] = player.get('blk', 0) / games
         p['tpg'] = player.get('to', 0) / games
         p['fpg'] = player.get('fouls', 0) / games
+        p['plus_minus'] = player.get('plus_minus', 0)
         
         # Add advanced metrics
         advanced = advanced_calc.calculate_player_advanced_stats(player['name'])
@@ -160,9 +161,25 @@ def api_player(player_name):
     
     stats = data.get_player_stats(player_name)
     if stats:
+        # Enrich stats with per-game averages (same as /api/players endpoint)
+        enhanced_stats = stats.copy()
+        games = stats.get('games', 1)
+        
+        # Add per-game stats if not present
+        enhanced_stats['spg'] = stats.get('stl', 0) / games
+        enhanced_stats['bpg'] = stats.get('blk', 0) / games
+        enhanced_stats['tpg'] = stats.get('to', 0) / games
+        enhanced_stats['fpg'] = stats.get('fouls', 0) / games
+        enhanced_stats['plus_minus'] = stats.get('plus_minus', 0)
+        
+        # Add roster info
         roster_info = next((p for p in data.roster if p['name'] == player_name), None)
+        if roster_info:
+            enhanced_stats['number'] = roster_info.get('number')
+            enhanced_stats['grade'] = roster_info.get('grade')
+        
         return jsonify({
-            'season_stats': stats,
+            'season_stats': enhanced_stats,
             'game_logs': data.get_player_game_logs(player_name),
             'roster_info': roster_info
         })
