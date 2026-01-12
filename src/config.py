@@ -16,6 +16,10 @@ class Config:
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     
     SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///basketball_stats.db'
+    
+    # In production, DATABASE_URL should always be set
+    if not DATABASE_URL and os.getenv('RAILWAY_ENVIRONMENT'):
+        raise ValueError("DATABASE_URL environment variable is required in production!")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Database engine options - conditional based on database type

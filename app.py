@@ -70,6 +70,11 @@ def get_advanced_calc():
         advanced_calc = AdvancedStatsCalculator(stats_data)
     return advanced_calc
 
+def get_volatility():
+    """Calculate player volatility metrics - cached for performance"""
+    calc = get_advanced_calc()
+    return calc.calculate_volatility_metrics()
+
 @app.context_processor
 def inject_timestamp():
     """Inject timestamp and current page for cache-busting and navigation state"""
@@ -289,19 +294,23 @@ def api_team_trends():
 # Advanced stats cached functions
 @lru_cache(maxsize=1)
 def get_team_advanced():
-    return advanced_calc.calculate_team_advanced_stats()
+    calc = get_advanced_calc()
+    return calc.calculate_team_advanced_stats()
 
 @lru_cache(maxsize=1)
 def get_patterns():
-    return advanced_calc.calculate_win_loss_patterns()
+    calc = get_advanced_calc()
+    return calc.calculate_win_loss_patterns()
 
 @lru_cache(maxsize=1)
 def get_volatility():
-    return advanced_calc.calculate_volatility_metrics()
+    calc = get_advanced_calc()
+    return calc.calculate_volatility_metrics()
 
 @lru_cache(maxsize=1)
 def get_auto_insights():
-    return advanced_calc.generate_auto_insights()
+    calc = get_advanced_calc()
+    return calc.generate_auto_insights()
 
 # Advanced stats routes
 @app.route('/api/advanced/team')
