@@ -1,52 +1,47 @@
 # 🏀 Valley Catholic Basketball Stats
 
-A comprehensive basketball statistics platform with AI-powered analysis and advanced metrics. Built for Valley Catholic High School's varsity basketball team, featuring real-time insights, trend analysis, and diagnostic coaching recommendations.
+Basketball statistics platform with AI-powered analysis for Valley Catholic High School's varsity team.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template)
+## Features
 
-## ✨ Features
-
-### 📊 Advanced Statistics
-- **60+ Metrics** calculated from box score data only
-- **Efficiency Stats**: eFG%, TS%, PPP (Points Per Possession)
-- **Shot Analytics**: 3PA Rate, FT Rate, Shot Balance Index
-- **Possession Control**: TO per 100, AST/TO Ratio, Estimated Possessions
-- **Volatility Metrics**: Scoring variance, consistency analysis
-- **Win Conditions**: Threshold-based records and patterns
-
-### 🤖 AI-Powered Insights
-- **Diagnostic Analysis**: Data-driven insights without speculation
-- **Player Evaluation**: Performance gaps, efficiency profiles, role assessment
-- **Game Breakdowns**: Root cause analysis of wins and losses
-- **Season Patterns**: Win/loss conditions, dependency analysis
-- **Auto-Generated Insights**: Provable statements from data
-
-### 📱 Interactive Dashboard
+- **Advanced Stats**: eFG%, TS%, PPP, shot analytics, win/loss patterns
+- **AI Analysis**: Player evaluation, game breakdowns, diagnostic insights
 - **6 Pages**: Dashboard, Games, Players, Trends, Analysis, AI Coach
-- **Dark Theme**: Royal Blue and white (school colors)
-- **Performance Optimized**: 55-65% faster load times, 90% faster cached responses
-- **Offline Support**: Service worker for offline access
-- **Mobile Friendly**: Responsive design for all devices
+- **Dark Theme**: School colors (Royal Blue)
+- **Mobile Friendly**: Responsive design
 
-## 🚀 Quick Start
-
-### Local Development
+## Quick Start
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Create .env file with your OpenAI API key
+echo "OPENAI_API_KEY=your-key-here" > .env
 
 # Run the app
-python app.py
+python main.py
 
 # Visit http://localhost:5000
 ```
 
-### Deploy to Railway
+## Project Structure
+
+```
+src/
+  app.py           # Flask app with all routes
+  config.py        # Configuration settings
+  data_manager.py  # Data loading and caching
+  ai_service.py    # OpenAI API integration
+  advanced_stats.py # Statistics calculations
+  models.py        # Database models (optional)
+
+data/              # JSON data files
+static/            # CSS, JS, images
+templates/         # HTML templates
+```
+
+## Deploy to Railway
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
