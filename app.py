@@ -29,9 +29,17 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Create tables if they don't exist
-with app.app_context():
-    db.create_all()
+# Create tables if they don't exist - with error handling
+try:
+    with app.app_context():
+        db.create_all()
+        logger.info("✅ Database tables created/verified successfully")
+except Exception as e:
+    logger.error(f"❌ Database initialization failed: {str(e)}")
+    if "does not exist" in str(e):
+        logger.error("💡 Suggestion: The database might not exist. Check your DATABASE_URL and create the database.")
+        logger.error("   Run: python scripts/database_setup.py")
+    raise
 
 # Constants
 EXCLUDED_PLAYERS = {'Matthew Gunther', 'Liam Plep', 'Gavin Galan', 'Kye Fixter'}
@@ -93,20 +101,41 @@ def dashboard():
 def health_check():
     """Health check endpoint for monitoring"""
     try:
+        # Test database connection
+        from sqlalchemy import text
+        db.engine.execute(text('SELECT 1'))
+        
+        # Get data counts
         games_count = Game.query.count()
         players_count = Player.query.count()
+        stats_count = PlayerGameStats.query.count()
+        season_stats_count = SeasonStats.query.count()
+        
+        # Get database info
+        db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        db_type = 'postgresql' if 'postgresql' in db_url else 'sqlite' if 'sqlite' in db_url else 'unknown'
+        
         return jsonify({
             'status': 'healthy',
             'database': 'connected',
+            'database_type': db_type,
             'games_loaded': games_count,
             'players_loaded': players_count,
-            'openai_configured': bool(OPENAI_API_KEY)
+            'player_game_stats': stats_count,
+            'season_stats': season_stats_count,
+            'openai_configured': bool(OPENAI_API_KEY),
+            'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
+        db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
         return jsonify({
             'status': 'unhealthy',
             'database': 'error',
-            'error': str(e)
+            'error': str(e),
+            'database_url_set': bool(db_url),
+            'database_type': 'postgresql' if 'postgresql' in db_url else 'sqlite' if 'sqlite' in db_url else 'unknown',
+            'suggestion': 'Check DATABASE_URL and run database_setup.py script',
+            'timestamp': datetime.now().isoformat()
         }), 500
 
 @app.route('/games')
