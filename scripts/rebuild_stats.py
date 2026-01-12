@@ -86,7 +86,16 @@ for pdf_name, opponent, location in pdf_files:
                         to = int(parts[10])
                         blk = int(parts[11])
                         asst = int(parts[12])
-                        pts = int(parts[-1])
+                        
+                        # Parse +/- (index 13) and pts (index 14)
+                        # +/- can be negative or positive number
+                        plus_minus_str = parts[13]
+                        try:
+                            plus_minus = int(plus_minus_str)
+                        except:
+                            plus_minus = 0
+                        
+                        pts = int(parts[14]) if len(parts) > 14 else int(parts[-1])
                         
                         player_stat = {
                             'number': number,
@@ -108,7 +117,7 @@ for pdf_name, opponent, location in pdf_files:
                             'blk': blk,
                             'asst': asst,
                             'pts': pts,
-                            'plus_minus': vc_score - opp_score  # Team differential as proxy for +/-
+                            'plus_minus': plus_minus
                         }
                         
                         players_in_game.append(player_stat)
@@ -164,6 +173,7 @@ for player in sorted(all_players):
                     'date': game['date'],
                     'opponent': game['opponent'],
                     'location': game['location'],
+                    'result': game['result'],
                     'stats': player_stat
                 })
 

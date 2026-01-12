@@ -451,7 +451,7 @@ async function showPlayerDetail(playerName) {
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.7rem; color: var(--text-light);">+/-</div>
-                        <div style="font-weight: 700; font-size: 1.3rem; color: ${data.season_stats.plus_minus > 0 ? 'var(--success)' : data.season_stats.plus_minus < 0 ? '#dc3545' : 'inherit'};">${data.season_stats.plus_minus > 0 ? '+' : ''}${data.season_stats.plus_minus}</div>
+                        <div style="font-weight: 700; font-size: 1.3rem; color: ${(data.season_stats.plus_minus || 0) > 0 ? 'var(--success)' : (data.season_stats.plus_minus || 0) < 0 ? '#dc3545' : 'inherit'};">${(data.season_stats.plus_minus || 0) > 0 ? '+' : ''}${data.season_stats.plus_minus || 0}</div>
                     </div>
                 </div>
             </div>

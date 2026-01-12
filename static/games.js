@@ -163,7 +163,7 @@ async function showGameDetail(game) {
                         <td>${p.blk}</td>
                         <td style="color: ${p.to >= 4 ? '#dc3545' : 'inherit'};">${p.to}</td>
                         <td>${p.fouls}</td>
-                        <td style="font-weight: 700; color: ${p.plus_minus > 0 ? 'var(--success)' : p.plus_minus < 0 ? '#dc3545' : 'inherit'};">${p.plus_minus > 0 ? '+' : ''}${p.plus_minus}</td>
+                        <td style="font-weight: 700; color: ${(p.plus_minus || 0) > 0 ? 'var(--success)' : (p.plus_minus || 0) < 0 ? '#dc3545' : 'inherit'};">${(p.plus_minus || 0) > 0 ? '+' : ''}${p.plus_minus || 0}</td>
                         <td><strong>${p.pts}</strong></td>
                     </tr>
                 `).join('')}
