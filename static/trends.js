@@ -72,10 +72,15 @@ function setupPlayerSelector() {
         return;
     }
     
+    // Clear existing options except the first one
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+    
     allPlayers.forEach(player => {
         const option = document.createElement('option');
-        option.value = player.name;
-        option.textContent = player.name;
+        option.value = player.name;  // Use abbreviated name for API
+        option.textContent = player.full_name || player.name;  // Display full name
         select.appendChild(option);
     });
 
@@ -675,10 +680,18 @@ function setupComparisonSelectors() {
         return;
     }
     
+    // Clear existing options except the first one
+    while (player1Select.options.length > 1) {
+        player1Select.remove(1);
+    }
+    while (player2Select.options.length > 1) {
+        player2Select.remove(1);
+    }
+    
     // Populate player options
     allPlayers.forEach(player => {
-        const option1 = new Option(player.name, player.name);
-        const option2 = new Option(player.name, player.name);
+        const option1 = new Option(player.full_name || player.name, player.name);
+        const option2 = new Option(player.full_name || player.name, player.name);
         player1Select.appendChild(option1);
         player2Select.appendChild(option2);
     });
