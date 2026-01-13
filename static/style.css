@@ -469,6 +469,38 @@ canvas {
     margin-bottom: 2rem;
 }
 
+/* Touch-friendly improvements for mobile devices */
+@media (hover: none) and (pointer: coarse) {
+    /* Better touch targets */
+    .game-card,
+    .player-card,
+    .stat-card {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(65, 105, 225, 0.1);
+    }
+    
+    .tab-button,
+    .btn-primary,
+    .nav-link {
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .game-card:hover,
+    .player-card:hover,
+    .stat-card:hover {
+        transform: none;
+    }
+    
+    /* Active states for touch feedback */
+    .game-card:active,
+    .player-card:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+}
+
 .games-filter input,
 .games-filter select,
 .players-filter input,
@@ -1127,6 +1159,13 @@ canvas {
     font-size: 0.95rem;
 }
 
+/* Table wrapper for horizontal scroll on mobile */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+}
+
 .box-score-table th {
     background-color: var(--primary);
     color: white;
@@ -1202,11 +1241,16 @@ canvas {
     .nav-links {
         gap: 0.5rem;
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     .nav-link {
         padding: 0.5rem 0.7rem;
         font-size: 0.85rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     body {
@@ -1398,6 +1442,56 @@ canvas {
         top: 0.8rem;
     }
 
+    /* Trends Page Mobile */
+    .trends-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tab-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: 140px;
+    }
+    
+    .player-selector {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .player-selector label {
+        width: 100%;
+    }
+    
+    .player-selector select {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 0.8rem;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .player-insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-differentials {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
     .game-detail-header {
         flex-direction: column;
         gap: 1rem;
@@ -1449,11 +1543,23 @@ canvas {
 
     .box-score-table {
         font-size: 0.8rem;
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .box-score-table thead,
+    .box-score-table tbody,
+    .box-score-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
     }
 
     .box-score-table th,
     .box-score-table td {
-        padding: 0.5rem;
+        padding: 0.5rem 0.3rem;
+        font-size: 0.75rem;
     }
 
     /* Trends */
@@ -1475,6 +1581,66 @@ canvas {
         margin-bottom: 1rem;
         font-size: 1rem;
     }
+    
+    /* Trends Page Mobile */
+    .trends-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tab-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        flex: 1 1 calc(50% - 0.25rem);
+        min-width: 140px;
+    }
+    
+    .player-selector {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .player-selector label {
+        width: 100%;
+    }
+    
+    .player-selector select {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 0.8rem;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .player-insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-differentials {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    /* Advanced game metrics mobile */
+    .game-detail-score {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .score-column {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1489,6 +1655,10 @@ canvas {
     .nav-link {
         padding: 0.4rem 0.5rem;
         font-size: 0.75rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     h1 {
@@ -1561,7 +1731,20 @@ canvas {
     .modal-content {
         width: 98%;
         padding: 1rem;
-        margin: 10px auto;
+        margin: 5px auto;
+        max-height: 90vh;
+        border-radius: 8px;
+    }
+    
+    .close {
+        font-size: 1.5rem;
+        right: 0.5rem;
+        top: 0.5rem;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .game-detail-score {
@@ -1604,11 +1787,50 @@ canvas {
 
     .box-score-table {
         font-size: 0.75rem;
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .box-score-table thead,
+    .box-score-table tbody,
+    .box-score-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
     }
 
     .box-score-table th,
     .box-score-table td {
-        padding: 0.4rem;
+        padding: 0.4rem 0.2rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Trends Page Mobile */
+    .tab-button {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.7rem;
+    }
+    
+    .stat-differentials {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    .stat-diff-item {
+        padding: 0.5rem;
+    }
+    
+    .comparison-stat {
+        padding: 0.75rem;
+    }
+    
+    .insight-card {
+        padding: 1rem;
+    }
+    
+    .player-insight-card {
+        padding: 0.75rem;
     }
 
     .chart-container {
@@ -1623,6 +1845,24 @@ canvas {
 
     .charts-section {
         gap: 1rem;
+    }
+    
+    /* Rankings Mobile */
+    .ranking-item {
+        padding: 0.75rem;
+    }
+    
+    .ranking-rank {
+        font-size: 1rem;
+        min-width: 35px;
+    }
+    
+    .ranking-player-info {
+        flex: 1;
+    }
+    
+    .ranking-stat-value {
+        font-size: 1.1rem;
     }
 }
 
