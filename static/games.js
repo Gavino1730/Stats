@@ -228,10 +228,9 @@ async function showGameDetail(game) {
             <tbody>
                 ${game.player_stats.map(p => {
                     const playerEfg = p.fg_att > 0 ? ((p.fg_made + 0.5 * p.fg3_made) / p.fg_att * 100).toFixed(1) : '0.0';
-                    const firstName = p.name.split(' ')[0];
                     return `
                     <tr>
-                        <td><strong>${firstName}</strong> (#${p.number})</td>
+                        <td><strong>${p.first_name || p.name.split(' ')[0]}</strong> (#${p.number})</td>
                         <td>${p.minutes || '-'}</td>
                         <td>${p.fg_made}-${p.fg_att}</td>
                         <td>${p.fg3_made}-${p.fg3_att}</td>

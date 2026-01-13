@@ -100,6 +100,23 @@ def api_season_stats():
 @app.route('/api/games')
 def api_games():
     games_list = sorted(data.games, key=lambda x: x['gameId'])
+    
+    # Create roster lookup for first names
+    roster_by_abbrev = {}
+    for roster_player in data.roster:
+        full_name = roster_player.get('name', '')
+        if ' ' in full_name:
+            parts = full_name.split(' ', 1)
+            abbrev = f"{parts[0][0]} {parts[1]}"
+            roster_by_abbrev[abbrev] = full_name.split(' ')[0]  # Store first name
+    
+    # Add first names to player stats in each game
+    for game in games_list:
+        if 'player_stats' in game:
+            for player in game['player_stats']:
+                player_name = player.get('name', '')
+                player['first_name'] = roster_by_abbrev.get(player_name, player_name.split(' ')[0])
+    
     return jsonify(games_list)
 
 
@@ -136,16 +153,19 @@ def api_players():
         if player_name in roster_by_abbrev:
             roster_player = roster_by_abbrev[player_name]
             p['full_name'] = roster_player.get('name')
+            p['first_name'] = roster_player.get('name', '').split(' ')[0]
             p['number'] = roster_player.get('number')
             p['grade'] = roster_player.get('grade')
         elif player_name in roster_dict:
             # Direct name match (if full name is used)
             p['full_name'] = roster_dict[player_name].get('name')
+            p['first_name'] = roster_dict[player_name].get('name', '').split(' ')[0]
             p['number'] = roster_dict[player_name].get('number')
             p['grade'] = roster_dict[player_name].get('grade')
         else:
             # Use abbreviated name if no match found
             p['full_name'] = player_name
+            p['first_name'] = player_name.split(' ')[0]
         
         # Add per-game stats
         p['spg'] = player.get('stl', 0) / games
@@ -210,6 +230,22 @@ def api_player(player_name):
 @lru_cache(maxsize=1)
 def api_leaderboards():
     players = list(data.season_player_stats.values())
+    roster_dict = data.get_roster_dict()
+    
+    # Create roster lookup by abbreviated name
+    roster_by_abbrev = {}
+    for roster_player in data.roster:
+        full_name = roster_player.get('name', '')
+        if ' ' in full_name:
+            parts = full_name.split(' ', 1)
+            abbrev = f"{parts[0][0]} {parts[1]}"
+            roster_by_abbrev[abbrev] = full_name.split(' ')[0]  # Store first name
+    
+    # Add first names to all players
+    for player in players:
+        player_name = player.get('name', '')
+        player['first_name'] = roster_by_abbrev.get(player_name, player_name.split(' ')[0])
+    
     return jsonify({
         'pts': sorted(players, key=lambda x: x['pts'], reverse=True)[:10],
         'reb': sorted(players, key=lambda x: x['reb'], reverse=True)[:10],

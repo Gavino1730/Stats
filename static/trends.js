@@ -82,7 +82,7 @@ function setupPlayerSelector() {
     allPlayers.forEach(player => {
         const option = document.createElement('option');
         option.value = player.name;  // Use abbreviated name for API
-        option.textContent = (player.full_name || player.name).split(' ')[0];  // Display first name only
+        option.textContent = player.first_name || player.name;  // Display first name only
         select.appendChild(option);
     });
 
@@ -946,9 +946,8 @@ function setupComparisonSelectors() {
     
     // Populate player options
     allPlayers.forEach(player => {
-        const firstName = (player.full_name || player.name).split(' ')[0];
-        const option1 = new Option(firstName, player.name);
-        const option2 = new Option(firstName, player.name);
+        const option1 = new Option(player.first_name || player.name, player.name);
+        const option2 = new Option(player.first_name || player.name, player.name);
         player1Select.appendChild(option1);
         player2Select.appendChild(option2);
     });
