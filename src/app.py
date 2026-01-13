@@ -227,7 +227,6 @@ def api_player(player_name):
 
 
 @app.route('/api/leaderboards')
-@lru_cache(maxsize=1)
 def api_leaderboards():
     players = list(data.season_player_stats.values())
     roster_dict = data.get_roster_dict()
@@ -280,6 +279,9 @@ def api_player_trends(player_name):
         'asst': [g['stats']['asst'] for g in logs],
         'reb': [g['stats']['oreb'] + g['stats']['dreb'] for g in logs],
         'stl': [g['stats']['stl'] for g in logs],
+        'plus_minus': [g['stats'].get('plus_minus', 0) for g in logs],
+        'to': [g['stats'].get('to', 0) for g in logs],
+        'fouls': [g['stats'].get('fouls', 0) for g in logs],
     })
 
 

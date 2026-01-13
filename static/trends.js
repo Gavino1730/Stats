@@ -652,110 +652,6 @@ async function loadPlayerTrends(playerName) {
                 }
             }
         });
-        
-        // Plus/Minus Impact Chart
-        const plusMinusCtx = document.getElementById('playerPlusMinusChart').getContext('2d');
-        if (playerCharts.plusMinus) playerCharts.plusMinus.destroy();
-        
-        const plusMinusData = sortedIndices.map(i => {
-            const gameLogs = trends.game_logs || [];
-            return gameLogs[i]?.plus_minus || 0;
-        });
-        
-        playerCharts.plusMinus = new Chart(plusMinusCtx, {
-            type: 'bar',
-            data: {
-                labels: sortedOpp,
-                datasets: [{
-                    label: 'Plus/Minus',
-                    data: plusMinusData,
-                    backgroundColor: plusMinusData.map(val => val >= 0 ? '#4ade80' : '#f87171'),
-                    borderColor: plusMinusData.map(val => val >= 0 ? '#22c55e' : '#ef4444'),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                const val = context.parsed.y;
-                                return 'Plus/Minus: ' + (val > 0 ? '+' : '') + val;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: function(context) {
-                                if (context.tick.value === 0) {
-                                    return 'rgba(255, 255, 255, 0.5)';
-                                }
-                                return 'rgba(255, 255, 255, 0.1)';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Turnovers & Fouls Chart
-        const toFoulsCtx = document.getElementById('playerTOFoulsChart').getContext('2d');
-        if (playerCharts.toFouls) playerCharts.toFouls.destroy();
-        
-        const toData = sortedIndices.map(i => trends.to ? trends.to[i] : 0);
-        const foulsData = sortedIndices.map(i => {
-            const gameLogs = trends.game_logs || [];
-            return gameLogs[i]?.fouls || 0;
-        });
-        
-        playerCharts.toFouls = new Chart(toFoulsCtx, {
-            type: 'line',
-            data: {
-                labels: sortedOpp,
-                datasets: [
-                    {
-                        label: 'Turnovers',
-                        data: toData,
-                        borderColor: '#f87171',
-                        backgroundColor: 'rgba(248, 113, 113, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5
-                    },
-                    {
-                        label: 'Fouls',
-                        data: foulsData,
-                        borderColor: '#fb923c',
-                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { display: true, position: 'top' },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
     } catch (error) {
         console.error('Error loading player trends:', error);
     }
@@ -1034,18 +930,6 @@ function displayComparison(comparison) {
                 </div>
             `;
         }).join('')}
-        
-        <div style="grid-column: 1 / -1; margin-top: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 6px;">
-            <h4 style="margin: 0 0 0.5rem 0;">Player Roles</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div><strong>${player1.name}:</strong> ${player1.role}</div>
-                <div><strong>${player2.name}:</strong> ${player2.role}</div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                <div><strong>Efficiency Grade:</strong> ${player1.efficiency_grade}</div>
-                <div><strong>Efficiency Grade:</strong> ${player2.efficiency_grade}</div>
-            </div>
-        </div>
     `;
 }
 

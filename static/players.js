@@ -365,22 +365,10 @@ async function showPlayerDetail(playerName) {
                         </div>
                     </div>
                     
-                    <!-- Clutch & Consistency -->
+                    <!-- Consistency & Impact -->
                     <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; border-left: 3px solid #9932CC;">
-                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Clutch Performance & Consistency</h4>
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: var(--text-light);">Consistency & Impact</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem;">
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch Games</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_games}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch PPG</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_ppg}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-light);">Clutch Factor</div>
-                                <div style="font-weight: 700; font-size: 1.1rem;">${clutch.clutch_factor}</div>
-                            </div>
                             <div>
                                 <div style="font-size: 0.7rem; color: var(--text-light);">Consistency</div>
                                 <div style="font-weight: 700; font-size: 1.1rem;">${consistency.consistency_score}</div>
