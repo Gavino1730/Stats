@@ -5,18 +5,20 @@ let allPlayers = [];
 let currentTrendsData = null;
 let comprehensiveInsights = null;
 
-// Convert markdown-like formatting to HTML
+// Clean AI response text (removes markdown symbols)
 function formatAIResponse(text) {
     return text
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/__(.+?)__/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/_(.+?)_/g, '<em>$1</em>')
-        .replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+        // Remove headers (### Header -> Header)
+        .replace(/^#{1,6}\s+(.+)$/gm, '$1')
+        // Remove bold markers (**text** or __text__ -> text)
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/__(.+?)__/g, '$1')
+        // Remove italic markers (*text* or _text_ -> text)
+        .replace(/\*(.+?)\*/g, '$1')
+        .replace(/_(.+?)_/g, '$1')
+        // Clean up bullet points
+        .replace(/^[•\-\*]\s+/gm, '• ')
+        // Convert line breaks
         .replace(/\n/g, '<br>');
 }
 
