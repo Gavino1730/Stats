@@ -313,6 +313,152 @@ async function loadTeamTrends() {
                 }
             }
         });
+        
+        // Store reference to current trends data for new charts
+        const gamesData = data.games;
+        
+        // Rebounding Trends Chart
+        const reboundingCtx = document.getElementById('teamReboundingChart').getContext('2d');
+        if (teamCharts.rebounding) teamCharts.rebounding.destroy();
+        teamCharts.rebounding = new Chart(reboundingCtx, {
+            type: 'line',
+            data: {
+                labels: sortedOpp,
+                datasets: [
+                    {
+                        label: 'Total Rebounds',
+                        data: sortedIndices.map(i => {
+                            const game = gamesData.find(g => g.gameId === trends.games[i]);
+                            return game?.team_stats?.reb || 0;
+                        }),
+                        borderColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Offensive Rebounds',
+                        data: sortedIndices.map(i => {
+                            const game = gamesData.find(g => g.gameId === trends.games[i]);
+                            return game?.team_stats?.oreb || 0;
+                        }),
+                        borderColor: '#32CD32',
+                        backgroundColor: 'rgba(50, 205, 50, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        
+        // Defensive Activity Chart
+        const defenseCtx = document.getElementById('teamDefenseChart').getContext('2d');
+        if (teamCharts.defense) teamCharts.defense.destroy();
+        teamCharts.defense = new Chart(defenseCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedOpp,
+                datasets: [
+                    {
+                        label: 'Steals',
+                        data: sortedIndices.map(i => {
+                            const game = gamesData.find(g => g.gameId === trends.games[i]);
+                            return game?.team_stats?.stl || 0;
+                        }),
+                        backgroundColor: '#FF8C00',
+                        borderColor: '#FF8C00'
+                    },
+                    {
+                        label: 'Blocks',
+                        data: sortedIndices.map(i => {
+                            const game = gamesData.find(g => g.gameId === trends.games[i]);
+                            return game?.team_stats?.blk || 0;
+                        }),
+                        backgroundColor: '#DC143C',
+                        borderColor: '#DC143C'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        
+        // Free Throw Performance Chart
+        const ftCtx = document.getElementById('teamFTChart').getContext('2d');
+        if (teamCharts.ft) teamCharts.ft.destroy();
+        teamCharts.ft = new Chart(ftCtx, {
+            type: 'line',
+            data: {
+                labels: sortedOpp,
+                datasets: [
+                    {
+                        label: 'FT%',
+                        data: sortedIndices.map(i => {
+                            const game = gamesData.find(g => g.gameId === trends.games[i]);
+                            const ft = game?.team_stats?.ft || 0;
+                            const fta = game?.team_stats?.fta || 1;
+                            return fta > 0 ? (ft / fta * 100) : 0;
+                        }),
+                        borderColor: '#9932CC',
+                        backgroundColor: 'rgba(153, 50, 204, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return 'FT%: ' + context.parsed.y.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     } catch (error) {
         console.error('Error loading team trends:', error);
     }
@@ -513,6 +659,110 @@ async function loadPlayerTrends(playerName) {
                 }
             }
         });
+        
+        // Plus/Minus Impact Chart
+        const plusMinusCtx = document.getElementById('playerPlusMinusChart').getContext('2d');
+        if (playerCharts.plusMinus) playerCharts.plusMinus.destroy();
+        
+        const plusMinusData = sortedIndices.map(i => {
+            const gameLogs = trends.game_logs || [];
+            return gameLogs[i]?.plus_minus || 0;
+        });
+        
+        playerCharts.plusMinus = new Chart(plusMinusCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedOpp,
+                datasets: [{
+                    label: 'Plus/Minus',
+                    data: plusMinusData,
+                    backgroundColor: plusMinusData.map(val => val >= 0 ? '#4ade80' : '#f87171'),
+                    borderColor: plusMinusData.map(val => val >= 0 ? '#22c55e' : '#ef4444'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.parsed.y;
+                                return 'Plus/Minus: ' + (val > 0 ? '+' : '') + val;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: function(context) {
+                                if (context.tick.value === 0) {
+                                    return 'rgba(255, 255, 255, 0.5)';
+                                }
+                                return 'rgba(255, 255, 255, 0.1)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Turnovers & Fouls Chart
+        const toFoulsCtx = document.getElementById('playerTOFoulsChart').getContext('2d');
+        if (playerCharts.toFouls) playerCharts.toFouls.destroy();
+        
+        const toData = sortedIndices.map(i => trends.to ? trends.to[i] : 0);
+        const foulsData = sortedIndices.map(i => {
+            const gameLogs = trends.game_logs || [];
+            return gameLogs[i]?.fouls || 0;
+        });
+        
+        playerCharts.toFouls = new Chart(toFoulsCtx, {
+            type: 'line',
+            data: {
+                labels: sortedOpp,
+                datasets: [
+                    {
+                        label: 'Turnovers',
+                        data: toData,
+                        borderColor: '#f87171',
+                        backgroundColor: 'rgba(248, 113, 113, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Fouls',
+                        data: foulsData,
+                        borderColor: '#fb923c',
+                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.85)',
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
     } catch (error) {
         console.error('Error loading player trends:', error);
     }
@@ -524,22 +774,33 @@ function setupTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     
+    console.log('Setting up tabs:', tabButtons.length, 'buttons found,', tabContents.length, 'content sections found');
+    
     // Track which tabs have been initialized
     const initializedTabs = new Set();
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.dataset.tab;
+            console.log('Tab clicked:', tabName);
 
             tabButtons.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
 
             button.classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.add('active');
+            const tabElement = document.getElementById(`${tabName}-tab`);
+            
+            if (tabElement) {
+                tabElement.classList.add('active');
+                console.log('Activated tab:', tabName);
+            } else {
+                console.error('Tab element not found:', `${tabName}-tab`);
+            }
             
             // Initialize tab content on first view
             if (!initializedTabs.has(tabName)) {
                 initializedTabs.add(tabName);
+                console.log('Initializing tab for first time:', tabName);
                 
                 if (tabName === 'insights') {
                     displayComprehensiveInsights();
