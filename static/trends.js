@@ -82,7 +82,7 @@ function setupPlayerSelector() {
     allPlayers.forEach(player => {
         const option = document.createElement('option');
         option.value = player.name;  // Use abbreviated name for API
-        option.textContent = player.full_name || player.name;  // Display full name
+        option.textContent = (player.full_name || player.name).split(' ')[0];  // Display first name only
         select.appendChild(option);
     });
 
@@ -314,8 +314,14 @@ async function loadTeamTrends() {
             }
         });
         
-        // Store reference to current trends data for new charts
-        const gamesData = data.games;
+        // Prepare sorted stat arrays for new charts
+        const sortedReb = sortedIndices.map(i => trends.reb[i]);
+        const sortedOreb = sortedIndices.map(i => trends.oreb[i]);
+        const sortedDreb = sortedIndices.map(i => trends.dreb[i]);
+        const sortedStl = sortedIndices.map(i => trends.stl[i]);
+        const sortedBlk = sortedIndices.map(i => trends.blk[i]);
+        const sortedFt = sortedIndices.map(i => trends.ft[i]);
+        const sortedFta = sortedIndices.map(i => trends.fta[i]);
         
         // Rebounding Trends Chart
         const reboundingCtx = document.getElementById('teamReboundingChart').getContext('2d');
@@ -327,10 +333,7 @@ async function loadTeamTrends() {
                 datasets: [
                     {
                         label: 'Total Rebounds',
-                        data: sortedIndices.map(i => {
-                            const game = gamesData.find(g => g.gameId === trends.games[i]);
-                            return game?.team_stats?.reb || 0;
-                        }),
+                        data: sortedReb,
                         borderColor: '#4169E1',
                         backgroundColor: 'rgba(65, 105, 225, 0.1)',
                         tension: 0.4,
@@ -339,10 +342,7 @@ async function loadTeamTrends() {
                     },
                     {
                         label: 'Offensive Rebounds',
-                        data: sortedIndices.map(i => {
-                            const game = gamesData.find(g => g.gameId === trends.games[i]);
-                            return game?.team_stats?.oreb || 0;
-                        }),
+                        data: sortedOreb,
                         borderColor: '#32CD32',
                         backgroundColor: 'rgba(50, 205, 50, 0.1)',
                         tension: 0.4,
@@ -377,19 +377,13 @@ async function loadTeamTrends() {
                 datasets: [
                     {
                         label: 'Steals',
-                        data: sortedIndices.map(i => {
-                            const game = gamesData.find(g => g.gameId === trends.games[i]);
-                            return game?.team_stats?.stl || 0;
-                        }),
+                        data: sortedStl,
                         backgroundColor: '#FF8C00',
                         borderColor: '#FF8C00'
                     },
                     {
                         label: 'Blocks',
-                        data: sortedIndices.map(i => {
-                            const game = gamesData.find(g => g.gameId === trends.games[i]);
-                            return game?.team_stats?.blk || 0;
-                        }),
+                        data: sortedBlk,
                         backgroundColor: '#DC143C',
                         borderColor: '#DC143C'
                     }
@@ -418,9 +412,8 @@ async function loadTeamTrends() {
                     {
                         label: 'FT%',
                         data: sortedIndices.map(i => {
-                            const game = gamesData.find(g => g.gameId === trends.games[i]);
-                            const ft = game?.team_stats?.ft || 0;
-                            const fta = game?.team_stats?.fta || 1;
+                            const ft = sortedFt[i];
+                            const fta = sortedFta[i];
                             return fta > 0 ? (ft / fta * 100) : 0;
                         }),
                         borderColor: '#9932CC',
@@ -953,8 +946,9 @@ function setupComparisonSelectors() {
     
     // Populate player options
     allPlayers.forEach(player => {
-        const option1 = new Option(player.full_name || player.name, player.name);
-        const option2 = new Option(player.full_name || player.name, player.name);
+        const firstName = (player.full_name || player.name).split(' ')[0];
+        const option1 = new Option(firstName, player.name);
+        const option2 = new Option(firstName, player.name);
         player1Select.appendChild(option1);
         player2Select.appendChild(option2);
     });

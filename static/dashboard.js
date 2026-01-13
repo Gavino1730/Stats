@@ -69,7 +69,7 @@ async function loadLeaderboards() {
         // Top Scorers
         const scorersHtml = leaderboards.pts.slice(0, 5).map(p => `
             <tr>
-                <td><strong>${p.name}</strong></td>
+                <td><strong>${p.name.split(' ')[0]}</strong></td>
                 <td>${p.pts}</td>
             </tr>
         `).join('');
@@ -78,7 +78,7 @@ async function loadLeaderboards() {
         // Top Rebounders
         const reboundersHtml = leaderboards.reb.slice(0, 5).map(p => `
             <tr>
-                <td><strong>${p.name}</strong></td>
+                <td><strong>${p.name.split(' ')[0]}</strong></td>
                 <td>${p.reb}</td>
             </tr>
         `).join('');
@@ -87,7 +87,7 @@ async function loadLeaderboards() {
         // Top Assist Leaders
         const assistsHtml = leaderboards.asst.slice(0, 5).map(p => `
             <tr>
-                <td><strong>${p.name}</strong></td>
+                <td><strong>${p.name.split(' ')[0]}</strong></td>
                 <td>${p.asst}</td>
             </tr>
         `).join('');

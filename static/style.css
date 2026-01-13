@@ -843,9 +843,32 @@ canvas {
     border-color: var(--primary);
 }
 
-.tab-button:hover {
+.tab-button:hover:not(.active) {
     border-color: var(--primary);
     color: var(--primary);
+    background: var(--light-bg);
+}
+
+.btn-primary {
+    padding: 0.8rem 1.5rem;
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #3555c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(65, 105, 225, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .tab-content {

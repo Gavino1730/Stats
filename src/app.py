@@ -261,6 +261,13 @@ def api_team_trends():
         'fg3_pct': [g['team_stats']['fg3']/g['team_stats']['fg3a']*100 if g['team_stats']['fg3a'] > 0 else 0 for g in games],
         'asst': [g['team_stats']['asst'] for g in games],
         'to': [g['team_stats']['to'] for g in games],
+        'reb': [g['team_stats'].get('reb', 0) for g in games],
+        'oreb': [g['team_stats'].get('oreb', 0) for g in games],
+        'dreb': [g['team_stats'].get('dreb', 0) for g in games],
+        'stl': [g['team_stats'].get('stl', 0) for g in games],
+        'blk': [g['team_stats'].get('blk', 0) for g in games],
+        'ft': [g['team_stats'].get('ft', 0) for g in games],
+        'fta': [g['team_stats'].get('fta', 0) for g in games],
     })
 
 

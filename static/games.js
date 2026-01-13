@@ -79,11 +79,43 @@ function filterGames() {
 }
 
 async function showGameDetail(game) {
-    // Calculate stat differentials
+    // Calculate basic percentages
     const pointDiff = game.vc_score - game.opp_score;
     const vcFgPct = (game.team_stats.fg / game.team_stats.fga * 100).toFixed(1);
     const vc3pPct = (game.team_stats.fg3 / game.team_stats.fg3a * 100).toFixed(1);
     const vcFtPct = (game.team_stats.ft / game.team_stats.fta * 100).toFixed(1);
+    
+    // Calculate advanced stats
+    const fg2Made = game.team_stats.fg - game.team_stats.fg3;
+    const fg2Att = game.team_stats.fga - game.team_stats.fg3a;
+    const fg2Pct = fg2Att > 0 ? (fg2Made / fg2Att * 100).toFixed(1) : '0.0';
+    
+    // Effective FG%
+    const efgPct = ((game.team_stats.fg + 0.5 * game.team_stats.fg3) / game.team_stats.fga * 100).toFixed(1);
+    
+    // True Shooting %
+    const tsPct = (game.vc_score / (2 * (game.team_stats.fga + 0.44 * game.team_stats.fta)) * 100).toFixed(1);
+    
+    // Points per shot
+    const ptsPerShot = (game.vc_score / game.team_stats.fga).toFixed(2);
+    
+    // Assist/Turnover Ratio
+    const astToRatio = (game.team_stats.asst / game.team_stats.to).toFixed(2);
+    
+    // Offensive Rebound %
+    const orebPct = ((game.team_stats.oreb / (game.team_stats.oreb + game.team_stats.dreb)) * 100).toFixed(1);
+    
+    // Estimated possessions
+    const possessions = (game.team_stats.fga + 0.44 * game.team_stats.fta - game.team_stats.oreb + game.team_stats.to).toFixed(1);
+    
+    // Points per possession
+    const ppp = (game.vc_score / possessions).toFixed(3);
+    
+    // Turnover rate
+    const toRate = (game.team_stats.to / possessions * 100).toFixed(1);
+    
+    // Assist rate
+    const astRate = (game.team_stats.asst / game.team_stats.fg * 100).toFixed(1);
     
     const detailHtml = `
         <div class="game-detail-header">
@@ -109,7 +141,7 @@ async function showGameDetail(game) {
 
         <div class="stat-differentials">
             <div class="stat-diff-item">
-                <div class="stat-diff-label">Point Differential</div>
+                <div class="stat-diff-label">Point Diff</div>
                 <div class="stat-diff-value ${pointDiff > 0 ? 'positive' : 'negative'}">
                     ${pointDiff > 0 ? '+' : ''}${pointDiff}
                 </div>
@@ -126,6 +158,50 @@ async function showGameDetail(game) {
                 <div class="stat-diff-label">FT%</div>
                 <div class="stat-diff-value">${vcFtPct}%</div>
             </div>
+            <div class="stat-diff-item">
+                <div class="stat-diff-label">eFG%</div>
+                <div class="stat-diff-value">${efgPct}%</div>
+            </div>
+            <div class="stat-diff-item">
+                <div class="stat-diff-label">TS%</div>
+                <div class="stat-diff-value">${tsPct}%</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 1.5rem; color: var(--primary); margin-bottom: 1rem;">Advanced Game Metrics</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; margin-bottom: 1.5rem;">
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">Possessions</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${possessions}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">Pts/Possession</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${ppp}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">Pts/Shot</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${ptsPerShot}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">AST/TO Ratio</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: ${astToRatio >= 2 ? 'var(--success)' : astToRatio < 1 ? '#dc3545' : 'var(--primary)'};">${astToRatio}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">TO Rate</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: ${toRate < 15 ? 'var(--success)' : toRate > 20 ? '#dc3545' : 'var(--primary)'};">${toRate}%</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">AST Rate</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${astRate}%</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">OREB%</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${orebPct}%</div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">2PT FG%</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${fg2Pct}%</div>
+            </div>
         </div>
 
         <h3 style="margin-top: 2rem; color: var(--primary); margin-bottom: 1rem;">Valley Catholic Box Score</h3>
@@ -133,6 +209,7 @@ async function showGameDetail(game) {
             <thead>
                 <tr>
                     <th>Player</th>
+                    <th>MIN</th>
                     <th>FG</th>
                     <th>3P</th>
                     <th>FT</th>
@@ -149,9 +226,13 @@ async function showGameDetail(game) {
                 </tr>
             </thead>
             <tbody>
-                ${game.player_stats.map(p => `
+                ${game.player_stats.map(p => {
+                    const playerEfg = p.fg_att > 0 ? ((p.fg_made + 0.5 * p.fg3_made) / p.fg_att * 100).toFixed(1) : '0.0';
+                    const firstName = p.name.split(' ')[0];
+                    return `
                     <tr>
-                        <td><strong>${p.name}</strong> (#${p.number})</td>
+                        <td><strong>${firstName}</strong> (#${p.number})</td>
+                        <td>${p.minutes || '-'}</td>
                         <td>${p.fg_made}-${p.fg_att}</td>
                         <td>${p.fg3_made}-${p.fg3_att}</td>
                         <td>${p.ft_made}-${p.ft_att}</td>
@@ -166,13 +247,14 @@ async function showGameDetail(game) {
                         <td style="font-weight: 700; color: ${(p.plus_minus || 0) > 0 ? 'var(--success)' : (p.plus_minus || 0) < 0 ? '#dc3545' : 'inherit'};">${(p.plus_minus || 0) > 0 ? '+' : ''}${p.plus_minus || 0}</td>
                         <td><strong>${p.pts}</strong></td>
                     </tr>
-                `).join('')}
+                `}).join('')}
             </tbody>
         </table>
         <div style="margin-top: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 4px;">
             <div style="font-weight: 700; margin-bottom: 0.5rem;">Team Totals</div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
                 <div><strong>FG:</strong> ${game.team_stats.fg}-${game.team_stats.fga} (${vcFgPct}%)</div>
+                <div><strong>2PT:</strong> ${fg2Made}-${fg2Att} (${fg2Pct}%)</div>
                 <div><strong>3P:</strong> ${game.team_stats.fg3}-${game.team_stats.fg3a} (${vc3pPct}%)</div>
                 <div><strong>FT:</strong> ${game.team_stats.ft}-${game.team_stats.fta} (${vcFtPct}%)</div>
                 <div><strong>REB:</strong> ${game.team_stats.reb} (${game.team_stats.oreb}+${game.team_stats.dreb})</div>
