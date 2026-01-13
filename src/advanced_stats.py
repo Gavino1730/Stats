@@ -153,6 +153,7 @@ class AdvancedStatsCalculator:
         usage_proxy = ((fga + FREE_THROW_POSSESSION_FACTOR * fta + to) / 
                        (team_fga + FREE_THROW_POSSESSION_FACTOR * team_fta + team_to) * 100) if (team_fga + team_fta + team_to) > 0 else 0
         scoring_share = (pts / (team.get('ppg', 0) * total_team_games) * 100) if team.get('ppg', 0) > 0 and total_team_games > 0 else 0
+        shot_volume_share = (fga / team_fga * 100) if team_fga > 0 else 0
         
         # Efficiency rating
         per = (pts + reb + ast + stl + blk - (fga - fg) - (fta - ft) - to) / games if games > 0 else 0
@@ -189,6 +190,7 @@ class AdvancedStatsCalculator:
             'usage_role': {
                 'usage_proxy': round(usage_proxy, 1),
                 'scoring_share': round(scoring_share, 1),
+                'shot_volume_share': round(shot_volume_share, 1),
                 'to_rate': round(to_rate, 1),
                 'role': role,
                 'primary_scorer': scoring_share >= PRIMARY_SCORER_THRESHOLD,
@@ -198,6 +200,8 @@ class AdvancedStatsCalculator:
                 'apg': round(ast / games, 1) if games > 0 else 0,
                 'ast_to_ratio': round(ast / to if to > 0 else 0, 2),
                 'tpg': round(to / games, 1) if games > 0 else 0,
+                'total_assists': ast,
+                'total_turnovers': to,
             },
             'rebounding': {
                 'rpg': player.get('rpg', 0),
@@ -209,6 +213,7 @@ class AdvancedStatsCalculator:
                 'spg': round(stl / games, 1) if games > 0 else 0,
                 'bpg': round(blk / games, 1) if games > 0 else 0,
                 'defensive_rating': round((stl + blk) / games, 1) if games > 0 else 0,
+                'deflections_per_game': round((stl + blk) / games, 1) if games > 0 else 0,
             },
             'discipline': {
                 'fpg': round(fouls / games, 1) if games > 0 else 0,

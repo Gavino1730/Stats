@@ -117,15 +117,35 @@ def api_players():
     players = list(data.season_player_stats.values())
     roster_dict = data.get_roster_dict()
     
+    # Create roster lookup by abbreviated name (first initial + last name)
+    roster_by_abbrev = {}
+    for roster_player in data.roster:
+        full_name = roster_player.get('name', '')
+        if ' ' in full_name:
+            parts = full_name.split(' ', 1)
+            abbrev = f"{parts[0][0]} {parts[1]}"  # e.g., "Hank Lomber" -> "H Lomber"
+            roster_by_abbrev[abbrev] = roster_player
+    
     enhanced = []
     for player in players:
         p = player.copy()
         games = player.get('games', 1)
+        player_name = player.get('name', '')
         
-        # Add roster info
-        if player['name'] in roster_dict:
-            p['number'] = roster_dict[player['name']].get('number')
-            p['grade'] = roster_dict[player['name']].get('grade')
+        # Try to match abbreviated name to roster
+        if player_name in roster_by_abbrev:
+            roster_player = roster_by_abbrev[player_name]
+            p['full_name'] = roster_player.get('name')
+            p['number'] = roster_player.get('number')
+            p['grade'] = roster_player.get('grade')
+        elif player_name in roster_dict:
+            # Direct name match (if full name is used)
+            p['full_name'] = roster_dict[player_name].get('name')
+            p['number'] = roster_dict[player_name].get('number')
+            p['grade'] = roster_dict[player_name].get('grade')
+        else:
+            # Use abbreviated name if no match found
+            p['full_name'] = player_name
         
         # Add per-game stats
         p['spg'] = player.get('stl', 0) / games
@@ -244,6 +264,58 @@ def api_team_trends():
     })
 
 
+@app.route('/api/player-comparison')
+def api_player_comparison():
+    """Compare two or more players"""
+    player_names = request.args.getlist('players')
+    
+    if len(player_names) < 2:
+        return jsonify({'error': 'At least 2 players required for comparison'}), 400
+    
+    comparison_players = []
+    
+    for player_name in player_names:
+        player_name = player_name.strip()
+        player_stats = data.season_player_stats.get(player_name)
+        
+        if not player_stats:
+            continue
+        
+        advanced = advanced_calc.calculate_player_advanced_stats(player_name)
+        
+        # Efficiency grade
+        per = advanced['scoring_efficiency']['per'] if advanced else 0
+        if per >= 20:
+            efficiency_grade = 'A'
+        elif per >= 15:
+            efficiency_grade = 'B'
+        elif per >= 10:
+            efficiency_grade = 'C'
+        else:
+            efficiency_grade = 'D'
+        
+        comparison_players.append({
+            'name': player_name,
+            'basic_stats': {
+                'ppg': player_stats.get('ppg', 0),
+                'rpg': player_stats.get('rpg', 0),
+                'apg': player_stats.get('apg', 0),
+                'tpg': round(player_stats.get('to', 0) / max(player_stats.get('games', 1), 1), 1),
+                'fg_pct': player_stats.get('fg_pct', 0),
+                'fg3_pct': player_stats.get('fg3_pct', 0),
+                'ft_pct': player_stats.get('ft_pct', 0),
+                'spg': round(player_stats.get('stl', 0) / max(player_stats.get('games', 1), 1), 1),
+                'bpg': round(player_stats.get('blk', 0) / max(player_stats.get('games', 1), 1), 1),
+            },
+            'role': advanced['usage_role']['role'] if advanced else 'Unknown',
+            'efficiency_grade': efficiency_grade
+        })
+    
+    return jsonify({
+        'players': comparison_players
+    })
+
+
 # =============================================================================
 # Advanced Stats API Routes
 # =============================================================================
@@ -300,6 +372,149 @@ def api_all_advanced():
         'volatility': advanced_calc.calculate_volatility_metrics(),
         'insights': advanced_calc.generate_auto_insights()
     })
+
+
+@app.route('/api/comprehensive-insights')
+@lru_cache(maxsize=1)
+def api_comprehensive_insights():
+    """Generate comprehensive insights for trends page"""
+    try:
+        # Get recent games (last 5) for trend analysis
+        recent_games = sorted(data.games, key=lambda x: x.get('gameId', 0))[-5:] if len(data.games) >= 5 else data.games
+        early_games = sorted(data.games, key=lambda x: x.get('gameId', 0))[:5] if len(data.games) >= 5 else []
+        
+        # Calculate recent performance
+        recent_wins = sum(1 for g in recent_games if g.get('result') == 'W')
+        recent_losses = len(recent_games) - recent_wins
+        recent_avg_score = sum(g.get('vc_score', 0) for g in recent_games) / len(recent_games) if recent_games else 0
+        recent_avg_opp = sum(g.get('opp_score', 0) for g in recent_games) / len(recent_games) if recent_games else 0
+        point_diff = recent_avg_score - recent_avg_opp
+        
+        # Calculate early season averages
+        early_avg_score = sum(g.get('vc_score', 0) for g in early_games) / len(early_games) if early_games else 0
+        early_avg_opp = sum(g.get('opp_score', 0) for g in early_games) / len(early_games) if early_games else 0
+        
+        # Scoring trend
+        scoring_improvement = recent_avg_score - early_avg_score if early_games else 0
+        defensive_improvement = early_avg_opp - recent_avg_opp if early_games else 0
+        
+        # Get team stats
+        team_stats = data.season_team_stats
+        total_games = team_stats.get('win', 0) + team_stats.get('loss', 0)
+        win_pct = (team_stats.get('win', 0) / total_games * 100) if total_games > 0 else 0
+        
+        # Generate recommendations
+        recommendations = []
+        patterns = advanced_calc.calculate_win_loss_patterns()
+        
+        if patterns['loss_conditions']['avg_to'] > 15:
+            recommendations.append({
+                'category': 'Ball Security',
+                'priority': 'High',
+                'recommendation': f"Reduce turnovers - averaging {patterns['loss_conditions']['avg_to']:.1f} in losses vs {patterns['win_conditions']['avg_to']:.1f} in wins",
+                'reason': 'Turnover differential is a key factor in losses'
+            })
+        
+        if patterns['loss_conditions']['avg_fg_pct'] < 40:
+            recommendations.append({
+                'category': 'Shooting',
+                'priority': 'High',
+                'recommendation': f"Improve shot selection - {patterns['loss_conditions']['avg_fg_pct']:.1f}% FG in losses vs {patterns['win_conditions']['avg_fg_pct']:.1f}% in wins",
+                'reason': 'Shooting efficiency drops significantly in losses'
+            })
+        
+        if team_stats.get('apg', 0) / max(team_stats.get('tpg', 1), 1) < 1.5:
+            recommendations.append({
+                'category': 'Playmaking',
+                'priority': 'Medium',
+                'recommendation': 'Improve assist-to-turnover ratio through better ball movement',
+                'reason': f"Current AST/TO ratio is below optimal threshold"
+            })
+        
+        # Player insights
+        player_insights = []
+        players = sorted(data.season_player_stats.values(), key=lambda x: x.get('ppg', 0), reverse=True)[:10]
+        
+        for player in players:
+            advanced = advanced_calc.calculate_player_advanced_stats(player['name'])
+            if not advanced:
+                continue
+            
+            strengths = []
+            improvements = []
+            
+            # Analyze strengths and weaknesses
+            if advanced['scoring_efficiency']['ppg'] >= 15:
+                strengths.append('Scoring')
+            if advanced['scoring_efficiency']['ts_pct'] >= 55:
+                strengths.append('Efficiency')
+            if advanced['ball_handling']['apg'] >= 3:
+                strengths.append('Playmaking')
+            if advanced['rebounding']['rpg'] >= 6:
+                strengths.append('Rebounding')
+            if advanced['defense_activity']['spg'] >= 1.5:
+                strengths.append('Defense')
+            
+            if advanced['scoring_efficiency']['ts_pct'] < 45:
+                improvements.append('Shot Selection')
+            if advanced['ball_handling']['ast_to_ratio'] < 1.5 and advanced['ball_handling']['tpg'] > 2:
+                improvements.append('Ball Security')
+            if advanced['scoring_efficiency']['fg_pct'] < 35:
+                improvements.append('Shooting')
+            
+            # Efficiency grade
+            per = advanced['scoring_efficiency']['per']
+            if per >= 20:
+                efficiency_grade = 'A'
+            elif per >= 15:
+                efficiency_grade = 'B'
+            elif per >= 10:
+                efficiency_grade = 'C'
+            else:
+                efficiency_grade = 'D'
+            
+            player_insights.append({
+                'name': player['name'],
+                'role': advanced['usage_role']['role'],
+                'strengths': strengths,
+                'areas_for_improvement': improvements,
+                'efficiency_grade': efficiency_grade
+            })
+        
+        return jsonify({
+            'team_trends': {
+                'recent_performance': {
+                    'record': f"{recent_wins}-{recent_losses}",
+                    'avg_score': round(recent_avg_score, 1),
+                    'point_differential': round(point_diff, 1),
+                    'trend': 'Improving' if recent_wins > recent_losses else 'Struggling' if recent_wins < recent_losses else 'Stable'
+                },
+                'scoring_trends': {
+                    'recent_avg': round(recent_avg_score, 1),
+                    'early_avg': round(early_avg_score, 1),
+                    'improvement': round(scoring_improvement, 1),
+                    'trend': 'Up' if scoring_improvement > 2 else 'Down' if scoring_improvement < -2 else 'Stable'
+                },
+                'defensive_trends': {
+                    'recent_avg_allowed': round(recent_avg_opp, 1),
+                    'early_avg_allowed': round(early_avg_opp, 1),
+                    'improvement': round(defensive_improvement, 1),
+                    'trend': 'Improving' if defensive_improvement > 2 else 'Declining' if defensive_improvement < -2 else 'Stable'
+                }
+            },
+            'key_metrics': {
+                'win_pct': round(win_pct, 1),
+                'fg_pct': team_stats.get('fg_pct', 0),
+                'fg3_pct': team_stats.get('fg3_pct', 0),
+                'apg': team_stats.get('apg', 0),
+                'tpg': round(team_stats.get('to', 0) / total_games, 1) if total_games > 0 else 0
+            },
+            'recommendations': recommendations,
+            'player_insights': player_insights
+        })
+    except Exception as e:
+        logger.error(f"Comprehensive insights error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 # =============================================================================

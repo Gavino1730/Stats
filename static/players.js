@@ -47,7 +47,7 @@ function displayPlayers(players) {
         const plusMinusPerGame = plusMinus / games;
         card.innerHTML = `
             <div class="player-number">#${player.number || '-'}</div>
-            <div class="player-name">${player.name}</div>
+            <div class="player-name">${player.full_name || player.name}</div>
             <div class="player-stats">
                 <div class="player-stat-item">
                     <div class="player-stat-label">PPG</div>
@@ -399,7 +399,7 @@ async function showPlayerDetail(playerName) {
             <div class="player-detail-header">
                 <div class="player-detail-info">
                     <div class="player-detail-number">Player #${data.season_stats.number || '-'}</div>
-                    <div class="player-detail-name">${data.season_stats.name}</div>
+                    <div class="player-detail-name">${data.season_stats.full_name || data.season_stats.name}</div>
                 </div>
             </div>
 
@@ -705,7 +705,7 @@ function displayRankings() {
                         </div>
                         <div class="ranking-player-info">
                             <div class="ranking-player-number">#${player.number || '-'}</div>
-                            <div class="ranking-player-name">${player.name}</div>
+                            <div class="ranking-player-name">${player.full_name || player.name}</div>
                             ${player.grade ? `<div class="ranking-player-grade">${player.grade}</div>` : ''}
                         </div>
                         <div class="ranking-stat-value">
