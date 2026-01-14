@@ -2687,8 +2687,8 @@
           "to": 4,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 26
+          "pts": 21,
+          "plus_minus": 0
         },
         {
           "number": 23,
@@ -2709,8 +2709,8 @@
           "to": 1,
           "blk": 0,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 30
+          "pts": 21,
+          "plus_minus": 0
         },
         {
           "number": 1,
@@ -2731,8 +2731,8 @@
           "to": 0,
           "blk": 0,
           "asst": 6,
-          "pts": 0,
-          "plus_minus": 34
+          "pts": 12,
+          "plus_minus": 0
         },
         {
           "number": 24,
@@ -2753,8 +2753,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 31
+          "pts": 5,
+          "plus_minus": 0
         },
         {
           "number": 11,
@@ -2775,8 +2775,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 7
+          "pts": 5,
+          "plus_minus": 0
         },
         {
           "number": 5,
@@ -2797,8 +2797,8 @@
           "to": 3,
           "blk": 1,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 29
+          "pts": 3,
+          "plus_minus": 0
         },
         {
           "number": 3,
@@ -2819,8 +2819,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -5
+          "pts": 3,
+          "plus_minus": 0
         },
         {
           "number": 4,
@@ -2841,7 +2841,7 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
+          "pts": 2,
           "plus_minus": 0
         },
         {
@@ -2864,7 +2864,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 5
+          "plus_minus": 0
         },
         {
           "number": 15,
@@ -2886,7 +2886,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -3
+          "plus_minus": 0
         },
         {
           "number": 2,
@@ -2908,7 +2908,7 @@
           "blk": 0,
           "asst": 3,
           "pts": 0,
-          "plus_minus": 8
+          "plus_minus": 0
         },
         {
           "number": 44,
@@ -2930,7 +2930,7 @@
           "blk": 0,
           "asst": 1,
           "pts": 0,
-          "plus_minus": -10
+          "plus_minus": 0
         },
         {
           "number": 10,
@@ -2952,7 +2952,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -7
+          "plus_minus": 0
         }
       ]
     },
@@ -3000,8 +3000,8 @@
           "to": 1,
           "blk": 0,
           "asst": 3,
-          "pts": 0,
-          "plus_minus": 34
+          "pts": 26,
+          "plus_minus": 0
         },
         {
           "number": 24,
@@ -3022,8 +3022,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 26
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 5,
@@ -3044,8 +3044,8 @@
           "to": 1,
           "blk": 0,
           "asst": 4,
-          "pts": 0,
-          "plus_minus": 32
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 15,
@@ -3066,8 +3066,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 13
+          "pts": 8,
+          "plus_minus": 0
         },
         {
           "number": 1,
@@ -3088,8 +3088,8 @@
           "to": 2,
           "blk": 0,
           "asst": 7,
-          "pts": 0,
-          "plus_minus": 21
+          "pts": 5,
+          "plus_minus": 0
         },
         {
           "number": 11,
@@ -3110,8 +3110,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 17
+          "pts": 4,
+          "plus_minus": 0
         },
         {
           "number": 22,
@@ -3132,8 +3132,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 1
+          "pts": 4,
+          "plus_minus": 0
         },
         {
           "number": 10,
@@ -3154,8 +3154,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -3
+          "pts": 3,
+          "plus_minus": 0
         },
         {
           "number": 2,
@@ -3176,8 +3176,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 3
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 3,
@@ -3199,7 +3199,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 5
+          "plus_minus": 0
         },
         {
           "number": 4,
@@ -3221,7 +3221,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 9
+          "plus_minus": 0
         },
         {
           "number": 44,
@@ -3243,7 +3243,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -3
+          "plus_minus": 0
         }
       ]
     },
@@ -3291,8 +3291,8 @@
           "to": 1,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 14
+          "pts": 15,
+          "plus_minus": 0
         },
         {
           "number": 23,
@@ -3313,8 +3313,8 @@
           "to": 2,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 17
+          "pts": 15,
+          "plus_minus": 0
         },
         {
           "number": 1,
@@ -3335,8 +3335,8 @@
           "to": 3,
           "blk": 0,
           "asst": 8,
-          "pts": 0,
-          "plus_minus": 24
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 5,
@@ -3357,8 +3357,8 @@
           "to": 2,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 21
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 22,
@@ -3379,8 +3379,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 13
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 24,
@@ -3401,8 +3401,8 @@
           "to": 3,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 15
+          "pts": 3,
+          "plus_minus": 0
         },
         {
           "number": 15,
@@ -3423,8 +3423,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 3
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 11,
@@ -3445,8 +3445,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -4
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 2,
@@ -3467,8 +3467,8 @@
           "to": 1,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 4
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 4,
@@ -3512,7 +3512,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         },
         {
           "number": 10,
@@ -3534,7 +3534,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         },
         {
           "number": 44,
@@ -3556,7 +3556,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         }
       ]
     },
@@ -3604,8 +3604,8 @@
           "to": 1,
           "blk": 0,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 27
+          "pts": 20,
+          "plus_minus": 0
         },
         {
           "number": 23,
@@ -3626,8 +3626,8 @@
           "to": 3,
           "blk": 1,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 24
+          "pts": 11,
+          "plus_minus": 0
         },
         {
           "number": 24,
@@ -3648,8 +3648,8 @@
           "to": 2,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 14
+          "pts": 10,
+          "plus_minus": 0
         },
         {
           "number": 5,
@@ -3670,8 +3670,8 @@
           "to": 2,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 9
+          "pts": 7,
+          "plus_minus": 0
         },
         {
           "number": 1,
@@ -3692,8 +3692,8 @@
           "to": 5,
           "blk": 0,
           "asst": 5,
-          "pts": 0,
-          "plus_minus": 25
+          "pts": 5,
+          "plus_minus": 0
         },
         {
           "number": 22,
@@ -3714,8 +3714,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 9
+          "pts": 4,
+          "plus_minus": 0
         },
         {
           "number": 3,
@@ -3736,7 +3736,7 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
+          "pts": 3,
           "plus_minus": 0
         },
         {
@@ -3758,8 +3758,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -4
+          "pts": 3,
+          "plus_minus": 0
         },
         {
           "number": 11,
@@ -3780,8 +3780,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 6
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 15,
@@ -3802,8 +3802,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 11
+          "pts": 2,
+          "plus_minus": 0
         },
         {
           "number": 2,
@@ -3825,7 +3825,7 @@
           "blk": 0,
           "asst": 3,
           "pts": 0,
-          "plus_minus": 11
+          "plus_minus": 0
         },
         {
           "number": 4,
@@ -3869,7 +3869,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -2
+          "plus_minus": 0
         }
       ]
     },
@@ -4432,7 +4432,7 @@
           "blk": 0,
           "asst": 3,
           "pts": 0,
-          "plus_minus": 8
+          "plus_minus": 0
         }
       },
       {
@@ -4460,8 +4460,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 3
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -4489,8 +4489,8 @@
           "to": 1,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 4
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -4519,7 +4519,7 @@
           "blk": 0,
           "asst": 3,
           "pts": 0,
-          "plus_minus": 11
+          "plus_minus": 0
         }
       },
       {
@@ -4839,8 +4839,8 @@
           "to": 0,
           "blk": 0,
           "asst": 6,
-          "pts": 0,
-          "plus_minus": 34
+          "pts": 12,
+          "plus_minus": 0
         }
       },
       {
@@ -4868,8 +4868,8 @@
           "to": 2,
           "blk": 0,
           "asst": 7,
-          "pts": 0,
-          "plus_minus": 21
+          "pts": 5,
+          "plus_minus": 0
         }
       },
       {
@@ -4897,8 +4897,8 @@
           "to": 3,
           "blk": 0,
           "asst": 8,
-          "pts": 0,
-          "plus_minus": 24
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -4926,8 +4926,8 @@
           "to": 5,
           "blk": 0,
           "asst": 5,
-          "pts": 0,
-          "plus_minus": 25
+          "pts": 5,
+          "plus_minus": 0
         }
       },
       {
@@ -5219,7 +5219,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -3
+          "plus_minus": 0
         }
       },
       {
@@ -5247,8 +5247,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 13
+          "pts": 8,
+          "plus_minus": 0
         }
       },
       {
@@ -5276,8 +5276,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 3
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -5305,8 +5305,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 11
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -5626,8 +5626,8 @@
           "to": 1,
           "blk": 0,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 30
+          "pts": 21,
+          "plus_minus": 0
         }
       },
       {
@@ -5655,8 +5655,8 @@
           "to": 1,
           "blk": 0,
           "asst": 3,
-          "pts": 0,
-          "plus_minus": 34
+          "pts": 26,
+          "plus_minus": 0
         }
       },
       {
@@ -5684,8 +5684,8 @@
           "to": 2,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 17
+          "pts": 15,
+          "plus_minus": 0
         }
       },
       {
@@ -5713,8 +5713,8 @@
           "to": 3,
           "blk": 1,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 24
+          "pts": 11,
+          "plus_minus": 0
         }
       },
       {
@@ -6034,8 +6034,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -5
+          "pts": 3,
+          "plus_minus": 0
         }
       },
       {
@@ -6064,7 +6064,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 5
+          "plus_minus": 0
         }
       },
       {
@@ -6093,7 +6093,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         }
       },
       {
@@ -6121,7 +6121,7 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
+          "pts": 3,
           "plus_minus": 0
         }
       },
@@ -6442,8 +6442,8 @@
           "to": 4,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 26
+          "pts": 21,
+          "plus_minus": 0
         }
       },
       {
@@ -6471,8 +6471,8 @@
           "to": 1,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 14
+          "pts": 15,
+          "plus_minus": 0
         }
       },
       {
@@ -6500,8 +6500,8 @@
           "to": 1,
           "blk": 0,
           "asst": 2,
-          "pts": 0,
-          "plus_minus": 27
+          "pts": 20,
+          "plus_minus": 0
         }
       },
       {
@@ -6821,7 +6821,7 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
+          "pts": 2,
           "plus_minus": 0
         }
       },
@@ -6851,7 +6851,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 9
+          "plus_minus": 0
         }
       },
       {
@@ -7085,7 +7085,7 @@
           "blk": 0,
           "asst": 1,
           "pts": 0,
-          "plus_minus": -10
+          "plus_minus": 0
         }
       },
       {
@@ -7114,7 +7114,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -3
+          "plus_minus": 0
         }
       },
       {
@@ -7143,7 +7143,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         }
       },
       {
@@ -7172,7 +7172,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -2
+          "plus_minus": 0
         }
       }
     ],
@@ -7435,7 +7435,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -7
+          "plus_minus": 0
         }
       },
       {
@@ -7463,8 +7463,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -3
+          "pts": 3,
+          "plus_minus": 0
         }
       },
       {
@@ -7493,7 +7493,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": -4
+          "plus_minus": 0
         }
       },
       {
@@ -7521,8 +7521,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -4
+          "pts": 3,
+          "plus_minus": 0
         }
       }
     ],
@@ -7813,8 +7813,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 31
+          "pts": 5,
+          "plus_minus": 0
         }
       },
       {
@@ -7842,8 +7842,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 26
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -7871,8 +7871,8 @@
           "to": 3,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 15
+          "pts": 3,
+          "plus_minus": 0
         }
       },
       {
@@ -7900,8 +7900,8 @@
           "to": 2,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 14
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -8192,8 +8192,8 @@
           "to": 3,
           "blk": 1,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 29
+          "pts": 3,
+          "plus_minus": 0
         }
       },
       {
@@ -8221,8 +8221,8 @@
           "to": 1,
           "blk": 0,
           "asst": 4,
-          "pts": 0,
-          "plus_minus": 32
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -8250,8 +8250,8 @@
           "to": 2,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 21
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -8279,8 +8279,8 @@
           "to": 2,
           "blk": 1,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 9
+          "pts": 7,
+          "plus_minus": 0
         }
       },
       {
@@ -8601,7 +8601,7 @@
           "blk": 0,
           "asst": 0,
           "pts": 0,
-          "plus_minus": 5
+          "plus_minus": 0
         }
       },
       {
@@ -8629,8 +8629,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 1
+          "pts": 4,
+          "plus_minus": 0
         }
       },
       {
@@ -8658,8 +8658,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 13
+          "pts": 10,
+          "plus_minus": 0
         }
       },
       {
@@ -8687,8 +8687,8 @@
           "to": 1,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 9
+          "pts": 4,
+          "plus_minus": 0
         }
       },
       {
@@ -9008,8 +9008,8 @@
           "to": 0,
           "blk": 0,
           "asst": 1,
-          "pts": 0,
-          "plus_minus": 7
+          "pts": 5,
+          "plus_minus": 0
         }
       },
       {
@@ -9037,8 +9037,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 17
+          "pts": 4,
+          "plus_minus": 0
         }
       },
       {
@@ -9066,8 +9066,8 @@
           "to": 0,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": -4
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -9095,8 +9095,8 @@
           "to": 2,
           "blk": 0,
           "asst": 0,
-          "pts": 0,
-          "plus_minus": 6
+          "pts": 2,
+          "plus_minus": 0
         }
       },
       {
@@ -9131,10 +9131,88 @@
     ]
   },
   "season_player_stats": {
+    "H Lomber": {
+      "name": "H Lomber",
+      "games": 13,
+      "pts": 284,
+      "fg": 110,
+      "fga": 216,
+      "fg3": 27,
+      "fg3a": 82,
+      "ft": 37,
+      "fta": 42,
+      "oreb": 25,
+      "dreb": 57,
+      "reb": 82,
+      "asst": 19,
+      "to": 26,
+      "stl": 32,
+      "blk": 10,
+      "fouls": 34,
+      "plus_minus": 177,
+      "ppg": 21.8,
+      "rpg": 6.3,
+      "apg": 1.5,
+      "fg_pct": 50.9,
+      "fg3_pct": 32.9,
+      "ft_pct": 88.1
+    },
+    "E Schaal": {
+      "name": "E Schaal",
+      "games": 13,
+      "pts": 61,
+      "fg": 26,
+      "fga": 49,
+      "fg3": 0,
+      "fg3a": 1,
+      "ft": 9,
+      "fta": 14,
+      "oreb": 42,
+      "dreb": 17,
+      "reb": 59,
+      "asst": 9,
+      "to": 2,
+      "stl": 16,
+      "blk": 1,
+      "fouls": 19,
+      "plus_minus": 78,
+      "ppg": 4.7,
+      "rpg": 4.5,
+      "apg": 0.7,
+      "fg_pct": 53.1,
+      "fg3_pct": 0.0,
+      "ft_pct": 64.3
+    },
+    "S Robbins": {
+      "name": "S Robbins",
+      "games": 14,
+      "pts": 62,
+      "fg": 27,
+      "fga": 41,
+      "fg3": 0,
+      "fg3a": 0,
+      "ft": 8,
+      "fta": 24,
+      "oreb": 27,
+      "dreb": 21,
+      "reb": 48,
+      "asst": 7,
+      "to": 7,
+      "stl": 9,
+      "blk": 6,
+      "fouls": 14,
+      "plus_minus": 21,
+      "ppg": 4.4,
+      "rpg": 3.4,
+      "apg": 0.5,
+      "fg_pct": 65.9,
+      "fg3_pct": 0,
+      "ft_pct": 33.3
+    },
     "T Eddy": {
       "name": "T Eddy",
       "games": 14,
-      "pts": 63,
+      "pts": 76,
       "fg": 30,
       "fga": 64,
       "fg3": 10,
@@ -9149,13 +9227,221 @@
       "stl": 15,
       "blk": 2,
       "fouls": 18,
-      "plus_minus": 142,
-      "ppg": 4.5,
+      "plus_minus": 116,
+      "ppg": 5.4,
       "rpg": 1.7,
       "apg": 0.7,
       "fg_pct": 46.9,
       "fg3_pct": 33.3,
       "ft_pct": 60.0
+    },
+    "K Fixter": {
+      "name": "K Fixter",
+      "games": 14,
+      "pts": 20,
+      "fg": 8,
+      "fga": 20,
+      "fg3": 3,
+      "fg3a": 7,
+      "ft": 1,
+      "fta": 4,
+      "oreb": 4,
+      "dreb": 7,
+      "reb": 11,
+      "asst": 1,
+      "to": 3,
+      "stl": 3,
+      "blk": 0,
+      "fouls": 8,
+      "plus_minus": 56,
+      "ppg": 1.4,
+      "rpg": 0.8,
+      "apg": 0.1,
+      "fg_pct": 40.0,
+      "fg3_pct": 42.9,
+      "ft_pct": 25.0
+    },
+    "G Galan": {
+      "name": "G Galan",
+      "games": 14,
+      "pts": 13,
+      "fg": 4,
+      "fga": 12,
+      "fg3": 3,
+      "fg3a": 11,
+      "ft": 2,
+      "fta": 4,
+      "oreb": 4,
+      "dreb": 11,
+      "reb": 15,
+      "asst": 1,
+      "to": 3,
+      "stl": 6,
+      "blk": 1,
+      "fouls": 10,
+      "plus_minus": 49,
+      "ppg": 0.9,
+      "rpg": 1.1,
+      "apg": 0.1,
+      "fg_pct": 33.3,
+      "fg3_pct": 27.3,
+      "ft_pct": 50.0
+    },
+    "G Frank": {
+      "name": "G Frank",
+      "games": 14,
+      "pts": 228,
+      "fg": 76,
+      "fga": 157,
+      "fg3": 11,
+      "fg3a": 40,
+      "ft": 65,
+      "fta": 79,
+      "oreb": 9,
+      "dreb": 35,
+      "reb": 44,
+      "asst": 25,
+      "to": 32,
+      "stl": 27,
+      "blk": 6,
+      "fouls": 33,
+      "plus_minus": 204,
+      "ppg": 16.3,
+      "rpg": 3.1,
+      "apg": 1.8,
+      "fg_pct": 48.4,
+      "fg3_pct": 27.5,
+      "ft_pct": 82.3
+    },
+    "A Post": {
+      "name": "A Post",
+      "games": 14,
+      "pts": 25,
+      "fg": 9,
+      "fga": 36,
+      "fg3": 5,
+      "fg3a": 25,
+      "ft": 2,
+      "fta": 2,
+      "oreb": 5,
+      "dreb": 10,
+      "reb": 15,
+      "asst": 24,
+      "to": 17,
+      "stl": 13,
+      "blk": 0,
+      "fouls": 18,
+      "plus_minus": 70,
+      "ppg": 1.8,
+      "rpg": 1.1,
+      "apg": 1.7,
+      "fg_pct": 25.0,
+      "fg3_pct": 20.0,
+      "ft_pct": 100.0
+    },
+    "M Gunther": {
+      "name": "M Gunther",
+      "games": 12,
+      "pts": 9,
+      "fg": 3,
+      "fga": 17,
+      "fg3": 2,
+      "fg3a": 10,
+      "ft": 1,
+      "fta": 2,
+      "oreb": 2,
+      "dreb": 4,
+      "reb": 6,
+      "asst": 3,
+      "to": 13,
+      "stl": 3,
+      "blk": 0,
+      "fouls": 3,
+      "plus_minus": 23,
+      "ppg": 0.8,
+      "rpg": 0.5,
+      "apg": 0.2,
+      "fg_pct": 17.6,
+      "fg3_pct": 20.0,
+      "ft_pct": 50.0
+    },
+    "C Bonnett": {
+      "name": "C Bonnett",
+      "games": 14,
+      "pts": 69,
+      "fg": 22,
+      "fga": 53,
+      "fg3": 7,
+      "fg3a": 17,
+      "ft": 18,
+      "fta": 30,
+      "oreb": 22,
+      "dreb": 34,
+      "reb": 56,
+      "asst": 99,
+      "to": 37,
+      "stl": 27,
+      "blk": 0,
+      "fouls": 41,
+      "plus_minus": 220,
+      "ppg": 4.9,
+      "rpg": 4.0,
+      "apg": 7.1,
+      "fg_pct": 41.5,
+      "fg3_pct": 41.2,
+      "ft_pct": 60.0
+    },
+    "M Mueller": {
+      "name": "M Mueller",
+      "games": 13,
+      "pts": 93,
+      "fg": 39,
+      "fga": 78,
+      "fg3": 2,
+      "fg3a": 8,
+      "ft": 13,
+      "fta": 18,
+      "oreb": 24,
+      "dreb": 51,
+      "reb": 75,
+      "asst": 23,
+      "to": 14,
+      "stl": 37,
+      "blk": 7,
+      "fouls": 25,
+      "plus_minus": 211,
+      "ppg": 7.2,
+      "rpg": 5.8,
+      "apg": 1.8,
+      "fg_pct": 50.0,
+      "fg3_pct": 25.0,
+      "ft_pct": 72.2
+    },
+    "M Mehta": {
+      "name": "M Mehta",
+      "games": 14,
+      "pts": 151,
+      "fg": 50,
+      "fga": 133,
+      "fg3": 29,
+      "fg3a": 96,
+      "ft": 22,
+      "fta": 27,
+      "oreb": 10,
+      "dreb": 14,
+      "reb": 24,
+      "asst": 12,
+      "to": 22,
+      "stl": 17,
+      "blk": 1,
+      "fouls": 25,
+      "plus_minus": 156,
+      "ppg": 10.8,
+      "rpg": 1.7,
+      "apg": 0.9,
+      "fg_pct": 37.6,
+      "fg3_pct": 30.2,
+      "ft_pct": 81.5
     },
     "L Plep": {
       "name": "L Plep",
@@ -9175,299 +9461,13 @@
       "stl": 0,
       "blk": 0,
       "fouls": 8,
-      "plus_minus": -20,
+      "plus_minus": -1,
       "ppg": 0.5,
       "rpg": 1.0,
       "apg": 0.1,
       "fg_pct": 33.3,
       "fg3_pct": 0.0,
       "ft_pct": 0.0
-    },
-    "M Mehta": {
-      "name": "M Mehta",
-      "games": 14,
-      "pts": 123,
-      "fg": 50,
-      "fga": 133,
-      "fg3": 29,
-      "fg3a": 96,
-      "ft": 22,
-      "fta": 27,
-      "oreb": 10,
-      "dreb": 14,
-      "reb": 24,
-      "asst": 12,
-      "to": 22,
-      "stl": 17,
-      "blk": 1,
-      "fouls": 25,
-      "plus_minus": 242,
-      "ppg": 8.8,
-      "rpg": 1.7,
-      "apg": 0.9,
-      "fg_pct": 37.6,
-      "fg3_pct": 30.2,
-      "ft_pct": 81.5
-    },
-    "M Gunther": {
-      "name": "M Gunther",
-      "games": 12,
-      "pts": 3,
-      "fg": 3,
-      "fga": 17,
-      "fg3": 2,
-      "fg3a": 10,
-      "ft": 1,
-      "fta": 2,
-      "oreb": 2,
-      "dreb": 4,
-      "reb": 6,
-      "asst": 3,
-      "to": 13,
-      "stl": 3,
-      "blk": 0,
-      "fouls": 3,
-      "plus_minus": 5,
-      "ppg": 0.2,
-      "rpg": 0.5,
-      "apg": 0.2,
-      "fg_pct": 17.6,
-      "fg3_pct": 20.0,
-      "ft_pct": 50.0
-    },
-    "K Fixter": {
-      "name": "K Fixter",
-      "games": 14,
-      "pts": 18,
-      "fg": 8,
-      "fga": 20,
-      "fg3": 3,
-      "fg3a": 7,
-      "ft": 1,
-      "fta": 4,
-      "oreb": 4,
-      "dreb": 7,
-      "reb": 11,
-      "asst": 1,
-      "to": 3,
-      "stl": 3,
-      "blk": 0,
-      "fouls": 8,
-      "plus_minus": 65,
-      "ppg": 1.3,
-      "rpg": 0.8,
-      "apg": 0.1,
-      "fg_pct": 40.0,
-      "fg3_pct": 42.9,
-      "ft_pct": 25.0
-    },
-    "S Robbins": {
-      "name": "S Robbins",
-      "games": 14,
-      "pts": 44,
-      "fg": 27,
-      "fga": 41,
-      "fg3": 0,
-      "fg3a": 0,
-      "ft": 8,
-      "fta": 24,
-      "oreb": 27,
-      "dreb": 21,
-      "reb": 48,
-      "asst": 7,
-      "to": 7,
-      "stl": 9,
-      "blk": 6,
-      "fouls": 14,
-      "plus_minus": 49,
-      "ppg": 3.1,
-      "rpg": 3.4,
-      "apg": 0.5,
-      "fg_pct": 65.9,
-      "fg3_pct": 0,
-      "ft_pct": 33.3
-    },
-    "H Lomber": {
-      "name": "H Lomber",
-      "games": 13,
-      "pts": 228,
-      "fg": 110,
-      "fga": 216,
-      "fg3": 27,
-      "fg3a": 82,
-      "ft": 37,
-      "fta": 42,
-      "oreb": 25,
-      "dreb": 57,
-      "reb": 82,
-      "asst": 19,
-      "to": 26,
-      "stl": 32,
-      "blk": 10,
-      "fouls": 34,
-      "plus_minus": 244,
-      "ppg": 17.5,
-      "rpg": 6.3,
-      "apg": 1.5,
-      "fg_pct": 50.9,
-      "fg3_pct": 32.9,
-      "ft_pct": 88.1
-    },
-    "M Mueller": {
-      "name": "M Mueller",
-      "games": 13,
-      "pts": 63,
-      "fg": 39,
-      "fga": 78,
-      "fg3": 2,
-      "fg3a": 8,
-      "ft": 13,
-      "fta": 18,
-      "oreb": 24,
-      "dreb": 51,
-      "reb": 75,
-      "asst": 23,
-      "to": 14,
-      "stl": 37,
-      "blk": 7,
-      "fouls": 25,
-      "plus_minus": 302,
-      "ppg": 4.8,
-      "rpg": 5.8,
-      "apg": 1.8,
-      "fg_pct": 50.0,
-      "fg3_pct": 25.0,
-      "ft_pct": 72.2
-    },
-    "A Post": {
-      "name": "A Post",
-      "games": 14,
-      "pts": 21,
-      "fg": 9,
-      "fga": 36,
-      "fg3": 5,
-      "fg3a": 25,
-      "ft": 2,
-      "fta": 2,
-      "oreb": 5,
-      "dreb": 10,
-      "reb": 15,
-      "asst": 24,
-      "to": 17,
-      "stl": 13,
-      "blk": 0,
-      "fouls": 18,
-      "plus_minus": 96,
-      "ppg": 1.5,
-      "rpg": 1.1,
-      "apg": 1.7,
-      "fg_pct": 25.0,
-      "fg3_pct": 20.0,
-      "ft_pct": 100.0
-    },
-    "G Galan": {
-      "name": "G Galan",
-      "games": 14,
-      "pts": 7,
-      "fg": 4,
-      "fga": 12,
-      "fg3": 3,
-      "fg3a": 11,
-      "ft": 2,
-      "fta": 4,
-      "oreb": 4,
-      "dreb": 11,
-      "reb": 15,
-      "asst": 1,
-      "to": 3,
-      "stl": 6,
-      "blk": 1,
-      "fouls": 10,
-      "plus_minus": 45,
-      "ppg": 0.5,
-      "rpg": 1.1,
-      "apg": 0.1,
-      "fg_pct": 33.3,
-      "fg3_pct": 27.3,
-      "ft_pct": 50.0
-    },
-    "G Frank": {
-      "name": "G Frank",
-      "games": 14,
-      "pts": 155,
-      "fg": 76,
-      "fga": 157,
-      "fg3": 11,
-      "fg3a": 40,
-      "ft": 65,
-      "fta": 79,
-      "oreb": 9,
-      "dreb": 35,
-      "reb": 44,
-      "asst": 25,
-      "to": 32,
-      "stl": 27,
-      "blk": 6,
-      "fouls": 33,
-      "plus_minus": 309,
-      "ppg": 11.1,
-      "rpg": 3.1,
-      "apg": 1.8,
-      "fg_pct": 48.4,
-      "fg3_pct": 27.5,
-      "ft_pct": 82.3
-    },
-    "C Bonnett": {
-      "name": "C Bonnett",
-      "games": 14,
-      "pts": 37,
-      "fg": 22,
-      "fga": 53,
-      "fg3": 7,
-      "fg3a": 17,
-      "ft": 18,
-      "fta": 30,
-      "oreb": 22,
-      "dreb": 34,
-      "reb": 56,
-      "asst": 99,
-      "to": 37,
-      "stl": 27,
-      "blk": 0,
-      "fouls": 41,
-      "plus_minus": 324,
-      "ppg": 2.6,
-      "rpg": 4.0,
-      "apg": 7.1,
-      "fg_pct": 41.5,
-      "fg3_pct": 41.2,
-      "ft_pct": 60.0
-    },
-    "E Schaal": {
-      "name": "E Schaal",
-      "games": 13,
-      "pts": 49,
-      "fg": 26,
-      "fga": 49,
-      "fg3": 0,
-      "fg3a": 1,
-      "ft": 9,
-      "fta": 14,
-      "oreb": 42,
-      "dreb": 17,
-      "reb": 59,
-      "asst": 9,
-      "to": 2,
-      "stl": 16,
-      "blk": 1,
-      "fouls": 19,
-      "plus_minus": 102,
-      "ppg": 3.8,
-      "rpg": 4.5,
-      "apg": 0.7,
-      "fg_pct": 53.1,
-      "fg3_pct": 0.0,
-      "ft_pct": 64.3
     }
   },
   "season_team_stats": {

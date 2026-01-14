@@ -93,15 +93,17 @@ for pdf_name, opponent, location in pdf_files:
                         blk = int(parts[11])
                         asst = int(parts[12])
                         
-                        # Parse +/- (index 13) and pts (index 14)
-                        # +/- can be negative or positive number
-                        plus_minus_str = parts[13]
+                        # Parse +/- and pts
+                        # Points are always the last column
+                        pts = int(parts[-1])
+                        
+                        # +/- is second to last, can be negative or positive
+                        # Some PDFs have a minutes column before +/-, so it could be at different positions
+                        plus_minus_str = parts[-2] if len(parts) > 14 else parts[13]
                         try:
                             plus_minus = int(plus_minus_str)
                         except:
                             plus_minus = 0
-                        
-                        pts = int(parts[14]) if len(parts) > 14 else int(parts[-1])
                         
                         player_stat = {
                             'number': number,
