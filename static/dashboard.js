@@ -7,8 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Promise.all([
         loadSeasonStats(),
         loadLeaderboards(),
-        loadAdvancedStats(),
-        loadInsights()
+        loadAdvancedStats()
     ]);
     
     // Load charts after critical data is ready (don't block)
@@ -42,22 +41,6 @@ async function loadAdvancedStats() {
         document.getElementById('ast-rate').textContent = stats.ball_movement.assisted_scoring_rate.toFixed(1) + '%';
     } catch (error) {
         console.error('Error loading advanced stats:', error);
-    }
-}
-
-async function loadInsights() {
-    try {
-        const response = await fetch('/api/advanced/insights');
-        const data = await response.json();
-        
-        const insightsHtml = data.insights.map(insight => 
-            `<div class="insight-item">• ${insight}</div>`
-        ).join('');
-        
-        document.getElementById('auto-insights').innerHTML = insightsHtml || '<p>No insights available</p>';
-    } catch (error) {
-        console.error('Error loading insights:', error);
-        document.getElementById('auto-insights').innerHTML = '<p>Unable to load insights</p>';
     }
 }
 
