@@ -97,9 +97,9 @@ for pdf_name, opponent, location in pdf_files:
                         # Points are always the last column
                         pts = int(parts[-1])
                         
-                        # +/- is second to last, can be negative or positive
-                        # Some PDFs have a minutes column before +/-, so it could be at different positions
-                        plus_minus_str = parts[-2] if len(parts) > 14 else parts[13]
+                        # +/- is third to last (parts[-3])
+                        # Format: ... ASST +/- MINS PTS
+                        plus_minus_str = parts[-3] if len(parts) >= 15 else parts[13]
                         try:
                             plus_minus = int(plus_minus_str)
                         except:
