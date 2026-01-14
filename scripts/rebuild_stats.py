@@ -12,16 +12,22 @@ pdf_files = [
     ('Regis.pdf', 'Regis', 'away'),
     ('Scappoose.pdf', 'Scappoose', 'away'),
     ('Tillamook.pdf', 'Tillamook', 'away'),
+    ('Western.pdf', 'Western', 'home'),
+    ('Horizon.pdf', 'Horizon', 'home'),
+    ('Westside.pdf', 'Westside', 'away'),
+    ('De La Salle.pdf', 'De La Salle', 'away'),
+    ('OES.pdf', 'OES', 'home'),
 ]
 
-base_path = r'c:\Users\gavin\Documents\Stats\Stat Sheets\Stats'
+import os
+base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Stat Sheets', 'Stats')
 games_data = []
 player_game_logs = {}
 season_player_stats = {}
 
 game_id = 1
 for pdf_name, opponent, location in pdf_files:
-    pdf_path = f'{base_path}\\{pdf_name}'
+    pdf_path = os.path.join(base_path, pdf_name)
     
     with pdfplumber.open(pdf_path) as pdf:
         text = pdf.pages[0].extract_text()
@@ -87,15 +93,17 @@ for pdf_name, opponent, location in pdf_files:
                         blk = int(parts[11])
                         asst = int(parts[12])
                         
-                        # Parse +/- (index 13) and pts (index 14)
-                        # +/- can be negative or positive number
-                        plus_minus_str = parts[13]
+                        # Parse +/- and pts
+                        # Points are always the last column
+                        pts = int(parts[-1])
+                        
+                        # +/- is second to last, can be negative or positive
+                        # Some PDFs have a minutes column before +/-, so it could be at different positions
+                        plus_minus_str = parts[-2] if len(parts) > 14 else parts[13]
                         try:
                             plus_minus = int(plus_minus_str)
                         except:
                             plus_minus = 0
-                        
-                        pts = int(parts[14]) if len(parts) > 14 else int(parts[-1])
                         
                         player_stat = {
                             'number': number,
@@ -302,10 +310,17 @@ output = {
     'season_team_stats': season_team_stats
 }
 
-# Write to file
-output_path = r'c:\Users\gavin\Documents\Stats\vc_stats_output.json'
-with open(output_path, 'w') as f:
+# Write to file - both root and data directory
+root_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'vc_stats_output.json')
+data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'vc_stats_output.json')
+
+with open(root_path, 'w') as f:
     json.dump(output, f, indent=2)
+    
+with open(data_path, 'w') as f:
+    json.dump(output, f, indent=2)
+
+output_path = data_path
 
 print(f"✓ Updated stats written to {output_path}")
 print(f"  Record: {season_team_stats['win']}-{season_team_stats['loss']}")
