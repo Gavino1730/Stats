@@ -3,6 +3,12 @@ let scoringChart = null;
 let shootingChart = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded!');
+        return;
+    }
+    
     // Load critical data in parallel
     await Promise.all([
         loadSeasonStats(),
@@ -17,13 +23,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadSeasonStats() {
     try {
         const response = await fetch('/api/season-stats');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const stats = await response.json();
+        
+        if (!stats) {
+            console.error('No season stats data received');
+            return;
+        }
 
-        document.getElementById('record').textContent = `${stats.win}-${stats.loss}`;
-        document.getElementById('ppg').textContent = stats.ppg.toFixed(1);
-        document.getElementById('fg-pct').textContent = stats.fg_pct.toFixed(1) + '%';
-        document.getElementById('rpg').textContent = stats.rpg.toFixed(1);
-        document.getElementById('apg').textContent = stats.apg.toFixed(1);
+        const recordEl = document.getElementById('record');
+        if (recordEl) recordEl.textContent = `${stats.win}-${stats.loss}`;
+        
+        const ppgEl = document.getElementById('ppg');
+        if (ppgEl) ppgEl.textContent = stats.ppg.toFixed(1);
+        
+        const fgPctEl = document.getElementById('fg-pct');
+        if (fgPctEl) fgPctEl.textContent = stats.fg_pct.toFixed(1) + '%';
+        
+        const rpgEl = document.getElementById('rpg');
+        if (rpgEl) rpgEl.textContent = stats.rpg.toFixed(1);
+        
+        const apgEl = document.getElementById('apg');
+        if (apgEl) apgEl.textContent = stats.apg.toFixed(1);
     } catch (error) {
         console.error('Error loading season stats:', error);
     }
@@ -32,13 +57,30 @@ async function loadSeasonStats() {
 async function loadAdvancedStats() {
     try {
         const response = await fetch('/api/advanced/team');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const stats = await response.json();
         
+        if (!stats || !stats.scoring_efficiency || !stats.ball_movement) {
+            console.error('Invalid advanced stats data structure:', stats);
+            return;
+        }
+        
         // Update advanced efficiency metrics
-        document.getElementById('efg-pct').textContent = stats.scoring_efficiency.efg_pct.toFixed(1) + '%';
-        document.getElementById('ts-pct').textContent = stats.scoring_efficiency.ts_pct.toFixed(1) + '%';
-        document.getElementById('ppp').textContent = stats.scoring_efficiency.ppp.toFixed(2);
-        document.getElementById('ast-rate').textContent = stats.ball_movement.assisted_scoring_rate.toFixed(1) + '%';
+        const efgPctEl = document.getElementById('efg-pct');
+        if (efgPctEl) efgPctEl.textContent = stats.scoring_efficiency.efg_pct.toFixed(1) + '%';
+        
+        const tsPctEl = document.getElementById('ts-pct');
+        if (tsPctEl) tsPctEl.textContent = stats.scoring_efficiency.ts_pct.toFixed(1) + '%';
+        
+        const pppEl = document.getElementById('ppp');
+        if (pppEl) pppEl.textContent = stats.scoring_efficiency.ppp.toFixed(2);
+        
+        const astRateEl = document.getElementById('ast-rate');
+        if (astRateEl) astRateEl.textContent = stats.ball_movement.assisted_scoring_rate.toFixed(1) + '%';
     } catch (error) {
         console.error('Error loading advanced stats:', error);
     }
@@ -47,34 +89,54 @@ async function loadAdvancedStats() {
 async function loadLeaderboards() {
     try {
         const response = await fetch('/api/leaderboards');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const leaderboards = await response.json();
+        
+        // Validate data structure
+        if (!leaderboards || !leaderboards.pts || !leaderboards.reb || !leaderboards.asst) {
+            console.error('Invalid leaderboards data structure:', leaderboards);
+            return;
+        }
 
         // Top Scorers
-        const scorersHtml = leaderboards.pts.slice(0, 5).map(p => `
-            <tr>
-                <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
-                <td>${p.pts}</td>
-            </tr>
-        `).join('');
-        document.getElementById('top-scorers').innerHTML = scorersHtml;
+        const topScorersEl = document.getElementById('top-scorers');
+        if (topScorersEl) {
+            const scorersHtml = leaderboards.pts.slice(0, 5).map(p => `
+                <tr>
+                    <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
+                    <td>${p.pts}</td>
+                </tr>
+            `).join('');
+            topScorersEl.innerHTML = scorersHtml;
+        }
 
         // Top Rebounders
-        const reboundersHtml = leaderboards.reb.slice(0, 5).map(p => `
-            <tr>
-                <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
-                <td>${p.reb}</td>
-            </tr>
-        `).join('');
-        document.getElementById('top-rebounders').innerHTML = reboundersHtml;
+        const topReboundersEl = document.getElementById('top-rebounders');
+        if (topReboundersEl) {
+            const reboundersHtml = leaderboards.reb.slice(0, 5).map(p => `
+                <tr>
+                    <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
+                    <td>${p.reb}</td>
+                </tr>
+            `).join('');
+            topReboundersEl.innerHTML = reboundersHtml;
+        }
 
         // Top Assist Leaders
-        const assistsHtml = leaderboards.asst.slice(0, 5).map(p => `
-            <tr>
-                <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
-                <td>${p.asst}</td>
-            </tr>
-        `).join('');
-        document.getElementById('top-assists').innerHTML = assistsHtml;
+        const topAssistsEl = document.getElementById('top-assists');
+        if (topAssistsEl) {
+            const assistsHtml = leaderboards.asst.slice(0, 5).map(p => `
+                <tr>
+                    <td><strong>${p.first_name || p.name.split(' ')[0]}</strong></td>
+                    <td>${p.asst}</td>
+                </tr>
+            `).join('');
+            topAssistsEl.innerHTML = assistsHtml;
+        }
     } catch (error) {
         console.error('Error loading leaderboards:', error);
     }
@@ -205,10 +267,12 @@ async function loadCharts() {
                 x: {
                     ticks: {
                         font: {
-                            size: isMobile ? 9 : 11
+                            size: isMobile ? 10 : 12
                         },
-                        maxRotation: isMobile ? 45 : 0,
-                        minRotation: isMobile ? 45 : 0
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: false,
+                        padding: 5
                     }
                 }
             }
@@ -233,10 +297,12 @@ async function loadCharts() {
                 x: {
                     ticks: {
                         font: {
-                            size: isMobile ? 9 : 11
+                            size: isMobile ? 10 : 12
                         },
-                        maxRotation: isMobile ? 45 : 0,
-                        minRotation: isMobile ? 45 : 0
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: false,
+                        padding: 5
                     }
                 }
             }

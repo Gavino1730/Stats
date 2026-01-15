@@ -86,6 +86,11 @@ body {
     color: var(--text);
     line-height: 1.6;
     letter-spacing: 0.3px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Improve touch scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
 }
 
 .container {
@@ -239,8 +244,8 @@ body {
 /* Charts */
 .charts-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2.5rem;
     margin-bottom: 3rem;
 }
 
@@ -248,23 +253,31 @@ body {
     background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     border: 1px solid var(--border);
     position: relative;
-    height: 400px;
+    height: 480px;
+    margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.chart-container:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .chart-container h2 {
-    margin-bottom: 1.5rem;
+    margin: 0 0 1.75rem 0;
+    padding-bottom: 0.75rem;
     color: var(--primary);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
+    border-bottom: 2px solid var(--border);
 }
 
 .chart-container canvas {
-    max-height: 320px;
+    max-height: 380px;
     width: 100% !important;
-    height: 320px !important;
+    height: 380px !important;
 }
 
 /* Player Performances */
@@ -1263,6 +1276,13 @@ body {
         align-items: center;
         justify-content: center;
     }
+    
+    .reload-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+        min-height: 44px;
+        margin-top: 0.5rem;
+    }
 
     body {
         font-size: 14px;
@@ -1299,7 +1319,11 @@ body {
         font-size: 1.5rem;
     }
 
-    .charts-section,
+    .charts-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
     .top-performers {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -1307,6 +1331,30 @@ body {
 
     .top-performers-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Charts optimized for mobile */
+    .chart-container {
+        height: 380px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container h2 {
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .chart-container canvas {
+        max-height: 280px !important;
+        height: 280px !important;
+    }
+    
+    /* Trends page charts grid */
+    .trends-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     /* Games */
@@ -1584,7 +1632,7 @@ body {
     }
 
     .chart-container {
-        height: 350px;
+        height: 380px;
         padding: 1.5rem;
     }
 
@@ -1690,6 +1738,25 @@ body {
 
     .stat-label {
         font-size: 0.7rem;
+    }
+    
+    /* Extra small mobile chart adjustments */
+    .chart-container {
+        height: 340px;
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .chart-container h2 {
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .chart-container canvas {
+        max-height: 240px !important;
+        height: 240px !important;
+    }
     }
 
     .stat-value {
@@ -1845,7 +1912,7 @@ body {
     }
 
     .chart-container {
-        height: 280px;
+        height: 340px;
         padding: 1rem;
     }
 

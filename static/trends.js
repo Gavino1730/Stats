@@ -481,7 +481,6 @@ async function loadTeamTrends() {
         console.error('Error loading team trends:', error);
     }
 }
-}
 
 async function loadPlayerTrends(playerName) {
     try {
