@@ -411,9 +411,8 @@ async function loadTeamTrends() {
                 datasets: [
                     {
                         label: 'FT%',
-                        data: sortedIndices.map(i => {
-                            const ft = sortedFt[i];
-                            const fta = sortedFta[i];
+                        data: sortedFt.map((ft, idx) => {
+                            const fta = sortedFta[idx];
                             return fta > 0 ? (ft / fta * 100) : 0;
                         }),
                         borderColor: '#9932CC',
