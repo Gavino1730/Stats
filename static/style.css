@@ -687,11 +687,13 @@ body {
 }
 
 .player-stat-item {
-    padding: 0.75rem 0.5rem;
+    padding: 0.65rem 0.4rem;
     background: rgba(64, 64, 64, 0.5);
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.2s ease;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .player-stat-item:hover {
@@ -700,19 +702,20 @@ body {
 }
 
 .player-stat-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-light);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.3rem;
 }
 
 .player-stat-value {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--white);
     line-height: 1;
+    word-break: break-word;
 }
 
 /* View Toggle */
