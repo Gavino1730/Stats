@@ -548,13 +548,13 @@ body {
 
 .games-container,
 .players-container {
-    display: grid;
+    display: grid !important;
     gap: 1.5rem;
 }
 
 /* Games Grid */
 .games-container {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
 }
 
 .game-card {
