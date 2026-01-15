@@ -253,34 +253,31 @@ body {
     background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    border: 1px solid rgba(65, 105, 225, 0.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
     position: relative;
-    height: 500px;
+    height: 450px;
     margin-bottom: 2rem;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease;
 }
 
 .chart-container:hover {
-    box-shadow: 0 6px 20px rgba(65, 105, 225, 0.25);
-    border-color: rgba(65, 105, 225, 0.3);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
 .chart-container h2 {
     margin: 0 0 1.5rem 0;
     padding-bottom: 0.75rem;
     color: #4169E1;
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    border-bottom: 2px solid rgba(65, 105, 225, 0.3);
-    letter-spacing: 0.3px;
+    border-bottom: 2px solid var(--border);
 }
 
 .chart-container canvas {
-    max-height: 400px;
+    max-height: 350px;
     width: 100% !important;
-    height: 400px !important;
+    height: 350px !important;
 }
 
 /* Player Performances */
