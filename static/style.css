@@ -641,7 +641,7 @@ body {
 
 /* Players Grid */
 .players-container {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
 }
 
 .player-card {
