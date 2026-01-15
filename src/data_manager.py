@@ -12,18 +12,18 @@ logger = logging.getLogger(__name__)
 
 class DataManager:
     """Handles all data loading and caching"""
-    
+
     def __init__(self):
         self.stats_data = self._load_stats()
         self.roster_data = self._load_roster()
-    
+
     def reload(self):
         """Reload all data from files - call this when data is updated"""
         logger.info("Reloading data from files...")
         self.stats_data = self._load_stats()
         self.roster_data = self._load_roster()
         logger.info("Data reload complete")
-    
+
     def _load_stats(self) -> Dict[str, Any]:
         """Load stats data from JSON file"""
         try:
@@ -37,7 +37,7 @@ class DataManager:
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in stats file: {e}")
             return self._empty_stats()
-    
+
     def _load_roster(self) -> Dict[str, Any]:
         """Load roster data from JSON file"""
         try:
@@ -45,56 +45,56 @@ class DataManager:
                 return json.load(f)
         except FileNotFoundError:
             logger.warning(f"Roster file not found: {Config.ROSTER_FILE}")
-            return {'roster': []}
+            return {"roster": []}
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in roster file: {e}")
-            return {'roster': []}
-    
+            return {"roster": []}
+
     @staticmethod
     def _empty_stats() -> Dict[str, Any]:
         """Return empty stats structure"""
         return {
-            'games': [],
-            'season_team_stats': {},
-            'season_player_stats': {},
-            'player_game_logs': {}
+            "games": [],
+            "season_team_stats": {},
+            "season_player_stats": {},
+            "player_game_logs": {},
         }
-    
+
     @property
     def games(self):
-        return self.stats_data.get('games', [])
-    
+        return self.stats_data.get("games", [])
+
     @property
     def season_team_stats(self):
-        return self.stats_data.get('season_team_stats', {})
-    
+        return self.stats_data.get("season_team_stats", {})
+
     @property
     def season_player_stats(self):
-        return self.stats_data.get('season_player_stats', {})
-    
+        return self.stats_data.get("season_player_stats", {})
+
     @property
     def player_game_logs(self):
-        return self.stats_data.get('player_game_logs', {})
-    
+        return self.stats_data.get("player_game_logs", {})
+
     @property
     def roster(self):
-        return self.roster_data.get('roster', [])
-    
+        return self.roster_data.get("roster", [])
+
     def get_roster_dict(self) -> Dict[str, Any]:
         """Get roster as a dictionary keyed by player name"""
-        return {p['name']: p for p in self.roster}
-    
+        return {p["name"]: p for p in self.roster}
+
     def get_game_by_id(self, game_id: int) -> Optional[Dict[str, Any]]:
         """Get a specific game by ID"""
         for game in self.games:
-            if game['gameId'] == game_id:
+            if game["gameId"] == game_id:
                 return game
         return None
-    
+
     def get_player_stats(self, player_name: str) -> Optional[Dict[str, Any]]:
         """Get season stats for a specific player"""
         return self.season_player_stats.get(player_name)
-    
+
     def get_player_game_logs(self, player_name: str) -> list:
         """Get game logs for a specific player"""
         return self.player_game_logs.get(player_name, [])

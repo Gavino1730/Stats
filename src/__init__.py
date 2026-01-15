@@ -10,4 +10,10 @@ from src.data_manager import get_data_manager
 from src.ai_service import get_ai_service
 from src.advanced_stats import AdvancedStatsCalculator
 
-__all__ = ['app', 'Config', 'get_data_manager', 'get_ai_service', 'AdvancedStatsCalculator']
+__all__ = [
+    "app",
+    "Config",
+    "get_data_manager",
+    "get_ai_service",
+    "AdvancedStatsCalculator",
+]
