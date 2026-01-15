@@ -126,6 +126,94 @@ async function loadTeamTrends() {
         const sortedAsst = sortedIndices.map(i => trends.asst[i]);
         const sortedTo = sortedIndices.map(i => trends.to[i]);
 
+        // Determine if mobile
+        const isMobile = window.innerWidth < 768;
+
+        // Common chart options
+        const commonLineOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: isMobile ? 20 : 30
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'center',
+                    labels: {
+                        font: {
+                            size: isMobile ? 11 : 13,
+                            weight: '500'
+                        },
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        color: '#f0f0f0'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                    padding: 14,
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    borderColor: '#4169E1',
+                    borderWidth: 2,
+                    displayColors: true,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toFixed(1);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.08)',
+                        lineWidth: 1
+                    },
+                    ticks: {
+                        font: {
+                            size: isMobile ? 10 : 12
+                        },
+                        color: '#c0c0c0',
+                        padding: 8
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: isMobile ? 9 : 11
+                        },
+                        maxRotation: 50,
+                        minRotation: 50,
+                        autoSkip: false,
+                        color: '#c0c0c0',
+                        padding: 8
+                    }
+                }
+            }
+        };
+
         // Scoring Chart
         const scoringCtx = document.getElementById('teamScoringChart').getContext('2d');
         if (teamCharts.scoring) teamCharts.scoring.destroy();
@@ -138,59 +226,47 @@ async function loadTeamTrends() {
                         label: 'Valley Catholic',
                         data: sortedVcScore,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 6,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
                         pointBackgroundColor: '#4169E1',
-                        pointHoverRadius: 8
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        borderWidth: 3
                     },
                     {
                         label: 'Opponents',
                         data: sortedOppScore,
                         borderColor: '#808080',
-                        backgroundColor: 'rgba(128, 128, 128, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(128, 128, 128, 0.12)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 6,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
                         pointBackgroundColor: '#808080',
-                        pointHoverRadius: 8
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
-                        borderColor: '#4169E1',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += context.parsed.y.toFixed(1);
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
+                ...commonLineOptions,
                 scales: {
+                    ...commonLineOptions.scales,
                     y: {
-                        beginAtZero: true,
-                        max: 100
+                        ...commonLineOptions.scales.y,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Points',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
                     }
                 }
             }
@@ -207,34 +283,58 @@ async function loadTeamTrends() {
                     {
                         label: 'FG%',
                         data: sortedFgPct,
-                        backgroundColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.85)',
                         borderColor: '#4169E1',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#4169E1',
+                        maxBarThickness: 35
                     },
                     {
                         label: '3P%',
                         data: sortedFg3Pct,
-                        backgroundColor: '#808080',
+                        backgroundColor: 'rgba(128, 128, 128, 0.75)',
                         borderColor: '#808080',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#909090',
+                        maxBarThickness: 35
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
+                        align: 'center',
+                        labels: {
+                            font: { size: isMobile ? 11 : 13, weight: '500' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            boxWidth: 8,
+                            color: '#f0f0f0'
+                        }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
                         borderColor: '#4169E1',
-                        borderWidth: 1,
+                        borderWidth: 2,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
@@ -252,7 +352,33 @@ async function loadTeamTrends() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
                     }
                 }
             }
@@ -270,56 +396,44 @@ async function loadTeamTrends() {
                         label: 'Assists',
                         data: sortedAsst,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4169E1'
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#4169E1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     },
                     {
                         label: 'Turnovers',
                         data: sortedTo,
                         borderColor: '#808080',
-                        backgroundColor: 'rgba(128, 128, 128, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(128, 128, 128, 0.12)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#808080'
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#808080',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
-                        borderColor: '#4169E1',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += context.parsed.y.toFixed(1);
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
+                ...commonLineOptions,
                 scales: {
+                    ...commonLineOptions.scales,
                     y: {
-                        beginAtZero: true
+                        ...commonLineOptions.scales.y,
+                        title: {
+                            display: true,
+                            text: 'Count',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
                     }
                 }
             }
@@ -350,34 +464,45 @@ async function loadTeamTrends() {
                         label: 'Total Rebounds',
                         data: sortedReb,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#4169E1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     },
                     {
                         label: 'Offensive Rebounds',
                         data: sortedOreb,
                         borderColor: '#32CD32',
-                        backgroundColor: 'rgba(50, 205, 50, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(50, 205, 50, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#32CD32',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: true, position: 'top' },
-                    tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12
-                    }
-                },
+                ...commonLineOptions,
                 scales: {
-                    y: { beginAtZero: true }
+                    ...commonLineOptions.scales,
+                    y: {
+                        ...commonLineOptions.scales.y,
+                        title: {
+                            display: true,
+                            text: 'Rebounds',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    }
                 }
             }
             });
@@ -398,25 +523,90 @@ async function loadTeamTrends() {
                     {
                         label: 'Steals',
                         data: sortedStl,
-                        backgroundColor: '#FF8C00',
-                        borderColor: '#FF8C00'
+                        backgroundColor: 'rgba(255, 140, 0, 0.85)',
+                        borderColor: '#FF8C00',
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#FF8C00',
+                        maxBarThickness: 35
                     },
                     {
                         label: 'Blocks',
                         data: sortedBlk,
-                        backgroundColor: '#DC143C',
-                        borderColor: '#DC143C'
+                        backgroundColor: 'rgba(220, 20, 60, 0.85)',
+                        borderColor: '#DC143C',
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#DC143C',
+                        maxBarThickness: 35
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
-                    legend: { display: true, position: 'top' }
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'center',
+                        labels: {
+                            font: { size: isMobile ? 11 : 13, weight: '500' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            boxWidth: 8,
+                            color: '#f0f0f0'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        borderColor: '#4169E1',
+                        borderWidth: 2,
+                        cornerRadius: 6
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8
+                        },
+                        title: {
+                            display: true,
+                            text: 'Count',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
+                    }
                 }
             }
             });
@@ -441,21 +631,41 @@ async function loadTeamTrends() {
                             return fta > 0 ? (ft / fta * 100) : 0;
                         }),
                         borderColor: '#9932CC',
-                        backgroundColor: 'rgba(153, 50, 204, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(153, 50, 204, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 6
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#9932CC',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
-                    legend: { display: false },
+                    legend: { 
+                        display: false
+                    },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        borderColor: '#9932CC',
+                        borderWidth: 2,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 return 'FT%: ' + context.parsed.y.toFixed(1) + '%';
@@ -467,10 +677,34 @@ async function loadTeamTrends() {
                     y: { 
                         beginAtZero: true,
                         max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
                         ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8,
                             callback: function(value) {
                                 return value + '%';
                             }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
                         }
                     }
                 }
@@ -507,6 +741,8 @@ async function loadPlayerTrends(playerName) {
         const sortedReb = sortedIndices.map(i => trends.reb[i]);
         const sortedAsst = sortedIndices.map(i => trends.asst[i]);
 
+        const isMobile = window.innerWidth < 768;
+
         // Points Chart
         const ptsCtx = document.getElementById('playerPtsChart').getContext('2d');
         if (playerCharts.pts) playerCharts.pts.destroy();
@@ -519,27 +755,39 @@ async function loadPlayerTrends(playerName) {
                         label: 'Points',
                         data: sortedPts,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 6,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
                         pointBackgroundColor: '#4169E1',
-                        pointHoverRadius: 8
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
                         borderColor: '#4169E1',
-                        borderWidth: 1,
+                        borderWidth: 2,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 return 'Points: ' + context.parsed.y.toFixed(1);
@@ -548,7 +796,35 @@ async function loadPlayerTrends(playerName) {
                     }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8
+                        },
+                        title: {
+                            display: true,
+                            text: 'Points',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
+                    }
                 }
             }
         });
@@ -568,31 +844,58 @@ async function loadPlayerTrends(playerName) {
                     {
                         label: 'FG%',
                         data: fg_pct,
-                        backgroundColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.85)',
                         borderColor: '#4169E1',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#4169E1',
+                        maxBarThickness: 35
                     },
                     {
                         label: '3P%',
                         data: fg3_pct,
-                        backgroundColor: '#808080',
+                        backgroundColor: 'rgba(128, 128, 128, 0.75)',
                         borderColor: '#808080',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#909090',
+                        maxBarThickness: 35
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'center',
+                        labels: {
+                            font: { size: isMobile ? 11 : 13, weight: '500' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            boxWidth: 8,
+                            color: '#f0f0f0'
+                        }
+                    },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
                         borderColor: '#4169E1',
-                        borderWidth: 1,
+                        borderWidth: 2,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
@@ -610,7 +913,33 @@ async function loadPlayerTrends(playerName) {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage',
+                            font: { size: isMobile ? 11 : 12, weight: '600' },
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
                     }
                 }
             }
@@ -628,36 +957,65 @@ async function loadPlayerTrends(playerName) {
                         label: 'Rebounds',
                         data: sortedReb,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4169E1'
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#4169E1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     },
                     {
                         label: 'Assists',
                         data: sortedAsst,
                         borderColor: '#808080',
-                        backgroundColor: 'rgba(128, 128, 128, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(128, 128, 128, 0.12)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#808080'
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
+                        pointBackgroundColor: '#808080',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: isMobile ? 20 : 30
+                    }
+                },
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'center',
+                        labels: {
+                            font: { size: isMobile ? 11 : 13, weight: '500' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            boxWidth: 8,
+                            color: '#f0f0f0'
+                        }
+                    },
                     tooltip: {
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 11 },
+                        backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
                         borderColor: '#4169E1',
-                        borderWidth: 1,
+                        borderWidth: 2,
+                        cornerRadius: 6,
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
@@ -673,7 +1031,29 @@ async function loadPlayerTrends(playerName) {
                     }
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.08)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: { size: isMobile ? 10 : 12 },
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: isMobile ? 9 : 11 },
+                            maxRotation: 50,
+                            minRotation: 50,
+                            autoSkip: false,
+                            color: '#c0c0c0',
+                            padding: 8
+                        }
+                    }
                 }
             }
         });
