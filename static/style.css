@@ -245,7 +245,7 @@ body {
 .charts-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 2.5rem;
+    gap: 2rem;
     margin-bottom: 3rem;
 }
 
@@ -253,31 +253,34 @@ body {
     background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border: 1px solid rgba(65, 105, 225, 0.15);
     position: relative;
-    height: 480px;
+    height: 500px;
     margin-bottom: 2rem;
-    transition: box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .chart-container:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 20px rgba(65, 105, 225, 0.25);
+    border-color: rgba(65, 105, 225, 0.3);
+    transform: translateY(-2px);
 }
 
 .chart-container h2 {
-    margin: 0 0 1.75rem 0;
+    margin: 0 0 1.5rem 0;
     padding-bottom: 0.75rem;
-    color: var(--primary);
-    font-size: 1.3rem;
+    color: #4169E1;
+    font-size: 1.35rem;
     font-weight: 700;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid rgba(65, 105, 225, 0.3);
+    letter-spacing: 0.3px;
 }
 
 .chart-container canvas {
-    max-height: 380px;
+    max-height: 400px;
     width: 100% !important;
-    height: 380px !important;
+    height: 400px !important;
 }
 
 /* Player Performances */
@@ -1335,20 +1338,20 @@ body {
     
     /* Charts optimized for mobile */
     .chart-container {
-        height: 380px;
-        padding: 1.25rem;
+        height: 400px;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
     .chart-container h2 {
         margin-bottom: 1rem;
-        font-size: 1.05rem;
+        font-size: 1.15rem;
         padding-bottom: 0.5rem;
     }
     
     .chart-container canvas {
-        max-height: 280px !important;
-        height: 280px !important;
+        max-height: 300px !important;
+        height: 300px !important;
     }
     
     /* Trends page charts grid */
@@ -1632,13 +1635,13 @@ body {
     }
 
     .chart-container {
-        height: 380px;
+        height: 400px;
         padding: 1.5rem;
     }
 
     .chart-container h2 {
         margin-bottom: 1rem;
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
     
     /* Trends Page Mobile */
@@ -1742,20 +1745,20 @@ body {
     
     /* Extra small mobile chart adjustments */
     .chart-container {
-        height: 340px;
+        height: 360px;
         padding: 1rem;
         margin-bottom: 1.25rem;
     }
 
     .chart-container h2 {
         margin-bottom: 0.75rem;
-        font-size: 0.95rem;
+        font-size: 1rem;
         padding-bottom: 0.4rem;
     }
     
     .chart-container canvas {
-        max-height: 240px !important;
-        height: 240px !important;
+        max-height: 260px !important;
+        height: 260px !important;
     }
     }
 
@@ -1912,13 +1915,13 @@ body {
     }
 
     .chart-container {
-        height: 340px;
+        height: 360px;
         padding: 1rem;
     }
 
     .chart-container h2 {
         margin-bottom: 0.8rem;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     .charts-section {

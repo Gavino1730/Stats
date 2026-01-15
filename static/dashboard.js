@@ -217,25 +217,40 @@ async function loadCharts() {
         const commonOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: isMobile ? 20 : 30
+                }
+            },
             plugins: {
                 legend: {
                     display: true,
-                    position: isMobile ? 'bottom' : 'top',
+                    position: 'top',
+                    align: 'center',
                     labels: {
                         font: {
-                            size: isMobile ? 11 : 12
+                            size: isMobile ? 11 : 13,
+                            weight: '500'
                         },
-                        padding: isMobile ? 10 : 15
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        color: '#f0f0f0'
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    padding: 12,
-                    titleFont: { size: 12, weight: 'bold' },
-                    bodyFont: { size: 11 },
+                    backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                    padding: 14,
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
                     borderColor: '#4169E1',
-                    borderWidth: 1,
+                    borderWidth: 2,
                     displayColors: true,
+                    cornerRadius: 6,
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
@@ -258,21 +273,40 @@ async function loadCharts() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        font: {
-                            size: isMobile ? 10 : 12
-                        }
-                    }
-                },
-                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.08)',
+                        lineWidth: 1
+                    },
                     ticks: {
                         font: {
                             size: isMobile ? 10 : 12
                         },
-                        maxRotation: 45,
-                        minRotation: 45,
+                        color: '#c0c0c0',
+                        padding: 8
+                    },
+                    title: {
+                        display: true,
+                        text: 'Points',
+                        font: {
+                            size: isMobile ? 11 : 12,
+                            weight: '600'
+                        },
+                        color: '#f0f0f0'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: isMobile ? 9 : 11
+                        },
+                        maxRotation: 50,
+                        minRotation: 50,
                         autoSkip: false,
-                        padding: 5
+                        color: '#c0c0c0',
+                        padding: 8
                     }
                 }
             }
@@ -285,24 +319,43 @@ async function loadCharts() {
                 y: {
                     beginAtZero: true,
                     max: 100,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.08)',
+                        lineWidth: 1
+                    },
                     ticks: {
                         font: {
                             size: isMobile ? 10 : 12
                         },
+                        color: '#c0c0c0',
+                        padding: 8,
                         callback: function(value) {
                             return value + '%';
                         }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Percentage',
+                        font: {
+                            size: isMobile ? 11 : 12,
+                            weight: '600'
+                        },
+                        color: '#f0f0f0'
                     }
                 },
                 x: {
+                    grid: {
+                        display: false
+                    },
                     ticks: {
                         font: {
-                            size: isMobile ? 10 : 12
+                            size: isMobile ? 9 : 11
                         },
-                        maxRotation: 45,
-                        minRotation: 45,
+                        maxRotation: 50,
+                        minRotation: 50,
                         autoSkip: false,
-                        padding: 5
+                        color: '#c0c0c0',
+                        padding: 8
                     }
                 }
             }
@@ -325,23 +378,31 @@ async function loadCharts() {
                         label: 'Valley Catholic',
                         data: sortedVcScore,
                         borderColor: '#4169E1',
-                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(65, 105, 225, 0.15)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: isMobile ? 3 : 5,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
                         pointBackgroundColor: '#4169E1',
-                        borderWidth: 2
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        borderWidth: 3
                     },
                     {
                         label: 'Opponents',
                         data: sortedOppScore,
                         borderColor: '#808080',
-                        backgroundColor: 'rgba(128, 128, 128, 0.1)',
-                        tension: 0.4,
+                        backgroundColor: 'rgba(128, 128, 128, 0.12)',
+                        tension: 0.35,
                         fill: true,
-                        pointRadius: isMobile ? 3 : 5,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8,
                         pointBackgroundColor: '#808080',
-                        borderWidth: 2
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        borderWidth: 3
                     }
                 ]
             },
@@ -364,16 +425,22 @@ async function loadCharts() {
                     {
                         label: 'FG%',
                         data: sortedFgPct,
-                        backgroundColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.85)',
                         borderColor: '#4169E1',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#4169E1',
+                        maxBarThickness: 35
                     },
                     {
                         label: '3P%',
                         data: sortedFg3Pct,
-                        backgroundColor: '#808080',
+                        backgroundColor: 'rgba(128, 128, 128, 0.75)',
                         borderColor: '#808080',
-                        borderWidth: 1
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#909090',
+                        maxBarThickness: 35
                     }
                 ]
             },
