@@ -86,6 +86,30 @@ def health_check():
         'openai_configured': get_ai_service().is_configured
     })
 
+@app.route('/api/reload-data', methods=['POST'])
+def reload_data():
+    """Reload data from files to pick up new games and player stats"""
+    try:
+        data.reload()
+        # Also reinitialize advanced stats calculator with fresh data
+        global advanced_calc
+        advanced_calc = AdvancedStatsCalculator(data.stats_data)
+        
+        # Clear any AI caches so they regenerate with new data
+        if os.path.exists(Config.TEAM_CACHE):
+            os.remove(Config.TEAM_CACHE)
+        if os.path.exists(Config.ANALYSIS_CACHE):
+            os.remove(Config.ANALYSIS_CACHE)
+        
+        return jsonify({
+            'message': 'Data reloaded successfully',
+            'games_loaded': len(data.games),
+            'players_loaded': len(data.season_player_stats)
+        })
+    except Exception as e:
+        logger.error(f"Reload error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 # =============================================================================
 # Data API Routes
@@ -592,6 +616,7 @@ def ai_chat():
                 if msg['role'] in ['user', 'assistant'] and len(str(msg['content'])) <= 2000:
                     clean_history.append({'role': msg['role'], 'content': str(msg['content']).strip()})
         
+        # Always get fresh stats context (no caching)
         context = build_stats_context(data)
         system_prompt = f"""You are an expert basketball statistics analyst. Use ONLY the provided stats data.
 Always reference exact numbers from the data. Never make up statistics.
@@ -632,6 +657,7 @@ def ai_analyze():
         if analysis_type not in valid_types:
             analysis_type = 'general'
         
+        # Always get fresh stats context (no caching)
         context = build_stats_context(data)
         prompt = ANALYSIS_PROMPTS.get(analysis_type, ANALYSIS_PROMPTS['general'])
         system_prompt = f"{prompt}\n\nTEAM DATA:\n{context}"
@@ -664,6 +690,7 @@ def ai_player_insights(player_name):
         if not ai.is_configured:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
+        # Get fresh player stats and game logs
         stats = data.season_player_stats[player_name]
         logs = sorted(data.get_player_game_logs(player_name), key=lambda x: x['gameId'])[-5:]
         
@@ -703,6 +730,7 @@ Analyze: 1) Scoring Output 2) Efficiency 3) Consistency 4) Role 5) Trend"""
 def ai_game_analysis(game_id):
     """Get AI analysis of a specific game"""
     try:
+        # Get fresh game data (important for newly added games)
         game = data.get_game_by_id(game_id)
         if not game:
             return jsonify({'error': 'Game not found'}), 404
@@ -756,7 +784,7 @@ Analyze: Shooting deviation, possession control, scoring distribution, key perfo
 def ai_team_summary():
     """Get AI team summary with caching"""
     try:
-        # Check cache
+        # Check cache (cache is cleared when data is reloaded)
         if os.path.exists(Config.TEAM_CACHE):
             with open(Config.TEAM_CACHE) as f:
                 return jsonify(json.load(f))
@@ -765,6 +793,7 @@ def ai_team_summary():
         if not ai.is_configured:
             return jsonify({'error': 'OpenAI API key not configured'}), 500
         
+        # Build fresh context with all current data
         context = build_stats_context(data)
         
         prompt = """Diagnose this season using only box score data.

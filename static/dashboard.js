@@ -121,7 +121,18 @@ async function loadRecentGames() {
 async function loadCharts() {
     try {
         const response = await fetch('/api/team-trends');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const trends = await response.json();
+        
+        // Validate data
+        if (!trends || !trends.games || trends.games.length === 0) {
+            console.warn('No game data available for charts');
+            return;
+        }
         
         // Sort by date to ensure chronological order
         const gameIds = trends.games;
@@ -176,7 +187,36 @@ async function loadCharts() {
                         }
                     }
                 }
-            },
+            }
+        };
+        
+        // Options specifically for scoring chart (points scored)
+        const scoringOptions = {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: isMobile ? 10 : 12
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: isMobile ? 9 : 11
+                        },
+                        maxRotation: isMobile ? 45 : 0,
+                        minRotation: isMobile ? 45 : 0
+                    }
+                }
+            }
+        };
+        
+        // Options specifically for shooting percentage chart
+        const shootingOptions = {
+            ...commonOptions,
             scales: {
                 y: {
                     beginAtZero: true,
@@ -186,7 +226,7 @@ async function loadCharts() {
                             size: isMobile ? 10 : 12
                         },
                         callback: function(value) {
-                            return value;
+                            return value + '%';
                         }
                     }
                 },
@@ -203,9 +243,14 @@ async function loadCharts() {
         };
 
         // Scoring Chart
-        const scoringCtx = document.getElementById('scoringChart').getContext('2d');
+        const scoringCtx = document.getElementById('scoringChart');
+        if (!scoringCtx) {
+            console.error('Scoring chart canvas not found');
+            return;
+        }
+        
         if (scoringChart) scoringChart.destroy();
-        scoringChart = new Chart(scoringCtx, {
+        scoringChart = new Chart(scoringCtx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: sortedOpponents,
@@ -234,13 +279,18 @@ async function loadCharts() {
                     }
                 ]
             },
-            options: commonOptions
+            options: scoringOptions
         });
 
         // Shooting Efficiency Chart
-        const shootingCtx = document.getElementById('shootingChart').getContext('2d');
+        const shootingCtx = document.getElementById('shootingChart');
+        if (!shootingCtx) {
+            console.error('Shooting chart canvas not found');
+            return;
+        }
+        
         if (shootingChart) shootingChart.destroy();
-        shootingChart = new Chart(shootingCtx, {
+        shootingChart = new Chart(shootingCtx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: sortedOpponents,
@@ -261,7 +311,7 @@ async function loadCharts() {
                     }
                 ]
             },
-            options: commonOptions
+            options: shootingOptions
         });
     } catch (error) {
         console.error('Error loading charts:', error);

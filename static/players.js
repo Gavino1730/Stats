@@ -386,7 +386,7 @@ async function showPlayerDetail(playerName) {
         const detailHtml = `
             <div class="player-detail-header">
                 <div class="player-detail-info">
-                    <div class="player-detail-number">Player #${data.season_stats.number || '-'}</div>
+                    <div class="player-detail-number">${data.season_stats.number || '-'}</div>
                     <div class="player-detail-name">${data.season_stats.first_name || data.season_stats.name}</div>
                 </div>
             </div>

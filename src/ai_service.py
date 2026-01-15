@@ -147,7 +147,12 @@ class APIError(Exception):
 
 
 def build_stats_context(data_manager) -> str:
-    """Generate comprehensive stats context for AI analysis"""
+    """Generate comprehensive stats context for AI analysis.
+    
+    This function always accesses the current data from data_manager,
+    including any newly added games and updated player statistics.
+    Call data_manager.reload() first if you need to refresh from files.
+    """
     games = sorted(data_manager.games, key=lambda x: x['gameId'])
     season_stats = data_manager.season_team_stats
     

@@ -17,6 +17,13 @@ class DataManager:
         self.stats_data = self._load_stats()
         self.roster_data = self._load_roster()
     
+    def reload(self):
+        """Reload all data from files - call this when data is updated"""
+        logger.info("Reloading data from files...")
+        self.stats_data = self._load_stats()
+        self.roster_data = self._load_roster()
+        logger.info("Data reload complete")
+    
     def _load_stats(self) -> Dict[str, Any]:
         """Load stats data from JSON file"""
         try:

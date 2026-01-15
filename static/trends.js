@@ -96,8 +96,19 @@ function setupPlayerSelector() {
 async function loadTeamTrends() {
     try {
         const response = await fetch('/api/team-trends');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const trends = await response.json();
         currentTrendsData = trends;  // Store for AI analysis
+        
+        // Validate data
+        if (!trends || !trends.games || trends.games.length === 0) {
+            console.warn('No game data available for trends');
+            return;
+        }
         
         // Sort by date to ensure chronological order
         const gameIds = trends.games;
@@ -324,9 +335,13 @@ async function loadTeamTrends() {
         const sortedFta = sortedIndices.map(i => trends.fta[i]);
         
         // Rebounding Trends Chart
-        const reboundingCtx = document.getElementById('teamReboundingChart').getContext('2d');
-        if (teamCharts.rebounding) teamCharts.rebounding.destroy();
-        teamCharts.rebounding = new Chart(reboundingCtx, {
+        const reboundingCanvas = document.getElementById('teamReboundingChart');
+        if (!reboundingCanvas) {
+            console.error('Rebounding chart canvas not found');
+        } else {
+            const reboundingCtx = reboundingCanvas.getContext('2d');
+            if (teamCharts.rebounding) teamCharts.rebounding.destroy();
+            teamCharts.rebounding = new Chart(reboundingCtx, {
             type: 'line',
             data: {
                 labels: sortedOpp,
@@ -365,12 +380,17 @@ async function loadTeamTrends() {
                     y: { beginAtZero: true }
                 }
             }
-        });
+            });
+        }
         
         // Defensive Activity Chart
-        const defenseCtx = document.getElementById('teamDefenseChart').getContext('2d');
-        if (teamCharts.defense) teamCharts.defense.destroy();
-        teamCharts.defense = new Chart(defenseCtx, {
+        const defenseCanvas = document.getElementById('teamDefenseChart');
+        if (!defenseCanvas) {
+            console.error('Defense chart canvas not found');
+        } else {
+            const defenseCtx = defenseCanvas.getContext('2d');
+            if (teamCharts.defense) teamCharts.defense.destroy();
+            teamCharts.defense = new Chart(defenseCtx, {
             type: 'bar',
             data: {
                 labels: sortedOpp,
@@ -399,12 +419,17 @@ async function loadTeamTrends() {
                     y: { beginAtZero: true }
                 }
             }
-        });
+            });
+        }
         
         // Free Throw Performance Chart
-        const ftCtx = document.getElementById('teamFTChart').getContext('2d');
-        if (teamCharts.ft) teamCharts.ft.destroy();
-        teamCharts.ft = new Chart(ftCtx, {
+        const ftCanvas = document.getElementById('teamFTChart');
+        if (!ftCanvas) {
+            console.error('Free throw chart canvas not found');
+        } else {
+            const ftCtx = ftCanvas.getContext('2d');
+            if (teamCharts.ft) teamCharts.ft.destroy();
+            teamCharts.ft = new Chart(ftCtx, {
             type: 'line',
             data: {
                 labels: sortedOpp,
@@ -450,10 +475,12 @@ async function loadTeamTrends() {
                     }
                 }
             }
-        });
+            });
+        }
     } catch (error) {
         console.error('Error loading team trends:', error);
     }
+}
 }
 
 async function loadPlayerTrends(playerName) {
