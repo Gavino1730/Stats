@@ -7,7 +7,7 @@ print("Starting test...", flush=True)
 
 try:
     print("Importing...", flush=True)
-    from app import get_volatility
+    from src.app import get_volatility
 
     # Test get_volatility directly
     print("Testing get_volatility()...", flush=True)

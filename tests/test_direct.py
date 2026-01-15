@@ -4,7 +4,7 @@ import traceback
 sys.path.insert(0, ".")
 
 try:
-    from app import app, advanced_calc
+    from src.app import app, advanced_calc
 
     # Test calculate_volatility_metrics directly
     print("Testing calculate_volatility_metrics()...")
