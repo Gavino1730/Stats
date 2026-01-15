@@ -94,7 +94,7 @@ body {
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -554,7 +554,7 @@ body {
 
 /* Games Grid */
 .games-container {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .game-card {
@@ -641,7 +641,7 @@ body {
 
 /* Players Grid */
 .players-container {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
 }
 
 .player-card {
@@ -1374,7 +1374,7 @@ body {
     }
 
     .games-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 
     .game-card {
@@ -1764,15 +1764,15 @@ body {
     }
 
     .games-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
 
     .game-card {
-        padding: 1rem;
+        padding: 0.8rem;
     }
 
     .game-card-opponent {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     .game-card-score {
@@ -1781,11 +1781,11 @@ body {
 
     .game-card-score-vc,
     .game-card-score-opp {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .players-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
 
     .player-card {
