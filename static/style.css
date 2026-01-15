@@ -1374,7 +1374,7 @@ body {
     }
 
     .games-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
 
     .game-card {
@@ -1400,7 +1400,7 @@ body {
 
     /* Players */
     .players-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
     }
 
@@ -1764,7 +1764,7 @@ body {
     }
 
     .games-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: 1fr;
     }
 
     .game-card {
@@ -1785,7 +1785,7 @@ body {
     }
 
     .players-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: 1fr;
     }
 
     .player-card {
