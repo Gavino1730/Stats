@@ -3,20 +3,29 @@ import re
 import json
 
 pdf_files = [
-    ('Banks.pdf', 'Banks', 'home'),
-    ('Gladstone.pdf', 'Gladstone', 'home'),
-    ('Jefferson.pdf', 'Jefferson', 'away'),
     ('Knappa.pdf', 'Knappa', 'home'),
-    ('Mid Pacific.pdf', 'Mid Pacific', 'away'),
-    ('Pleasant Hill.pdf', 'Pleasant Hill', 'home'),
-    ('Regis.pdf', 'Regis', 'away'),
+    ('Gladstone.pdf', 'Gladstone', 'home'),
     ('Scappoose.pdf', 'Scappoose', 'away'),
+    ('Pleasant Hill.pdf', 'Pleasant Hill', 'home'),
+    ('Banks.pdf', 'Banks', 'home'),
     ('Tillamook.pdf', 'Tillamook', 'away'),
+    ('Jefferson.pdf', 'Jefferson', 'away'),
+    ('Mid Pacific.pdf', 'Mid Pacific', 'away'),
+    ('Regis.pdf', 'Regis', 'away'),
     ('Western.pdf', 'Western', 'home'),
     ('Horizon.pdf', 'Horizon', 'home'),
     ('Westside.pdf', 'Westside', 'away'),
     ('De La Salle.pdf', 'De La Salle', 'away'),
     ('OES.pdf', 'OES', 'home'),
+    ('Catlin.pdf', 'Catlin Gabel', 'home'),
+    ('Riverside.pdf', 'Riverside', 'home'),
+    ('PAA2.pdf', 'PAA', 'away'),
+    ('Horizon2.pdf', 'Horizon', 'home'),
+    ('Westside2.pdf', 'Westside', 'away'),
+    ('De La Salle2.pdf', 'De La Salle', 'away'),
+    ('OES2.pdf', 'OES', 'home'),
+    ('Catlin2.pdf', 'Catlin Gabel', 'away'),
+    ('Riverside2.pdf', 'Riverside', 'away'),
 ]
 
 import os
