@@ -656,9 +656,13 @@ function displayRankings() {
     // Calculate per-game stats if needed
     const playersWithStats = filteredPlayers.map(p => {
         const enhanced = {...p};
-        enhanced.spg = p.stl / p.games;
-        enhanced.bpg = p.blk / p.games;
-        enhanced.tpg = p.to / p.games;
+        const games = p.games || 1; // Prevent division by zero
+        enhanced.ppg = p.pts / games;
+        enhanced.rpg = p.reb / games;
+        enhanced.apg = p.asst / games;
+        enhanced.spg = p.stl / games;
+        enhanced.bpg = p.blk / games;
+        enhanced.tpg = p.to / games;
         return enhanced;
     });
     
