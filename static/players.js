@@ -656,6 +656,9 @@ function displayRankings() {
     // Calculate per-game stats if needed
     const playersWithStats = filteredPlayers.map(p => {
         const enhanced = {...p};
+        enhanced.ppg = p.pts / p.games;
+        enhanced.rpg = p.reb / p.games;
+        enhanced.apg = p.asst / p.games;
         enhanced.spg = p.stl / p.games;
         enhanced.bpg = p.blk / p.games;
         enhanced.tpg = p.to / p.games;
