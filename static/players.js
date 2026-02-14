@@ -653,18 +653,8 @@ function displayRankings() {
         ? allPlayers.filter(p => p.name.toLowerCase().includes(searchValue))
         : allPlayers;
     
-    // Calculate per-game stats if needed
-    const playersWithStats = filteredPlayers.map(p => {
-        const enhanced = {...p};
-        const games = p.games || 1; // Prevent division by zero
-        enhanced.ppg = p.pts / games;
-        enhanced.rpg = p.reb / games;
-        enhanced.apg = p.asst / games;
-        enhanced.spg = p.stl / games;
-        enhanced.bpg = p.blk / games;
-        enhanced.tpg = p.to / games;
-        return enhanced;
-    });
+    // Players already have all stats calculated from the API
+    const playersWithStats = filteredPlayers;
     
     // Sort by selected stat
     const sortedPlayers = [...playersWithStats].sort((a, b) => {
@@ -705,10 +695,10 @@ function displayRankings() {
                             <div class="ranking-stat-label">${statInfo.shortLabel}</div>
                         </div>
                         <div class="ranking-context">
-                            <div class="context-stat">PPG: ${player.ppg.toFixed(1)}</div>
-                            <div class="context-stat">RPG: ${player.rpg.toFixed(1)}</div>
-                            <div class="context-stat">APG: ${player.apg.toFixed(1)}</div>
-                            <div class="context-stat">GP: ${player.games}</div>
+                            <div class="context-stat">PPG: ${(player.ppg || 0).toFixed(1)}</div>
+                            <div class="context-stat">RPG: ${(player.rpg || 0).toFixed(1)}</div>
+                            <div class="context-stat">APG: ${(player.apg || 0).toFixed(1)}</div>
+                            <div class="context-stat">GP: ${player.games || 0}</div>
                         </div>
                     </div>
                 `;
@@ -723,6 +713,8 @@ function getStatDisplayInfo(stat) {
         pts: { label: 'Total Points', shortLabel: 'PTS' },
         rpg: { label: 'Rebounds Per Game', shortLabel: 'RPG' },
         reb: { label: 'Total Rebounds', shortLabel: 'REB' },
+        oreb: { label: 'Offensive Rebounds', shortLabel: 'OREB' },
+        dreb: { label: 'Defensive Rebounds', shortLabel: 'DREB' },
         apg: { label: 'Assists Per Game', shortLabel: 'APG' },
         asst: { label: 'Total Assists', shortLabel: 'AST' },
         spg: { label: 'Steals Per Game', shortLabel: 'SPG' },
@@ -732,11 +724,19 @@ function getStatDisplayInfo(stat) {
         fg_pct: { label: 'Field Goal Percentage', shortLabel: 'FG%' },
         fg3_pct: { label: '3-Point Percentage', shortLabel: '3P%' },
         ft_pct: { label: 'Free Throw Percentage', shortLabel: 'FT%' },
+        efg_pct: { label: 'Effective Field Goal %', shortLabel: 'eFG%' },
+        ts_pct: { label: 'True Shooting %', shortLabel: 'TS%' },
         fg: { label: 'Field Goals Made', shortLabel: 'FGM' },
         fg3: { label: '3-Pointers Made', shortLabel: '3PM' },
         games: { label: 'Games Played', shortLabel: 'GP' },
         tpg: { label: 'Turnovers Per Game', shortLabel: 'TPG' },
-        to: { label: 'Total Turnovers', shortLabel: 'TO' }
+        to: { label: 'Total Turnovers', shortLabel: 'TO' },
+        fpg: { label: 'Fouls Per Game', shortLabel: 'FPG' },
+        ast_to_ratio: { label: 'Assist/Turnover Ratio', shortLabel: 'AST/TO' },
+        per: { label: 'Player Efficiency Rating', shortLabel: 'PER' },
+        usage_rate: { label: 'Usage Rate', shortLabel: 'USG%' },
+        defensive_rating: { label: 'Defensive Rating', shortLabel: 'DEF RTG' },
+        pm_per_game: { label: 'Plus/Minus Per Game', shortLabel: '+/-' }
     };
     return statMap[stat] || { label: stat.toUpperCase(), shortLabel: stat.toUpperCase() };
 }
@@ -752,6 +752,16 @@ function formatStatValue(value, stat) {
     // Per-game stats (show one decimal)
     if (stat.endsWith('pg')) {
         return value.toFixed(1);
+    }
+    
+    // Decimal stats (ratios and efficiency ratings)
+    if (stat === 'ast_to_ratio' || stat === 'per' || stat === 'defensive_rating') {
+        return value.toFixed(1);
+    }
+    
+    // Usage rate (show as percentage)
+    if (stat === 'usage_rate') {
+        return value.toFixed(1) + '%';
     }
     
     // Whole numbers
