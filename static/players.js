@@ -3,7 +3,37 @@ let allPlayers = [];
 let playerModal = null;
 let currentView = 'cards'; // 'cards' or 'rankings'
 
+const isFiniteNumber = (value) => Number.isFinite(Number(value));
+const safeNumber = (value, fallback = 0) => (isFiniteNumber(value) ? Number(value) : fallback);
+const safeFixed = (value, decimals = 1, fallback = '0.0') => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num.toFixed(decimals) : fallback;
+};
+
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
+
+function sanitizeNumbers(obj) {
+    if (!obj || typeof obj !== 'object') return;
+    Object.keys(obj).forEach((key) => {
+        const value = obj[key];
+        if (value && typeof value === 'object') {
+            sanitizeNumbers(value);
+            return;
+        }
+        if (typeof value === 'number' && !Number.isFinite(value)) {
+            obj[key] = 0;
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    showLoader('players-container', 'Loading players...');
     // Load and setup in parallel for faster interaction
     await loadPlayers();
     setupFilters();
@@ -20,34 +50,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadPlayers() {
     try {
         const response = await fetch('/api/players');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         allPlayers = await response.json();
+        
+        if (allPlayers.length === 0) {
+            showEmptyState('players-container', 'No players recorded yet', '👥');
+            return;
+        }
+        
         // Sort by number by default
-        allPlayers.sort((a, b) => a.number - b.number);
+        allPlayers.sort((a, b) => (a.number || 0) - (b.number || 0));
         displayPlayers(allPlayers);
     } catch (error) {
         console.error('Error loading players:', error);
+        showError('players-container', 'Failed to load players. Please refresh the page.');
     }
 }
 
 function displayPlayers(players) {
     const container = document.getElementById('players-container');
-    container.innerHTML = '';
     
-    // Helper function to safely format numbers
-    const safeFixed = (val, decimals = 1) => {
-        if (val === undefined || val === null || isNaN(val)) return '0.0';
-        return Number(val).toFixed(decimals);
-    };
+    if (players.length === 0) {
+        showEmptyState('players-container', 'No players match your search', '🔍');
+        return;
+    }
+    
+    container.innerHTML = '';
     
     players.forEach(player => {
         const card = document.createElement('div');
         card.className = 'player-card';
-        const games = player.games || 1;
-        const plusMinus = player.plus_minus || 0;
-        const plusMinusPerGame = plusMinus / games;
+        const games = safeNumber(player.games, 0);
+        const plusMinus = safeNumber(player.plus_minus, 0);
+        const plusMinusPerGame = games > 0 ? plusMinus / games : 0;
         card.innerHTML = `
             <div class="player-number">#${player.number || '-'}</div>
-            <div class="player-name">${player.first_name || player.name}</div>
+            <div class="player-name">${escapeHtml(player.first_name || player.name)}</div>
             <div class="player-stats">
                 <div class="player-stat-item">
                     <div class="player-stat-label">PPG</div>
@@ -95,7 +135,6 @@ function displayPlayers(players) {
         card.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Player card clicked for:', player.name);
             showPlayerDetail(player.name);
         });
         container.appendChild(card);
@@ -168,31 +207,31 @@ function sortPlayers() {
 
 async function showPlayerDetail(playerName) {
     try {
-        console.log('Showing player detail for:', playerName);
         const encodedPlayerName = encodeURIComponent(playerName);
-        console.log('Encoded player name:', encodedPlayerName);
-        const [playerResponse, advancedResponse] = await Promise.all([
-            fetch(`/api/player/${encodedPlayerName}`),
-            fetch(`/api/advanced/player/${encodedPlayerName}`)
+        const [playerResult, advancedResult] = await Promise.allSettled([
+            fetchJson(`/api/player/${encodedPlayerName}`),
+            fetchJson(`/api/advanced/player/${encodedPlayerName}`)
         ]);
-        
-        const data = await playerResponse.json();
+
+        if (playerResult.status === 'rejected') {
+            throw playerResult.reason;
+        }
+
+        const data = playerResult.value;
         
         // Check if the API returned an error
         if (data.error) {
             throw new Error(data.error);
         }
-        
-        const advancedData = advancedResponse.ok ? await advancedResponse.json() : null;
-        
-        console.log('Player data:', data);
-        console.log('Advanced data:', advancedData);
-        
-        // Helper function to safely format numbers
-        const safeFixed = (val, decimals = 1) => {
-            if (val === undefined || val === null || isNaN(val)) return '0.0';
-            return Number(val).toFixed(decimals);
-        };
+
+        const advancedData = advancedResult.status === 'fulfilled' ? advancedResult.value : null;
+        if (advancedResult.status === 'rejected') {
+            console.warn('Advanced stats unavailable:', advancedResult.reason);
+        }
+
+        if (advancedData) {
+            sanitizeNumbers(advancedData);
+        }
         
         // Build roster info section if available
         let rosterHtml = '';
@@ -387,7 +426,7 @@ async function showPlayerDetail(playerName) {
             <div class="player-detail-header">
                 <div class="player-detail-info">
                     <div class="player-detail-number">${data.season_stats.number || '-'}</div>
-                    <div class="player-detail-name">${data.season_stats.first_name || data.season_stats.name}</div>
+                    <div class="player-detail-name">${escapeHtml(data.season_stats.first_name || data.season_stats.name)}</div>
                 </div>
             </div>
 
@@ -633,12 +672,14 @@ async function showPlayerDetail(playerName) {
         `;
         
         document.getElementById('playerDetail').innerHTML = detailHtml;
-        console.log('Modal element:', playerModal);
-        console.log('About to show modal');
         playerModal.classList.add('show');
-        console.log('Modal classes after show:', playerModal.classList.toString());
     } catch (error) {
         console.error('Error loading player detail:', error);
+        const detailEl = document.getElementById('playerDetail');
+        if (detailEl) {
+            detailEl.innerHTML = `<div class="error-message">⚠️ Error loading player details: ${escapeHtml(error.message)}</div>`;
+            playerModal.classList.add('show');
+        }
     }
 }
 
@@ -695,9 +736,9 @@ function displayRankings() {
                             <div class="ranking-stat-label">${statInfo.shortLabel}</div>
                         </div>
                         <div class="ranking-context">
-                            <div class="context-stat">PPG: ${(player.ppg || 0).toFixed(1)}</div>
-                            <div class="context-stat">RPG: ${(player.rpg || 0).toFixed(1)}</div>
-                            <div class="context-stat">APG: ${(player.apg || 0).toFixed(1)}</div>
+                            <div class="context-stat">PPG: ${safeFixed(player.ppg, 1)}</div>
+                            <div class="context-stat">RPG: ${safeFixed(player.rpg, 1)}</div>
+                            <div class="context-stat">APG: ${safeFixed(player.apg, 1)}</div>
                             <div class="context-stat">GP: ${player.games || 0}</div>
                         </div>
                     </div>
@@ -742,49 +783,45 @@ function getStatDisplayInfo(stat) {
 }
 
 function formatStatValue(value, stat) {
-    if (value == null || isNaN(value)) return '-';
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '-';
     
     // Percentages
     if (stat.includes('_pct') || stat.includes('%')) {
-        return value.toFixed(1) + '%';
+        return num.toFixed(1) + '%';
     }
     
     // Per-game stats (show one decimal)
     if (stat.endsWith('pg')) {
-        return value.toFixed(1);
+        return num.toFixed(1);
     }
     
     // Decimal stats (ratios and efficiency ratings)
     if (stat === 'ast_to_ratio' || stat === 'per' || stat === 'defensive_rating') {
-        return value.toFixed(1);
+        return num.toFixed(1);
     }
     
     // Usage rate (show as percentage)
     if (stat === 'usage_rate') {
-        return value.toFixed(1) + '%';
+        return num.toFixed(1) + '%';
     }
     
     // Whole numbers
-    return Math.round(value).toString();
+    return Math.round(num).toString();
 }
 
 function setupModal() {
     playerModal = document.getElementById('playerModal');
     const closeBtn = document.querySelector('.close');
     
-    console.log('Setting up modal:', playerModal);
-    console.log('Close button:', closeBtn);
-    
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            console.log('Close button clicked');
             playerModal.classList.remove('show');
         });
     }
     
     window.addEventListener('click', (e) => {
         if (e.target === playerModal) {
-            console.log('Modal background clicked');
             playerModal.classList.remove('show');
         }
     });

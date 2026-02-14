@@ -2,6 +2,25 @@
 let conversationHistory = [];
 let statsContext = null;
 
+const safeFixed = (value, decimals = 1, fallback = '0.0') => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num.toFixed(decimals) : fallback;
+};
+const safeRatio = (numerator, denominator, scale = 1) => {
+    const num = Number(numerator);
+    const den = Number(denominator);
+    if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return 0;
+    return (num / den) * scale;
+};
+
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
+
 // Load conversation from sessionStorage on page load
 document.addEventListener('DOMContentLoaded', async () => {
     await loadStatsContext();
@@ -11,20 +30,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load stats context for the sidebar
 async function loadStatsContext() {
     try {
-        const [playersRes, gamesRes, statsRes] = await Promise.all([
-            fetch('/api/players'),
-            fetch('/api/games'),
-            fetch('/api/season-stats')
+        const results = await Promise.allSettled([
+            fetchJson('/api/players'),
+            fetchJson('/api/games'),
+            fetchJson('/api/season-stats')
         ]);
-        
-        // Check if responses are ok
-        if (!playersRes.ok || !gamesRes.ok || !statsRes.ok) {
-            throw new Error('Failed to load stats data from server');
+
+        const players = results[0].status === 'fulfilled' ? results[0].value : [];
+        const games = results[1].status === 'fulfilled' ? results[1].value : [];
+        const seasonStats = results[2].status === 'fulfilled' ? results[2].value : { season_team_stats: {}, season_player_stats: {} };
+
+        if (results.some((result) => result.status === 'rejected')) {
+            console.warn('Some stats context requests failed');
         }
-        
-        const players = await playersRes.json();
-        const games = await gamesRes.json();
-        const seasonStats = await statsRes.json();
         
         statsContext = { players, games, seasonStats };
         
@@ -54,7 +72,7 @@ function updateStatsPanel() {
     const wins = teamStats.win || 0;
     const losses = teamStats.loss || 0;
     const totalGames = wins + losses;
-    const winRate = totalGames > 0 ? (wins / totalGames * 100).toFixed(1) : '0.0';
+    const winRate = safeRatio(wins, totalGames, 100).toFixed(1);
     
     const teamRecordElement = document.getElementById('team-record-info');
     if (teamRecordElement) {
@@ -64,13 +82,13 @@ function updateStatsPanel() {
                 <span>${winRate}% Win Rate</span>
             </div>
             <div class="stat-item">
-                <span>PPG:</span> <strong>${(teamStats.ppg || 0).toFixed(1)}</strong>
+                <span>PPG:</span> <strong>${safeFixed(teamStats.ppg, 1)}</strong>
             </div>
             <div class="stat-item">
-                <span>RPG:</span> <strong>${(teamStats.rpg || 0).toFixed(1)}</strong>
+                <span>RPG:</span> <strong>${safeFixed(teamStats.rpg, 1)}</strong>
             </div>
             <div class="stat-item">
-                <span>APG:</span> <strong>${(teamStats.apg || 0).toFixed(1)}</strong>
+                <span>APG:</span> <strong>${safeFixed(teamStats.apg, 1)}</strong>
             </div>
         `;
     }
@@ -86,7 +104,7 @@ function updateStatsPanel() {
         topPlayersElement.innerHTML = topPlayers.map(([name, playerStats]) => `
             <div class="player-stat-item">
                 <span class="player-name">${name}</span>
-                <span class="player-ppg">${playerStats.ppg.toFixed(1)} PPG</span>
+                <span class="player-ppg">${safeFixed(playerStats.ppg, 1)} PPG</span>
             </div>
         `).join('');
     }
@@ -223,7 +241,7 @@ async function sendMessage() {
     showTypingIndicator();
     
     try {
-        const response = await fetch('/api/ai/chat', {
+        const data = await fetchJson('/api/ai/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -231,12 +249,6 @@ async function sendMessage() {
                 history: conversationHistory.slice(-10) // Send last 10 messages for context
             })
         });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
         
         hideTypingIndicator();
         
@@ -379,10 +391,7 @@ async function loadTeamSummary() {
         document.getElementById('player-analysis-section').style.display = 'none';
         document.getElementById('game-analysis-section').style.display = 'none';
         
-        const response = await fetch('/api/ai/team-summary');
-        if (!response.ok) throw new Error('Failed to load summary');
-        
-        const data = await response.json();
+        const data = await fetchJson('/api/ai/team-summary');
         const content = document.getElementById('team-summary-content');
         
         if (data.error) {
@@ -412,13 +421,11 @@ async function askCoach() {
         document.getElementById('coach-response').style.display = 'block';
         document.getElementById('coach-answer-content').innerHTML = '<div class="loading">AI Coach is thinking...</div>';
         
-        const response = await fetch('/api/ai/analyze', {
+        const data = await fetchJson('/api/ai/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: question, type: analysisType })
         });
-        
-        const data = await response.json();
         
         if (data.error) {
             document.getElementById('coach-answer-content').innerHTML = 
@@ -447,8 +454,7 @@ async function analyzeSelectedPlayer() {
         const content = document.getElementById('player-insights-content');
         content.innerHTML = '<div class="loading">AI Coach analyzing player...</div>';
         
-        const response = await fetch(`/api/ai/player-insights/${playerName}`);
-        const data = await response.json();
+        const data = await fetchJson(`/api/ai/player-insights/${playerName}`);
         
         if (data.error) {
             content.innerHTML = `<div class="error-message">⚠️ ${data.error}</div>
@@ -470,8 +476,7 @@ async function analyzeSelectedGame() {
         const content = document.getElementById('game-insights-content');
         content.innerHTML = '<div class="loading">AI Coach analyzing game...</div>';
         
-        const response = await fetch(`/api/ai/game-analysis/${gameId}`);
-        const data = await response.json();
+        const data = await fetchJson(`/api/ai/game-analysis/${gameId}`);
         
         if (data.error) {
             content.innerHTML = `<div class="error-message">⚠️ ${data.error}</div>
@@ -506,13 +511,11 @@ async function sendChatMessage() {
     messages.appendChild(userMsg);
     
     try {
-        const response = await fetch('/api/ai/analyze', {
+        const data = await fetchJson('/api/ai/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: message, type: 'general' })
         });
-        
-        const data = await response.json();
         
         const aiMsg = document.createElement('div');
         aiMsg.className = 'chat-message ai-message';

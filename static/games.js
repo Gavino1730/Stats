@@ -2,7 +2,16 @@
 let allGames = [];
 let gameModal = null;
 
+const toNumber = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
+const safeRatio = (numerator, denominator, scale = 1) => {
+    const num = Number(numerator);
+    const den = Number(denominator);
+    if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return 0;
+    return (num / den) * scale;
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
+    showLoader('games-container', 'Loading games...');
     await loadGames();
     setupFilters();
     setupModal();
@@ -11,7 +20,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadGames() {
     try {
         const response = await fetch('/api/games');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         allGames = await response.json();
+        
+        if (allGames.length === 0) {
+            showEmptyState('games-container', 'No games recorded yet', '🏀');
+            return;
+        }
         
         // Sort games by date
         allGames.sort((a, b) => {
@@ -23,25 +40,32 @@ async function loadGames() {
         displayGames(allGames);
     } catch (error) {
         console.error('Error loading games:', error);
+        showError('games-container', 'Failed to load games. Please refresh the page.');
     }
 }
 
 function displayGames(games) {
     const container = document.getElementById('games-container');
+    
+    if (games.length === 0) {
+        showEmptyState('games-container', 'No games match your filters', '🔍');
+        return;
+    }
+    
     container.innerHTML = '';
     
     games.forEach(game => {
-        const pointDiff = game.vc_score - game.opp_score;
+        const pointDiff = toNumber(game.vc_score) - toNumber(game.opp_score);
         const gameCard = document.createElement('div');
         gameCard.className = 'game-card';
         gameCard.innerHTML = `
             <div class="game-card-header">
-                <div class="game-card-date">${game.date}</div>
+                <div class="game-card-date">${escapeHtml(game.date)}</div>
                 <span class="result-badge ${game.result === 'W' ? 'win' : 'loss'}">
                     ${game.result === 'W' ? 'W' : 'L'}
                 </span>
             </div>
-            <div class="game-card-opponent">${game.location === 'away' ? '@' : 'vs'} ${game.opponent}</div>
+            <div class="game-card-opponent">${game.location === 'away' ? '@' : 'vs'} ${escapeHtml(game.opponent)}</div>
             <div class="game-card-score">
                 <div class="game-card-score-vc">${game.vc_score}</div>
                 <div class="game-card-score-divider">-</div>
@@ -79,49 +103,51 @@ function filterGames() {
 }
 
 async function showGameDetail(game) {
+    const teamStats = game.team_stats || {};
     // Calculate basic percentages
-    const pointDiff = game.vc_score - game.opp_score;
-    const vcFgPct = (game.team_stats.fg / game.team_stats.fga * 100).toFixed(1);
-    const vc3pPct = (game.team_stats.fg3 / game.team_stats.fg3a * 100).toFixed(1);
-    const vcFtPct = (game.team_stats.ft / game.team_stats.fta * 100).toFixed(1);
+    const pointDiff = toNumber(game.vc_score) - toNumber(game.opp_score);
+    const vcFgPct = safeRatio(teamStats.fg, teamStats.fga, 100).toFixed(1);
+    const vc3pPct = safeRatio(teamStats.fg3, teamStats.fg3a, 100).toFixed(1);
+    const vcFtPct = safeRatio(teamStats.ft, teamStats.fta, 100).toFixed(1);
     
     // Calculate advanced stats
-    const fg2Made = game.team_stats.fg - game.team_stats.fg3;
-    const fg2Att = game.team_stats.fga - game.team_stats.fg3a;
-    const fg2Pct = fg2Att > 0 ? (fg2Made / fg2Att * 100).toFixed(1) : '0.0';
+    const fg2Made = toNumber(teamStats.fg) - toNumber(teamStats.fg3);
+    const fg2Att = toNumber(teamStats.fga) - toNumber(teamStats.fg3a);
+    const fg2Pct = safeRatio(fg2Made, fg2Att, 100).toFixed(1);
     
     // Effective FG%
-    const efgPct = ((game.team_stats.fg + 0.5 * game.team_stats.fg3) / game.team_stats.fga * 100).toFixed(1);
+    const efgPct = safeRatio(toNumber(teamStats.fg) + 0.5 * toNumber(teamStats.fg3), teamStats.fga, 100).toFixed(1);
     
     // True Shooting %
-    const tsPct = (game.vc_score / (2 * (game.team_stats.fga + 0.44 * game.team_stats.fta)) * 100).toFixed(1);
+    const tsPct = safeRatio(game.vc_score, 2 * (toNumber(teamStats.fga) + 0.44 * toNumber(teamStats.fta)), 100).toFixed(1);
     
     // Points per shot
-    const ptsPerShot = (game.vc_score / game.team_stats.fga).toFixed(2);
+    const ptsPerShot = safeRatio(game.vc_score, teamStats.fga, 1).toFixed(2);
     
     // Assist/Turnover Ratio
-    const astToRatio = (game.team_stats.asst / game.team_stats.to).toFixed(2);
+    const astToRatio = safeRatio(teamStats.asst, teamStats.to, 1).toFixed(2);
     
     // Offensive Rebound %
-    const orebPct = ((game.team_stats.oreb / (game.team_stats.oreb + game.team_stats.dreb)) * 100).toFixed(1);
+    const orebPct = safeRatio(teamStats.oreb, toNumber(teamStats.oreb) + toNumber(teamStats.dreb), 100).toFixed(1);
     
     // Estimated possessions
-    const possessions = (game.team_stats.fga + 0.44 * game.team_stats.fta - game.team_stats.oreb + game.team_stats.to).toFixed(1);
+    const possessions = toNumber(teamStats.fga) + 0.44 * toNumber(teamStats.fta) - toNumber(teamStats.oreb) + toNumber(teamStats.to);
+    const possessionsDisplay = Number.isFinite(possessions) ? possessions.toFixed(1) : '0.0';
     
     // Points per possession
-    const ppp = (game.vc_score / possessions).toFixed(3);
+    const ppp = safeRatio(game.vc_score, possessions, 1).toFixed(3);
     
     // Turnover rate
-    const toRate = (game.team_stats.to / possessions * 100).toFixed(1);
+    const toRate = safeRatio(teamStats.to, possessions, 100).toFixed(1);
     
     // Assist rate
-    const astRate = (game.team_stats.asst / game.team_stats.fg * 100).toFixed(1);
+    const astRate = safeRatio(teamStats.asst, teamStats.fg, 100).toFixed(1);
     
     const detailHtml = `
         <div class="game-detail-header">
             <div class="game-detail-info">
-                <div class="game-detail-date">${game.date}</div>
-                <div class="game-detail-opponent">${game.location === 'away' ? '@' : 'vs'} ${game.opponent}</div>
+                <div class="game-detail-date">${escapeHtml(game.date)}</div>
+                <div class="game-detail-opponent">${game.location === 'away' ? '@' : 'vs'} ${escapeHtml(game.opponent)}</div>
             </div>
             <div class="game-detail-result ${game.result === 'W' ? 'win' : 'loss'}">
                 ${game.result === 'W' ? 'WIN' : 'LOSS'}
@@ -172,7 +198,7 @@ async function showGameDetail(game) {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; padding: 1rem; background: var(--light-bg); border-radius: 6px; margin-bottom: 1.5rem;">
             <div>
                 <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">Possessions</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${possessions}</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${possessionsDisplay}</div>
             </div>
             <div>
                 <div style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">Pts/Possession</div>
@@ -227,7 +253,8 @@ async function showGameDetail(game) {
             </thead>
             <tbody>
                 ${game.player_stats.map(p => {
-                    const playerEfg = p.fg_att > 0 ? ((p.fg_made + 0.5 * p.fg3_made) / p.fg_att * 100).toFixed(1) : '0.0';
+                    const playerEfg = safeRatio(toNumber(p.fg_made) + 0.5 * toNumber(p.fg3_made), p.fg_att, 100).toFixed(1);
+                    const totalReb = toNumber(p.oreb) + toNumber(p.dreb);
                     return `
                     <tr>
                         <td><strong>${p.first_name || p.name.split(' ')[0]}</strong> (#${p.number})</td>
@@ -235,7 +262,7 @@ async function showGameDetail(game) {
                         <td>${p.fg_made}-${p.fg_att}</td>
                         <td>${p.fg3_made}-${p.fg3_att}</td>
                         <td>${p.ft_made}-${p.ft_att}</td>
-                        <td><strong>${p.oreb + p.dreb}</strong></td>
+                        <td><strong>${totalReb}</strong></td>
                         <td>${p.oreb}</td>
                         <td>${p.dreb}</td>
                         <td>${p.asst}</td>
@@ -243,7 +270,7 @@ async function showGameDetail(game) {
                         <td>${p.blk}</td>
                         <td style="color: ${p.to >= 4 ? '#dc3545' : 'inherit'};">${p.to}</td>
                         <td>${p.fouls}</td>
-                        <td style="font-weight: 700; color: ${(p.plus_minus || 0) > 0 ? 'var(--success)' : (p.plus_minus || 0) < 0 ? '#dc3545' : 'inherit'};">${(p.plus_minus || 0) > 0 ? '+' : ''}${p.plus_minus || 0}</td>
+                        <td style="font-weight: 700; color: ${toNumber(p.plus_minus) > 0 ? 'var(--success)' : toNumber(p.plus_minus) < 0 ? '#dc3545' : 'inherit'};">${toNumber(p.plus_minus) > 0 ? '+' : ''}${toNumber(p.plus_minus)}</td>
                         <td><strong>${p.pts}</strong></td>
                     </tr>
                 `}).join('')}

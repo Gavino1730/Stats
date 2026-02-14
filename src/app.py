@@ -137,7 +137,6 @@ def reload_data():
 
 
 @app.route("/api/season-stats")
-@lru_cache(maxsize=1)
 def api_season_stats():
     return jsonify(data.season_team_stats)
 
@@ -353,7 +352,6 @@ def api_player_trends(player_name):
 
 
 @app.route("/api/team-trends")
-@lru_cache(maxsize=1)
 def api_team_trends():
     games = sorted(data.games, key=lambda x: x["gameId"])
     return jsonify(
@@ -462,7 +460,6 @@ def api_player_comparison():
 
 
 @app.route("/api/advanced/team")
-@lru_cache(maxsize=1)
 def api_team_advanced():
     return jsonify(advanced_calc.calculate_team_advanced_stats())
 
@@ -488,19 +485,16 @@ def api_game_advanced(game_id):
 
 
 @app.route("/api/advanced/patterns")
-@lru_cache(maxsize=1)
 def api_patterns():
     return jsonify(advanced_calc.calculate_win_loss_patterns())
 
 
 @app.route("/api/advanced/volatility")
-@lru_cache(maxsize=1)
 def api_volatility():
     return jsonify(advanced_calc.calculate_volatility_metrics())
 
 
 @app.route("/api/advanced/insights")
-@lru_cache(maxsize=1)
 def api_auto_insights():
     return jsonify({"insights": advanced_calc.generate_auto_insights()})
 
@@ -518,7 +512,6 @@ def api_all_advanced():
 
 
 @app.route("/api/comprehensive-insights")
-@lru_cache(maxsize=1)
 def api_comprehensive_insights():
     """Generate comprehensive insights for trends page"""
     try:

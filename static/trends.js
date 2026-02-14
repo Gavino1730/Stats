@@ -5,6 +5,44 @@ let allPlayers = [];
 let currentTrendsData = null;
 let comprehensiveInsights = null;
 
+const isFiniteNumber = (value) => Number.isFinite(Number(value));
+const toNumber = (value, fallback = 0) => (isFiniteNumber(value) ? Number(value) : fallback);
+const safeRatio = (numerator, denominator, scale = 1) => {
+    const num = Number(numerator);
+    const den = Number(denominator);
+    if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return 0;
+    return (num / den) * scale;
+};
+const safeFixed = (value, decimals = 1, fallback = '0.0') => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num.toFixed(decimals) : fallback;
+};
+
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
+
+function destroyCharts(chartMap) {
+    Object.keys(chartMap).forEach((key) => {
+        if (chartMap[key]) {
+            chartMap[key].destroy();
+            chartMap[key] = null;
+        }
+    });
+}
+
+function destroyAllCharts() {
+    destroyCharts(teamCharts);
+    destroyCharts(playerCharts);
+}
+
+window.addEventListener('pagehide', destroyAllCharts);
+window.addEventListener('beforeunload', destroyAllCharts);
+
 // Clean AI response text (removes markdown symbols)
 function formatAIResponse(text) {
     return text
@@ -24,20 +62,24 @@ function formatAIResponse(text) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Load data in parallel for faster page interaction
-    await Promise.all([
+    const results = await Promise.allSettled([
         loadPlayers(),
         loadTeamTrends(),
         loadVolatilityStats(),
         loadComprehensiveInsights()
     ]);
+    results.forEach((result) => {
+        if (result.status === 'rejected') {
+            console.error('Trends page load failed:', result.reason);
+        }
+    });
     setupTabs();
     // Don't set up player/comparison selectors yet - they're in hidden tabs
 });
 
 async function loadPlayers() {
     try {
-        const response = await fetch('/api/players');
-        allPlayers = await response.json();
+        allPlayers = await fetchJson('/api/players');
     } catch (error) {
         console.error('Error loading players:', error);
     }
@@ -45,9 +87,7 @@ async function loadPlayers() {
 
 async function loadComprehensiveInsights() {
     try {
-        const response = await fetch('/api/comprehensive-insights');
-        comprehensiveInsights = await response.json();
-        console.log('Loaded comprehensive insights:', comprehensiveInsights);
+        comprehensiveInsights = await fetchJson('/api/comprehensive-insights');
     } catch (error) {
         console.error('Error loading comprehensive insights:', error);
     }
@@ -55,12 +95,15 @@ async function loadComprehensiveInsights() {
 
 async function loadVolatilityStats() {
     try {
-        const response = await fetch('/api/advanced/volatility');
-        const data = await response.json();
+        const data = await fetchJson('/api/advanced/volatility');
+        if (!data || !data.team_volatility) {
+            console.warn('Volatility stats missing or invalid');
+            return;
+        }
         
-        document.getElementById('ppg-range').textContent = data.team_volatility.ppg_range;
-        document.getElementById('fg-std').textContent = data.team_volatility.fg_pct_std_dev.toFixed(1) + '%';
-        document.getElementById('to-std').textContent = data.team_volatility.to_std_dev.toFixed(1);
+        document.getElementById('ppg-range').textContent = data.team_volatility.ppg_range || '0.0';
+        document.getElementById('fg-std').textContent = safeFixed(data.team_volatility.fg_pct_std_dev, 1) + '%';
+        document.getElementById('to-std').textContent = safeFixed(data.team_volatility.to_std_dev, 1);
     } catch (error) {
         console.error('Error loading volatility stats:', error);
     }
@@ -95,13 +138,7 @@ function setupPlayerSelector() {
 
 async function loadTeamTrends() {
     try {
-        const response = await fetch('/api/team-trends');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const trends = await response.json();
+        const trends = await fetchJson('/api/team-trends');
         currentTrendsData = trends;  // Store for AI analysis
         
         // Validate data
@@ -119,12 +156,12 @@ async function loadTeamTrends() {
         });
         
         const sortedOpp = sortedIndices.map(i => trends.opponents[i]);
-        const sortedVcScore = sortedIndices.map(i => trends.vc_score[i]);
-        const sortedOppScore = sortedIndices.map(i => trends.opp_score[i]);
-        const sortedFgPct = sortedIndices.map(i => trends.fg_pct[i]);
-        const sortedFg3Pct = sortedIndices.map(i => trends.fg3_pct[i]);
-        const sortedAsst = sortedIndices.map(i => trends.asst[i]);
-        const sortedTo = sortedIndices.map(i => trends.to[i]);
+        const sortedVcScore = sortedIndices.map(i => toNumber(trends.vc_score[i]));
+        const sortedOppScore = sortedIndices.map(i => toNumber(trends.opp_score[i]));
+        const sortedFgPct = sortedIndices.map(i => toNumber(trends.fg_pct[i]));
+        const sortedFg3Pct = sortedIndices.map(i => toNumber(trends.fg3_pct[i]));
+        const sortedAsst = sortedIndices.map(i => toNumber(trends.asst[i]));
+        const sortedTo = sortedIndices.map(i => toNumber(trends.to[i]));
 
         // Scoring Chart
         const scoringCtx = document.getElementById('teamScoringChart').getContext('2d');
@@ -306,13 +343,13 @@ async function loadTeamTrends() {
         });
         
         // Prepare sorted stat arrays for new charts
-        const sortedReb = sortedIndices.map(i => trends.reb[i]);
-        const sortedOreb = sortedIndices.map(i => trends.oreb[i]);
-        const sortedDreb = sortedIndices.map(i => trends.dreb[i]);
-        const sortedStl = sortedIndices.map(i => trends.stl[i]);
-        const sortedBlk = sortedIndices.map(i => trends.blk[i]);
-        const sortedFt = sortedIndices.map(i => trends.ft[i]);
-        const sortedFta = sortedIndices.map(i => trends.fta[i]);
+        const sortedReb = sortedIndices.map(i => toNumber(trends.reb[i]));
+        const sortedOreb = sortedIndices.map(i => toNumber(trends.oreb[i]));
+        const sortedDreb = sortedIndices.map(i => toNumber(trends.dreb[i]));
+        const sortedStl = sortedIndices.map(i => toNumber(trends.stl[i]));
+        const sortedBlk = sortedIndices.map(i => toNumber(trends.blk[i]));
+        const sortedFt = sortedIndices.map(i => toNumber(trends.ft[i]));
+        const sortedFta = sortedIndices.map(i => toNumber(trends.fta[i]));
         
         // Rebounding Trends Chart
         const reboundingCanvas = document.getElementById('teamReboundingChart');
@@ -494,7 +531,7 @@ async function loadTeamTrends() {
                         label: 'FT%',
                         data: sortedFt.map((ft, idx) => {
                             const fta = sortedFta[idx];
-                            return fta > 0 ? (ft / fta * 100) : 0;
+                            return safeRatio(ft, fta, 100);
                         }),
                         borderColor: '#9932CC',
                         backgroundColor: 'rgba(153, 50, 204, 0.15)',
@@ -584,8 +621,11 @@ async function loadTeamTrends() {
 
 async function loadPlayerTrends(playerName) {
     try {
-        const response = await fetch(`/api/player-trends/${playerName}`);
-        const trends = await response.json();
+        const trends = await fetchJson(`/api/player-trends/${playerName}`);
+        if (!trends || !trends.games || trends.games.length === 0) {
+            console.warn('No game data available for player trends');
+            return;
+        }
         
         // Sort by date to ensure chronological order
         const gameIds = trends.games;
@@ -596,16 +636,16 @@ async function loadPlayerTrends(playerName) {
         });
         
         const sortedOpp = sortedIndices.map(i => trends.opponents[i]);
-        const sortedPts = sortedIndices.map(i => trends.pts[i]);
-        const sortedFg = sortedIndices.map(i => trends.fg[i]);
-        const sortedFgAtt = sortedIndices.map(i => trends.fg_att[i]);
-        const sortedFg3 = sortedIndices.map(i => trends.fg3[i]);
+        const sortedPts = sortedIndices.map(i => toNumber(trends.pts[i]));
+        const sortedFg = sortedIndices.map(i => toNumber(trends.fg[i]));
+        const sortedFgAtt = sortedIndices.map(i => toNumber(trends.fg_att[i]));
+        const sortedFg3 = sortedIndices.map(i => toNumber(trends.fg3[i]));
         const sortedFg3Att = sortedIndices.map(i => {
             if (trends.fg3_att) return trends.fg3_att[i];
             return 0;
         });
-        const sortedReb = sortedIndices.map(i => trends.reb[i]);
-        const sortedAsst = sortedIndices.map(i => trends.asst[i]);
+        const sortedReb = sortedIndices.map(i => toNumber(trends.reb[i]));
+        const sortedAsst = sortedIndices.map(i => toNumber(trends.asst[i]));
 
         const isMobile = window.innerWidth < 768;
 
@@ -699,8 +739,8 @@ async function loadPlayerTrends(playerName) {
         const shootingCtx = document.getElementById('playerShootingChart').getContext('2d');
         if (playerCharts.shooting) playerCharts.shooting.destroy();
         
-        const fg_pct = sortedFg.map((fg, i) => sortedFgAtt[i] > 0 ? (fg / sortedFgAtt[i]) * 100 : 0);
-        const fg3_pct = sortedFg3.map((fg3, i) => sortedFg3Att[i] > 0 ? (fg3 / sortedFg3Att[i]) * 100 : 0);
+        const fg_pct = sortedFg.map((fg, i) => safeRatio(fg, sortedFgAtt[i], 100));
+        const fg3_pct = sortedFg3.map((fg3, i) => safeRatio(fg3, sortedFg3Att[i], 100));
 
         playerCharts.shooting = new Chart(shootingCtx, {
             type: 'bar',
@@ -934,15 +974,12 @@ function setupTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     
-    console.log('Setting up tabs:', tabButtons.length, 'buttons found,', tabContents.length, 'content sections found');
-    
     // Track which tabs have been initialized
     const initializedTabs = new Set();
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.dataset.tab;
-            console.log('Tab clicked:', tabName);
 
             tabButtons.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
@@ -952,7 +989,6 @@ function setupTabs() {
             
             if (tabElement) {
                 tabElement.classList.add('active');
-                console.log('Activated tab:', tabName);
             } else {
                 console.error('Tab element not found:', `${tabName}-tab`);
             }
@@ -960,7 +996,6 @@ function setupTabs() {
             // Initialize tab content on first view
             if (!initializedTabs.has(tabName)) {
                 initializedTabs.add(tabName);
-                console.log('Initializing tab for first time:', tabName);
                 
                 if (tabName === 'insights') {
                     displayComprehensiveInsights();
@@ -1138,8 +1173,8 @@ async function compareSelectedPlayers() {
     }
     
     try {
-        const response = await fetch(`/api/player-comparison?players=${player1}&players=${player2}`);
-        const comparison = await response.json();
+        const query = `/api/player-comparison?players=${encodeURIComponent(player1)}&players=${encodeURIComponent(player2)}`;
+        const comparison = await fetchJson(query);
         
         displayComparison(comparison);
     } catch (error) {
