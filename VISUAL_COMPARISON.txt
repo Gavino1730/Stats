@@ -1,0 +1,93 @@
+================================================================================
+VISUAL COMPARISON: Banks.pdf (Dec 16, 2025)
+Valley Catholic 87 vs Banks 65
+================================================================================
+
+RAW PDF TEXT (What the PDF actually says):
+================================================================================
+
+Player Stats Table:
+fg     fg%   3pt    3pt%  ft    ft%   oreb dreb foul stl to blk asst +/- pts
+#20 H. Lomber 
+11-24  46%   3-9    33%   4-4   100%  0    3    3    7   4  3   0    30  29
+                                                                      ^^  ^^
+                                                                      |   |
+                                                                  +/- Col | Points Col
+                                                                          v
+#24 M. Mehta 
+8-14   57%   3-8    38%   8-9   89%   0    0    1    3   1  0   1    22  27
+                                                                      ^^  ^^
+#23 G. Frank 
+4-9    44%   2-4    50%   0-0   -     0    1    3    4   4  2   2    20  10
+                                                                      ^^  ^^
+#5 M. Mueller 
+2-6    33%   0-1    0%    0-0   -     3    3    3    4   1  0   2    21  4
+                                                                      ^^  ^
+#1 C. Bonnett 
+1-3    33%   0-2    0%    0-0   -     1    1    5    0   2  0   9    27  2
+                                                                      ^^  ^
+
+================================================================================
+WHAT THE PARSER IS RECORDING:
+================================================================================
+
+Player              | Recorded Points | Source Column
+--------------------|-----------------|---------------
+H. Lomber (#20)     |      30         | +/- column ❌
+M. Mehta (#24)      |      22         | +/- column ❌
+G. Frank (#23)      |      20         | +/- column ❌
+M. Mueller (#5)     |      21         | +/- column ❌
+C. Bonnett (#1)     |      27         | +/- column ❌
+
+TEAM TOTAL:         |     142         | ❌ WRONG!
+
+================================================================================
+WHAT SHOULD BE RECORDED:
+================================================================================
+
+Player              | Should Be | Source Column | Error
+--------------------|-----------|---------------|-------
+H. Lomber (#20)     |    29     | pts column ✅ | -1
+M. Mehta (#24)      |    27     | pts column ✅ | +5
+G. Frank (#23)      |    10     | pts column ✅ | +10
+M. Mueller (#5)     |     4     | pts column ✅ | +17
+C. Bonnett (#1)     |     2     | pts column ✅ | +25
+
+TEAM TOTAL:         |    87     | ✅ CORRECT! | 0
+
+================================================================================
+VERIFICATION:
+================================================================================
+
+Let's verify with math for M. Mehta:
+  FG: 8-14 (8 made)
+  3PT: 3-8 (3 made)
+  FT: 8-9 (8 made)
+  
+  Two-pointers made: 8 - 3 = 5
+  Points calculation: (5 × 2) + (3 × 3) + 8 = 10 + 9 + 8 = 27 points ✓
+  
+  Parser recorded: 22 (which is the +/- value, not points!)
+  Should record: 27 ✓
+
+================================================================================
+THE PROBLEM IN ONE SENTENCE:
+================================================================================
+
+The parser is reading column 14 (second to last) instead of column 15 (last)
+for player points, causing it to record the plus/minus stat as points.
+
+================================================================================
+THE FIX:
+================================================================================
+
+In the parsing code, change:
+  points = row[14]  # ❌ This is the +/- column
+To:
+  points = row[15]  # ✅ This is the actual points column
+
+Or if using column names:
+  points = row['plus_minus']  # ❌ WRONG
+  points = row['pts']         # ✅ CORRECT
+
+================================================================================
