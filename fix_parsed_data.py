@@ -54,26 +54,25 @@ def parse_stat_line_old_format(line):
         ft_pct = parts[stats_start + 5]  # e.g., "100%"
         
         # Individual stats start at index stats_start + 6
-        # oreb dreb foul stl to blk asst +/- pts
-        # That's 9 more values
+        # Column order after shooting stats (6 fields):
+        # oreb(6) dreb(7) foul(8) stl(9) to(10) blk(11) asst(12) +/-(13) pts(14)
         individual_start = stats_start + 6
         
         # Handle case where player has no stats (shown as dashes)
         if parts[individual_start] == '-':
             return None
         
-        oreb = int(parts[individual_start])
-        dreb = int(parts[individual_start + 1])
-        fouls = int(parts[individual_start + 2])
-        stl = int(parts[individual_start + 3])
-        to = int(parts[individual_start + 4])
-        blk = int(parts[individual_start + 5])
-        asst = int(parts[individual_start + 6])
+        oreb = int(parts[individual_start])      # Column 6: offensive rebounds
+        dreb = int(parts[individual_start + 1])  # Column 7: defensive rebounds
+        fouls = int(parts[individual_start + 2]) # Column 8: fouls
+        stl = int(parts[individual_start + 3])   # Column 9: steals
+        to = int(parts[individual_start + 4])    # Column 10: turnovers
+        blk = int(parts[individual_start + 5])   # Column 11: blocks
+        asst = int(parts[individual_start + 6])  # Column 12: assists
         
-        # +/- and pts are the last two values
-        # +/- can be negative or positive
-        plus_minus_str = parts[individual_start + 7]
-        pts = int(parts[individual_start + 8])  # THIS IS THE CORRECT POINTS VALUE!
+        # Last two columns: +/- (13) and pts (14)
+        plus_minus_str = parts[individual_start + 7]  # Column 13: plus/minus (not used)
+        pts = int(parts[individual_start + 8])        # Column 14: POINTS (actual scoring)
         
         return {
             'number': number,
