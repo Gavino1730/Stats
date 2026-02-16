@@ -99,6 +99,12 @@ body {
     padding: 0 20px;
 }
 
+.container.main-content:has(.ai-insights-page) {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
 /* Navigation */
 .navbar {
     background-color: var(--primary);
@@ -149,6 +155,12 @@ body {
 .main-content {
     padding: 2rem 0;
     min-height: calc(100vh - 70px);
+}
+
+.main-content .ai-insights-page {
+    height: calc(100vh - 70px);
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Dashboard */
@@ -1930,19 +1942,18 @@ body {
 
 /* AI Insights Styling */
 .ai-insights-page {
-    padding: 2rem 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .ai-insights-page h1 {
-    text-align: center;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
+    display: none;
 }
 
 .subtitle {
-    text-align: center;
-    color: var(--text-light);
-    margin-bottom: 2rem;
+    display: none;
 }
 
 .quick-insights {
@@ -2297,17 +2308,17 @@ body {
    ============================================================================ */
 
 .chatbot-container {
-    max-width: 1200px;
-    margin: 2rem auto;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     background: var(--card-bg);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    height: calc(100vh - 200px);
-    min-height: 500px;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    flex: 1;
 }
 
 .chat-header {
@@ -2759,9 +2770,9 @@ body {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .chatbot-container {
-        height: calc(100vh - 140px);
-        margin: 1rem;
-        border-radius: 8px;
+        height: 100%;
+        margin: 0;
+        border-radius: 0;
     }
     
     .chat-header {
