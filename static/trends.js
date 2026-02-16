@@ -346,6 +346,8 @@ async function loadTeamTrends() {
             }
         });
         
+        const isMobile = window.innerWidth < 768;
+
         // Prepare sorted stat arrays for new charts
         const sortedReb = sortedIndices.map(i => toNumber(trends.reb[i]));
         const sortedOreb = sortedIndices.map(i => toNumber(trends.oreb[i]));
@@ -354,6 +356,44 @@ async function loadTeamTrends() {
         const sortedBlk = sortedIndices.map(i => toNumber(trends.blk[i]));
         const sortedFt = sortedIndices.map(i => toNumber(trends.ft[i]));
         const sortedFta = sortedIndices.map(i => toNumber(trends.fta[i]));
+
+        const commonLineOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        font: { size: isMobile ? 11 : 13, weight: '500' },
+                        padding: 15,
+                        color: '#f0f0f0'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                    padding: 12,
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.08)', lineWidth: 1 },
+                    ticks: { font: { size: isMobile ? 10 : 12 }, color: '#c0c0c0' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: isMobile ? 9 : 11 },
+                        maxRotation: 50,
+                        minRotation: 50,
+                        autoSkip: false,
+                        color: '#c0c0c0'
+                    }
+                }
+            }
+        };
         
         // Rebounding Trends Chart
         const reboundingCanvas = document.getElementById('teamReboundingChart');

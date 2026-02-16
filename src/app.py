@@ -169,7 +169,7 @@ def api_games():
             for player in game["player_stats"]:
                 player_name = player.get("name", "")
                 player["first_name"] = roster_by_abbrev.get(
-                    player_name, player_name.split(" ")[0]
+                    player_name, player_name.split(" ")[0] if player_name else "Unknown"
                 )
 
     return jsonify(games_list)
@@ -245,7 +245,7 @@ def api_players():
 
         enhanced.append(p)
 
-    return jsonify(sorted(enhanced, key=lambda x: x["ppg"], reverse=True))
+    return jsonify(sorted(enhanced, key=lambda x: x.get("ppg", 0), reverse=True))
 
 
 @app.route("/api/player/<player_name>")
@@ -318,27 +318,27 @@ def api_leaderboards():
     for player in players:
         player_name = player.get("name", "")
         player["first_name"] = roster_by_abbrev.get(
-            player_name, player_name.split(" ")[0]
+            player_name, player_name.split(" ")[0] if player_name else "Unknown"
         )
 
     return jsonify(
         {
-            "pts": sorted(players, key=lambda x: x["pts"], reverse=True)[:10],
-            "reb": sorted(players, key=lambda x: x["reb"], reverse=True)[:10],
-            "asst": sorted(players, key=lambda x: x["asst"], reverse=True)[:10],
+            "pts": sorted(players, key=lambda x: x.get("pts", 0), reverse=True)[:10],
+            "reb": sorted(players, key=lambda x: x.get("reb", 0), reverse=True)[:10],
+            "asst": sorted(players, key=lambda x: x.get("asst", 0), reverse=True)[:10],
             "fg_pct": sorted(
-                [p for p in players if p["fga"] > 0],
-                key=lambda x: x["fg_pct"],
+                [p for p in players if p.get("fga", 0) > 0],
+                key=lambda x: x.get("fg_pct", 0),
                 reverse=True,
             )[:10],
             "fg3_pct": sorted(
-                [p for p in players if p["fg3a"] > 0],
-                key=lambda x: x["fg3_pct"],
+                [p for p in players if p.get("fg3a", 0) > 0],
+                key=lambda x: x.get("fg3_pct", 0),
                 reverse=True,
             )[:10],
             "ft_pct": sorted(
-                [p for p in players if p["fta"] > 0],
-                key=lambda x: x["ft_pct"],
+                [p for p in players if p.get("fta", 0) > 0],
+                key=lambda x: x.get("ft_pct", 0),
                 reverse=True,
             )[:10],
             "stl": sorted(players, key=lambda x: x.get("stl", 0), reverse=True)[:10],
@@ -357,22 +357,22 @@ def api_player_trends(player_name):
     if not logs:
         return jsonify({"error": "Player not found"}), 404
 
-    logs = sorted(logs, key=lambda x: x["gameId"])
+    logs = sorted(logs, key=lambda x: x.get("gameId", 0))
     return jsonify(
         {
-            "games": [g["gameId"] for g in logs],
-            "opponents": [g["opponent"] for g in logs],
-            "dates": [g["date"] for g in logs],
-            "pts": [g["stats"]["pts"] for g in logs],
-            "fg": [g["stats"]["fg_made"] for g in logs],
-            "fg_att": [g["stats"]["fg_att"] for g in logs],
-            "fg3": [g["stats"]["fg3_made"] for g in logs],
-            "asst": [g["stats"]["asst"] for g in logs],
-            "reb": [g["stats"]["oreb"] + g["stats"]["dreb"] for g in logs],
-            "stl": [g["stats"]["stl"] for g in logs],
-            "plus_minus": [g["stats"].get("plus_minus", 0) for g in logs],
-            "to": [g["stats"].get("to", 0) for g in logs],
-            "fouls": [g["stats"].get("fouls", 0) for g in logs],
+            "games": [g.get("gameId", 0) for g in logs],
+            "opponents": [g.get("opponent", "Unknown") for g in logs],
+            "dates": [g.get("date", "") for g in logs],
+            "pts": [g.get("stats", {}).get("pts", 0) for g in logs],
+            "fg": [g.get("stats", {}).get("fg_made", 0) for g in logs],
+            "fg_att": [g.get("stats", {}).get("fg_att", 0) for g in logs],
+            "fg3": [g.get("stats", {}).get("fg3_made", 0) for g in logs],
+            "asst": [g.get("stats", {}).get("asst", 0) for g in logs],
+            "reb": [g.get("stats", {}).get("oreb", 0) + g.get("stats", {}).get("dreb", 0) for g in logs],
+            "stl": [g.get("stats", {}).get("stl", 0) for g in logs],
+            "plus_minus": [g.get("stats", {}).get("plus_minus", 0) for g in logs],
+            "to": [g.get("stats", {}).get("to", 0) for g in logs],
+            "fouls": [g.get("stats", {}).get("fouls", 0) for g in logs],
         }
     )
 
