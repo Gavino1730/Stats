@@ -17,6 +17,17 @@ const safeFixed = (value, decimals = 1, fallback = '0.0') => {
     const num = Number(value);
     return Number.isFinite(num) ? num.toFixed(decimals) : fallback;
 };
+const formatShortDate = (dateStr) => {
+    const parsed = new Date(dateStr);
+    if (Number.isNaN(parsed.getTime())) return dateStr || '';
+    return `${parsed.getMonth() + 1}/${parsed.getDate()}`;
+};
+const formatOpponentLabel = (opponent, dateStr, location) => {
+    const shortDate = formatShortDate(dateStr);
+    const locTag = location === 'home' ? 'H' : location === 'away' ? 'A' : '';
+    if (locTag) return `${opponent} (${locTag}) ${shortDate}`.trim();
+    return `${opponent} ${shortDate}`.trim();
+};
 
 async function fetchJson(url) {
     const response = await fetch(url);
@@ -160,6 +171,13 @@ async function loadTeamTrends() {
         });
         
         const sortedOpp = sortedIndices.map(i => trends.opponents[i]);
+        const sortedLabels = sortedIndices.map(i =>
+            formatOpponentLabel(
+                trends.opponents[i],
+                trends.dates[i],
+                trends.locations ? trends.locations[i] : ''
+            )
+        );
         const sortedVcScore = sortedIndices.map(i => toNumber(trends.vc_score[i]));
         const sortedOppScore = sortedIndices.map(i => toNumber(trends.opp_score[i]));
         const sortedFgPct = sortedIndices.map(i => toNumber(trends.fg_pct[i]));
@@ -173,7 +191,7 @@ async function loadTeamTrends() {
         teamCharts.scoring = new Chart(scoringCtx, {
             type: 'line',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'Valley Catholic',
@@ -232,7 +250,7 @@ async function loadTeamTrends() {
         teamCharts.shooting = new Chart(shootingCtx, {
             type: 'bar',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'FG%',
@@ -293,7 +311,7 @@ async function loadTeamTrends() {
         teamCharts.ast = new Chart(astCtx, {
             type: 'line',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'Assists',
@@ -405,7 +423,7 @@ async function loadTeamTrends() {
             teamCharts.rebounding = new Chart(reboundingCtx, {
             type: 'line',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'Total Rebounds',
@@ -465,7 +483,7 @@ async function loadTeamTrends() {
             teamCharts.defense = new Chart(defenseCtx, {
             type: 'bar',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'Steals',
@@ -569,7 +587,7 @@ async function loadTeamTrends() {
             teamCharts.ft = new Chart(ftCtx, {
             type: 'line',
             data: {
-                labels: sortedOpp,
+                labels: sortedLabels,
                 datasets: [
                     {
                         label: 'FT%',
