@@ -385,6 +385,7 @@ def api_team_trends():
             "games": [g["gameId"] for g in games],
             "opponents": [g["opponent"] for g in games],
             "dates": [g["date"] for g in games],
+            "locations": [g.get("location", "") for g in games],
             "vc_score": [g["vc_score"] for g in games],
             "opp_score": [g["opp_score"] for g in games],
             "fg_pct": [

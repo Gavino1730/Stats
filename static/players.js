@@ -82,54 +82,9 @@ function displayPlayers(players) {
     players.forEach(player => {
         const card = document.createElement('div');
         card.className = 'player-card';
-        const games = safeNumber(player.games, 0);
-        const plusMinus = safeNumber(player.plus_minus, 0);
-        const plusMinusPerGame = games > 0 ? (plusMinus / games) : 0;
         card.innerHTML = `
             <div class="player-number">#${player.number || '-'}</div>
             <div class="player-name">${escapeHtml(player.first_name || player.name)}</div>
-            <div class="player-stats">
-                <div class="player-stat-item">
-                    <div class="player-stat-label">PPG</div>
-                    <div class="player-stat-value">${safeFixed(player.ppg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">RPG</div>
-                    <div class="player-stat-value">${safeFixed(player.rpg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">APG</div>
-                    <div class="player-stat-value">${safeFixed(player.apg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">TPG</div>
-                    <div class="player-stat-value">${safeFixed(player.tpg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">FG%</div>
-                    <div class="player-stat-value">${safeFixed(player.fg_pct)}%</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">3P%</div>
-                    <div class="player-stat-value">${safeFixed(player.fg3_pct)}%</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">SPG</div>
-                    <div class="player-stat-value">${safeFixed(player.spg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">BPG</div>
-                    <div class="player-stat-value">${safeFixed(player.bpg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">FPG</div>
-                    <div class="player-stat-value">${safeFixed(player.fpg)}</div>
-                </div>
-                <div class="player-stat-item">
-                    <div class="player-stat-label">+/-</div>
-                    <div class="player-stat-value" style="color: ${plusMinusPerGame > 0 ? 'var(--success)' : plusMinusPerGame < 0 ? '#dc3545' : 'inherit'};">${plusMinusPerGame > 0 ? '+' : ''}${safeFixed(plusMinusPerGame)}</div>
-                </div>
-            </div>
         `;
         
         card.addEventListener('click', (e) => {
