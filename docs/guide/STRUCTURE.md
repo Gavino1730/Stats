@@ -37,19 +37,21 @@ Stats/
 │   ├── season_analysis.json
 │   └── player_analysis_cache.json
 │
-├── tests/                   # Test suite
-│   ├── __init__.py
-│   ├── test_volatility.py
-│   ├── test_volatility_simple.py
-│   ├── test_get_volatility.py
-│   └── test_direct.py
-│
-├── scripts/                 # Utility scripts
-│   ├── rebuild_stats.py
-│   ├── setup_openai_key.ps1
-│   └── start.sh
+├── scripts/                 # Runtime scripts
+│   ├── start.sh
+│   └── start_with_diagnostics.sh
 │
 ├── docs/                    # Documentation
+│   ├── project/             # Project docs (moved from root)
+│   │   ├── README.md
+│   │   ├── LICENSE
+│   │   ├── CHANGELOG.md
+│   │   ├── CONTRIBUTING.md
+│   │   ├── CONTRIBUTORS.md
+│   │   ├── CODE_OF_CONDUCT.md
+│   │   └── SECURITY.md
+│   ├── archive/
+│   │   └── scripts/         # Archived utilities
 │   ├── CODE_REVIEW.md
 │   ├── DEPLOY.md
 │   ├── DEPLOYMENT.md
@@ -68,7 +70,7 @@ Stats/
 ├── railway.json           # Railway configuration
 ├── nixpacks.toml          # Nixpacks build configuration
 ├── runtime.txt            # Python version specification
-├── README.md              # Project documentation
+├── verify_stats_v2.py     # Stats verification utility
 └── .gitignore            # Git ignore rules
 ```
 

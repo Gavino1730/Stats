@@ -12,13 +12,13 @@ The PostgreSQL server is running correctly, but the database that your applicati
 ### 1. Check DATABASE_URL Format
 Run the database URL checker:
 ```bash
-python scripts/fix_database_url.py
+python docs/archive/scripts/fix_database_url.py
 ```
 
 ### 2. Diagnose and Setup Database
 Run the diagnostic tool:
 ```bash
-python scripts/database_setup.py
+python docs/archive/scripts/database_setup.py
 ```
 
 This will:
@@ -31,7 +31,7 @@ This will:
 ### 3. Populate Database with Data
 After successful setup, run migration:
 ```bash
-python scripts/production_migrate.py
+python docs/archive/scripts/production_migrate.py
 ```
 
 ### 4. Verify Everything Works
@@ -82,7 +82,7 @@ To test database connection locally:
 $env:DATABASE_URL = "postgresql://username:password@hostname:port/database"
 
 # Test connection
-python scripts/database_setup.py
+python docs/archive/scripts/database_setup.py
 
 # Run app locally
 python app.py

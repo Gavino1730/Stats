@@ -42,12 +42,11 @@
 
 ┌─ KEY DOCUMENTS ──────────────────────────────────────────────┐
 │                                                              │
-│  📖 README.md              - Main project documentation     │
-│  📝 PUSH_TO_GITHUB.md      - Step-by-step push guide       │
-│  📋 PROJECT_SUMMARY.md     - Complete summary of changes    │
-│  📋 GITHUB_READY.md        - Detailed checklist             │
-│  🤝 CONTRIBUTING.md        - How to contribute              │
-│  🔒 SECURITY.md            - Security policy                │
+│  📖 docs/project/README.md     - Main project documentation │
+│  📜 docs/project/LICENSE       - License                     │
+│  📋 docs/project/CHANGELOG.md  - Version history             │
+│  🤝 docs/project/CONTRIBUTING.md - How to contribute         │
+│  🔒 docs/project/SECURITY.md   - Security policy             │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 

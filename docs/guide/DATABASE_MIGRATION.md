@@ -37,7 +37,7 @@ OPENAI_API_KEY=your_openai_key
 After deployment, run the migration to populate your database:
 
 ```bash
-python scripts/migrate_to_db.py
+python docs/archive/scripts/migrate_to_db.py
 ```
 
 **Note**: Update the migration script to use your production DATABASE_URL instead of SQLite.
@@ -55,7 +55,7 @@ For local development, the app will use SQLite (`basketball_stats.db`) if no `DA
 To test locally:
 ```bash
 pip install -r requirements.txt
-python scripts/migrate_to_db.py  # Populate local SQLite database
+python docs/archive/scripts/migrate_to_db.py  # Populate local SQLite database
 python app.py                    # Start development server
 ```
 

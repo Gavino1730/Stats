@@ -235,7 +235,6 @@ async function showGameDetail(game) {
             <thead>
                 <tr>
                     <th>Player</th>
-                    <th>MIN</th>
                     <th>FG</th>
                     <th>3P</th>
                     <th>FT</th>
@@ -258,7 +257,6 @@ async function showGameDetail(game) {
                     return `
                     <tr>
                         <td><strong>${p.first_name || p.name.split(' ')[0]}</strong> (#${p.number})</td>
-                        <td>${p.minutes || '-'}</td>
                         <td>${p.fg_made}-${p.fg_att}</td>
                         <td>${p.fg3_made}-${p.fg3_att}</td>
                         <td>${p.ft_made}-${p.ft_att}</td>

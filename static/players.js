@@ -422,11 +422,16 @@ async function showPlayerDetail(playerName) {
             `;
         }
         
+        const displayFirstName = data.season_stats.first_name
+            || (data.season_stats.full_name || data.season_stats.name || '').split(' ')[0];
+
+        const numberDisplay = data.season_stats.number ? `#${data.season_stats.number}` : '';
+
         const detailHtml = `
             <div class="player-detail-header">
                 <div class="player-detail-info">
-                    <div class="player-detail-number">${data.season_stats.number || '-'}</div>
-                    <div class="player-detail-name">${escapeHtml(data.season_stats.first_name || data.season_stats.name)}</div>
+                    ${numberDisplay ? `<div class="player-detail-number">${numberDisplay}</div>` : ''}
+                    <div class="player-detail-name">${escapeHtml(displayFirstName)}</div>
                 </div>
             </div>
 

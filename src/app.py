@@ -260,9 +260,26 @@ def api_player(player_name):
 
         # Add roster info
         roster_info = next((p for p in data.roster if p["name"] == player_name), None)
-        if roster_info:
-            enhanced_stats["number"] = roster_info.get("number")
-            enhanced_stats["grade"] = roster_info.get("grade")
+        roster_match = roster_info
+        if roster_match is None:
+            roster_by_abbrev = {}
+            for roster_player in data.roster:
+                full_name = roster_player.get("name", "")
+                if " " in full_name:
+                    parts = full_name.split(" ", 1)
+                    abbrev = f"{parts[0][0]} {parts[1]}"
+                    roster_by_abbrev[abbrev] = roster_player
+            roster_match = roster_by_abbrev.get(player_name)
+
+        if roster_match:
+            enhanced_stats["number"] = roster_match.get("number")
+            enhanced_stats["grade"] = roster_match.get("grade")
+            enhanced_stats["full_name"] = roster_match.get("name")
+            enhanced_stats["first_name"] = roster_match.get("name", "").split(" ")[0]
+            roster_info = roster_match
+        else:
+            enhanced_stats["full_name"] = player_name
+            enhanced_stats["first_name"] = player_name.split(" ")[0]
 
         return jsonify(
             {
