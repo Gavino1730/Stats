@@ -87,37 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Reload data button handler
-    const reloadBtn = document.getElementById('reload-data-btn');
-    if (reloadBtn) {
-        reloadBtn.addEventListener('click', async () => {
-            reloadBtn.disabled = true;
-            reloadBtn.textContent = '⏳ Reloading...';
-            
-            try {
-                const response = await fetch('/api/reload-data', { method: 'POST' });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    reloadBtn.textContent = '✓ Reloaded!';
-                    // Reload the current page after 500ms to show new data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                } else {
-                    throw new Error(data.error || 'Failed to reload data');
-                }
-            } catch (error) {
-                console.error('Error reloading data:', error);
-                reloadBtn.textContent = '✗ Error';
-                setTimeout(() => {
-                    reloadBtn.textContent = '🔄 Reload Data';
-                    reloadBtn.disabled = false;
-                }, 2000);
-            }
-        });
-    }
-    
     // Modal accessibility - Handle Escape key and focus management
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {

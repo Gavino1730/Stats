@@ -518,7 +518,7 @@ pip install --upgrade -r requirements.txt
 python --version  # Should be 3.11+
 ```
 
-For more issues, check [DATABASE_TROUBLESHOOTING.md](DATABASE_TROUBLESHOOTING.md) or open an issue.
+For more issues, check [docs/guide/DATABASE_TROUBLESHOOTING.md](docs/guide/DATABASE_TROUBLESHOOTING.md) or open an issue.
 
 ## 📚 Documentation
 
@@ -529,8 +529,8 @@ Additional documentation is available in the `docs/` directory:
 - [OUTPUT_STRUCTURE.md](docs/OUTPUT_STRUCTURE.md) - Data structure documentation
 - [ADVANCED_STATS_API.txt](docs/ADVANCED_STATS_API.txt) - API reference
 - [AI_PROMPTS.txt](docs/AI_PROMPTS.txt) - AI prompt engineering
-- [DATABASE_TROUBLESHOOTING.md](DATABASE_TROUBLESHOOTING.md) - Database issues
-- [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing procedures
+- [docs/guide/DATABASE_TROUBLESHOOTING.md](docs/guide/DATABASE_TROUBLESHOOTING.md) - Database issues
+- [docs/guide/TESTING_GUIDE.md](docs/guide/TESTING_GUIDE.md) - Testing procedures
 
 ## 🛠️ Tech Stack
 
