@@ -28,8 +28,12 @@ async function fetchJson(url) {
 
 function destroyCharts(chartMap) {
     Object.keys(chartMap).forEach((key) => {
-        if (chartMap[key]) {
-            chartMap[key].destroy();
+        if (chartMap[key] && typeof chartMap[key].destroy === 'function') {
+            try {
+                chartMap[key].destroy();
+            } catch (error) {
+                console.warn(`Failed to destroy chart ${key}:`, error);
+            }
             chartMap[key] = null;
         }
     });
@@ -1033,47 +1037,73 @@ function displayTeamInsights() {
     
     const trends = insights.team_trends;
     
-    container.innerHTML = `
-        <div class="insight-card">
-            <div class="insight-title">Recent Performance</div>
-            <div class="insight-content">
-                <p><strong>Record:</strong> ${trends.recent_performance?.record || 'N/A'}</p>
-                <p><strong>Avg Score:</strong> ${trends.recent_performance?.avg_score || 'N/A'}</p>
-                <p><strong>Point Differential:</strong> ${trends.recent_performance?.point_differential > 0 ? '+' : ''}${trends.recent_performance?.point_differential || 'N/A'}</p>
-                <p><strong>Trend:</strong> ${trends.recent_performance?.trend || 'N/A'}</p>
-            </div>
-        </div>
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Create insight cards safely
+    const cards = [
+        {
+            title: 'Recent Performance',
+            items: [
+                { label: 'Record', value: trends.recent_performance?.record || 'N/A' },
+                { label: 'Avg Score', value: trends.recent_performance?.avg_score || 'N/A' },
+                { label: 'Point Differential', value: (trends.recent_performance?.point_differential > 0 ? '+' : '') + (trends.recent_performance?.point_differential || 'N/A') },
+                { label: 'Trend', value: trends.recent_performance?.trend || 'N/A' }
+            ]
+        },
+        {
+            title: 'Scoring Trends',
+            items: [
+                { label: 'Recent Avg', value: (trends.scoring_trends?.recent_avg || 'N/A') + ' PPG' },
+                { label: 'Early Season', value: (trends.scoring_trends?.early_avg || 'N/A') + ' PPG' },
+                { label: 'Improvement', value: (trends.scoring_trends?.improvement > 0 ? '+' : '') + (trends.scoring_trends?.improvement || 'N/A') },
+                { label: 'Trend', value: trends.scoring_trends?.trend || 'N/A' }
+            ]
+        },
+        {
+            title: 'Defensive Trends',
+            items: [
+                { label: 'Recent Allowed', value: (trends.defensive_trends?.recent_avg_allowed || 'N/A') + ' PPG' },
+                { label: 'Early Season', value: (trends.defensive_trends?.early_avg_allowed || 'N/A') + ' PPG' },
+                { label: 'Improvement', value: (trends.defensive_trends?.improvement > 0 ? '+' : '') + (trends.defensive_trends?.improvement || 'N/A') },
+                { label: 'Trend', value: trends.defensive_trends?.trend || 'N/A' }
+            ]
+        },
+        {
+            title: 'Key Metrics',
+            items: [
+                { label: 'Win %', value: (insights.key_metrics?.win_pct || 'N/A') + '%' },
+                { label: 'FG%', value: (insights.key_metrics?.fg_pct || 'N/A') + '%' },
+                { label: '3P%', value: (insights.key_metrics?.fg3_pct || 'N/A') + '%' },
+                { label: 'AST/TO', value: ((insights.key_metrics?.apg || 0) / (insights.key_metrics?.tpg || 1)).toFixed(2) }
+            ]
+        }
+    ];
+    
+    cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'insight-card';
         
-        <div class="insight-card">
-            <div class="insight-title">Scoring Trends</div>
-            <div class="insight-content">
-                <p><strong>Recent Avg:</strong> ${trends.scoring_trends?.recent_avg || 'N/A'} PPG</p>
-                <p><strong>Early Season:</strong> ${trends.scoring_trends?.early_avg || 'N/A'} PPG</p>
-                <p><strong>Improvement:</strong> ${trends.scoring_trends?.improvement > 0 ? '+' : ''}${trends.scoring_trends?.improvement || 'N/A'}</p>
-                <p><strong>Trend:</strong> ${trends.scoring_trends?.trend || 'N/A'}</p>
-            </div>
-        </div>
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'insight-title';
+        titleDiv.textContent = card.title;
+        cardDiv.appendChild(titleDiv);
         
-        <div class="insight-card">
-            <div class="insight-title">Defensive Trends</div>
-            <div class="insight-content">
-                <p><strong>Recent Allowed:</strong> ${trends.defensive_trends?.recent_avg_allowed || 'N/A'} PPG</p>
-                <p><strong>Early Season:</strong> ${trends.defensive_trends?.early_avg_allowed || 'N/A'} PPG</p>
-                <p><strong>Improvement:</strong> ${trends.defensive_trends?.improvement > 0 ? '+' : ''}${trends.defensive_trends?.improvement || 'N/A'}</p>
-                <p><strong>Trend:</strong> ${trends.defensive_trends?.trend || 'N/A'}</p>
-            </div>
-        </div>
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'insight-content';
         
-        <div class="insight-card">
-            <div class="insight-title">Key Metrics</div>
-            <div class="insight-content">
-                <p><strong>Win %:</strong> ${insights.key_metrics?.win_pct || 'N/A'}%</p>
-                <p><strong>FG%:</strong> ${insights.key_metrics?.fg_pct || 'N/A'}%</p>
-                <p><strong>3P%:</strong> ${insights.key_metrics?.fg3_pct || 'N/A'}%</p>
-                <p><strong>AST/TO:</strong> ${((insights.key_metrics?.apg || 0) / (insights.key_metrics?.tpg || 1)).toFixed(2)}</p>
-            </div>
-        </div>
-    `;
+        card.items.forEach(item => {
+            const p = document.createElement('p');
+            const strong = document.createElement('strong');
+            strong.textContent = item.label + ': ';
+            p.appendChild(strong);
+            p.appendChild(document.createTextNode(String(item.value)));
+            contentDiv.appendChild(p);
+        });
+        
+        cardDiv.appendChild(contentDiv);
+        container.appendChild(cardDiv);
+    });
 }
 
 function displayRecommendations() {
@@ -1085,12 +1115,28 @@ function displayRecommendations() {
         return;
     }
     
-    container.innerHTML = recommendations.map(rec => `
-        <li class="rec-${rec.priority.toLowerCase()}">
-            <strong>${rec.category} (${rec.priority} Priority):</strong> ${rec.recommendation}
-            <br><small><em>${rec.reason}</em></small>
-        </li>
-    `).join('');
+    container.innerHTML = '';
+    recommendations.forEach(rec => {
+        const li = document.createElement('li');
+        li.className = `rec-${escapeHtml(rec.priority).toLowerCase()}`;
+        
+        const strong = document.createElement('strong');
+        strong.textContent = `${rec.category} (${rec.priority} Priority): `;
+        li.appendChild(strong);
+        
+        li.appendChild(document.createTextNode(rec.recommendation));
+        
+        const br = document.createElement('br');
+        li.appendChild(br);
+        
+        const small = document.createElement('small');
+        const em = document.createElement('em');
+        em.textContent = rec.reason;
+        small.appendChild(em);
+        li.appendChild(small);
+        
+        container.appendChild(li);
+    });
 }
 
 function displayPlayerInsights() {
@@ -1102,30 +1148,70 @@ function displayPlayerInsights() {
         return;
     }
     
-    container.innerHTML = playerInsights.slice(0, 12).map(player => `
-        <div class="player-insight-card">
-            <div class="player-insight-name">${player.name}</div>
-            <div class="player-insight-role">${player.role}</div>
-            
-            <div class="strengths">
-                <h4>Strengths</h4>
-                <div class="strength-tags">
-                    ${(player.strengths || []).map(strength => `<span class="strength-tag">${strength}</span>`).join('')}
-                </div>
-            </div>
-            
-            <div class="improvements">
-                <h4>Areas for Improvement</h4>
-                <div class="improvement-tags">
-                    ${(player.areas_for_improvement || []).map(area => `<span class="improvement-tag">${area}</span>`).join('')}
-                </div>
-            </div>
-            
-            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-light);">
-                Efficiency Grade: <strong>${player.efficiency_grade}</strong>
-            </div>
-        </div>
-    `).join('');
+    container.innerHTML = '';
+    playerInsights.slice(0, 12).forEach(player => {
+        const card = document.createElement('div');
+        card.className = 'player-insight-card';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'player-insight-name';
+        nameDiv.textContent = player.name || 'Unknown Player';
+        card.appendChild(nameDiv);
+        
+        const roleDiv = document.createElement('div');
+        roleDiv.className = 'player-insight-role';
+        roleDiv.textContent = player.role || 'N/A';
+        card.appendChild(roleDiv);
+        
+        // Strengths section
+        const strengthsDiv = document.createElement('div');
+        strengthsDiv.className = 'strengths';
+        const strengthsH4 = document.createElement('h4');
+        strengthsH4.textContent = 'Strengths';
+        strengthsDiv.appendChild(strengthsH4);
+        
+        const strengthTagsDiv = document.createElement('div');
+        strengthTagsDiv.className = 'strength-tags';
+        (player.strengths || []).forEach(strength => {
+            const tag = document.createElement('span');
+            tag.className = 'strength-tag';
+            tag.textContent = strength;
+            strengthTagsDiv.appendChild(tag);
+        });
+        strengthsDiv.appendChild(strengthTagsDiv);
+        card.appendChild(strengthsDiv);
+        
+        // Improvements section
+        const improvementsDiv = document.createElement('div');
+        improvementsDiv.className = 'improvements';
+        const improvementsH4 = document.createElement('h4');
+        improvementsH4.textContent = 'Areas for Improvement';
+        improvementsDiv.appendChild(improvementsH4);
+        
+        const improvementTagsDiv = document.createElement('div');
+        improvementTagsDiv.className = 'improvement-tags';
+        (player.areas_for_improvement || []).forEach(area => {
+            const tag = document.createElement('span');
+            tag.className = 'improvement-tag';
+            tag.textContent = area;
+            improvementTagsDiv.appendChild(tag);
+        });
+        improvementsDiv.appendChild(improvementTagsDiv);
+        card.appendChild(improvementsDiv);
+        
+        // Efficiency grade
+        const gradeDiv = document.createElement('div');
+        gradeDiv.style.marginTop = '0.75rem';
+        gradeDiv.style.fontSize = '0.85rem';
+        gradeDiv.style.color = 'var(--text-light)';
+        gradeDiv.textContent = 'Efficiency Grade: ';
+        const gradeStrong = document.createElement('strong');
+        gradeStrong.textContent = player.efficiency_grade || 'N/A';
+        gradeDiv.appendChild(gradeStrong);
+        card.appendChild(gradeDiv);
+        
+        container.appendChild(card);
+    });
 }
 
 function setupComparisonSelectors() {
@@ -1203,48 +1289,74 @@ function displayComparison(comparison) {
         { key: 'ft_pct', label: 'Free Throw %' }
     ];
     
-    container.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; margin-bottom: 1rem;">
-            <h3>${player1.name} vs ${player2.name}</h3>
-        </div>
+    // Clear container
+    container.innerHTML = '';
+    
+    // Add header
+    const headerDiv = document.createElement('div');
+    headerDiv.style.gridColumn = '1 / -1';
+    headerDiv.style.textAlign = 'center';
+    headerDiv.style.marginBottom = '1rem';
+    const h3 = document.createElement('h3');
+    h3.textContent = `${player1.name || 'Player 1'} vs ${player2.name || 'Player 2'}`;
+    headerDiv.appendChild(h3);
+    container.appendChild(headerDiv);
+    
+    // Add comparison stats
+    compareStats.forEach(stat => {
+        const val1 = player1.basic_stats?.[stat.key] || 0;
+        const val2 = player2.basic_stats?.[stat.key] || 0;
         
-        ${compareStats.map(stat => {
-            const val1 = player1.basic_stats[stat.key] || 0;
-            const val2 = player2.basic_stats[stat.key] || 0;
-            
-            let winner1 = false, winner2 = false;
-            if (stat.lowerBetter) {
-                winner1 = val1 < val2;
-                winner2 = val2 < val1;
-            } else {
-                winner1 = val1 > val2;
-                winner2 = val2 > val1;
-            }
-            
-            return `
-                <div class="comparison-stat">
-                    <div class="comparison-stat-name">${stat.label}</div>
-                    <div class="comparison-values">
-                        <div class="comparison-value ${winner1 ? 'comparison-winner' : ''}">
-                            ${formatStatValue(val1, stat.key)}
-                        </div>
-                        <div style="color: var(--text-light); font-size: 0.8rem;">vs</div>
-                        <div class="comparison-value ${winner2 ? 'comparison-winner' : ''}">
-                            ${formatStatValue(val2, stat.key)}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('')}
-    `;
+        let winner1 = false, winner2 = false;
+        if (stat.lowerBetter) {
+            winner1 = val1 < val2 && val2 > 0;
+            winner2 = val2 < val1 && val1 > 0;
+        } else {
+            winner1 = val1 > val2;
+            winner2 = val2 > val1;
+        }
+        
+        const statDiv = document.createElement('div');
+        statDiv.className = 'comparison-stat';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'comparison-stat-name';
+        nameDiv.textContent = stat.label;
+        statDiv.appendChild(nameDiv);
+        
+        const valuesDiv = document.createElement('div');
+        valuesDiv.className = 'comparison-values';
+        
+        const value1Div = document.createElement('div');
+        value1Div.className = winner1 ? 'comparison-value comparison-winner' : 'comparison-value';
+        value1Div.textContent = formatStatValue(val1, stat.key);
+        valuesDiv.appendChild(value1Div);
+        
+        const vsDiv = document.createElement('div');
+        vsDiv.style.color = 'var(--text-light)';
+        vsDiv.style.fontSize = '0.8rem';
+        vsDiv.textContent = 'vs';
+        valuesDiv.appendChild(vsDiv);
+        
+        const value2Div = document.createElement('div');
+        value2Div.className = winner2 ? 'comparison-value comparison-winner' : 'comparison-value';
+        value2Div.textContent = formatStatValue(val2, stat.key);
+        valuesDiv.appendChild(value2Div);
+        
+        statDiv.appendChild(valuesDiv);
+        container.appendChild(statDiv);
+    });
 }
 
 function formatStatValue(value, stat) {
+    const num = Number(value);
+    if (!isFinite(num)) return '0';
+    
     if (stat.includes('_pct')) {
-        return `${value.toFixed(1)}%`;
+        return `${num.toFixed(1)}%`;
     }
     if (stat.includes('pg')) {
-        return value.toFixed(1);
+        return num.toFixed(1);
     }
-    return Math.round(value);
+    return Math.round(num).toString();
 }

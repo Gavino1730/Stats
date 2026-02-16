@@ -30,11 +30,20 @@ async function loadGames() {
             return;
         }
         
-        // Sort games by date
+        // Sort games by date safely
         allGames.sort((a, b) => {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            return dateA - dateB;
+            try {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                // Check for invalid dates
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    return 0; // Keep original order if dates are invalid
+                }
+                return dateA - dateB;
+            } catch (error) {
+                console.warn('Date parsing error:', error);
+                return 0;
+            }
         });
         
         displayGames(allGames);

@@ -37,6 +37,12 @@ class DataManager:
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in stats file: {e}")
             return self._empty_stats()
+        except PermissionError as e:
+            logger.error(f"Permission denied reading stats file: {e}")
+            return self._empty_stats()
+        except OSError as e:
+            logger.error(f"OS error reading stats file: {e}")
+            return self._empty_stats()
 
     def _load_roster(self) -> Dict[str, Any]:
         """Load roster data from JSON file"""
@@ -48,6 +54,12 @@ class DataManager:
             return {"roster": []}
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in roster file: {e}")
+            return {"roster": []}
+        except PermissionError as e:
+            logger.error(f"Permission denied reading roster file: {e}")
+            return {"roster": []}
+        except OSError as e:
+            logger.error(f"OS error reading roster file: {e}")
             return {"roster": []}
 
     @staticmethod

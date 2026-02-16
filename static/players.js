@@ -84,7 +84,7 @@ function displayPlayers(players) {
         card.className = 'player-card';
         const games = safeNumber(player.games, 0);
         const plusMinus = safeNumber(player.plus_minus, 0);
-        const plusMinusPerGame = games > 0 ? plusMinus / games : 0;
+        const plusMinusPerGame = games > 0 ? (plusMinus / games) : 0;
         card.innerHTML = `
             <div class="player-number">#${player.number || '-'}</div>
             <div class="player-name">${escapeHtml(player.first_name || player.name)}</div>
@@ -615,7 +615,6 @@ async function showPlayerDetail(playerName) {
                         <th>Date</th>
                         <th>Opponent</th>
                         <th>W/L</th>
-                        <th>MIN</th>
                         <th>PTS</th>
                         <th>FG</th>
                         <th>FG%</th>
@@ -651,7 +650,6 @@ async function showPlayerDetail(playerName) {
                                 <td>${game.date}</td>
                                 <td>${game.location === 'away' ? '@' : 'vs'} ${game.opponent}</td>
                                 <td style="font-weight: 700; color: ${game.result === 'W' ? 'var(--success)' : '#dc3545'};">${game.result}</td>
-                                <td>${stats.min || 0}</td>
                                 <td style="font-weight: 700;">${stats.pts}</td>
                                 <td>${stats.fg_made}-${stats.fg_att}</td>
                                 <td>${fgPct}%</td>

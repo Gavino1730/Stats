@@ -59,20 +59,14 @@ async function loadStatsContext() {
 function updateStatsPanel() {
     if (!statsContext) return;
     
-    const teamStats = statsContext.seasonStats.season_team_stats;
-    const playerStats = statsContext.seasonStats.season_player_stats;
-    
-    // Validate required data
-    if (!teamStats || !playerStats) {
-        console.warn('Missing team or player stats in context');
-        return;
-    }
+    const teamStats = statsContext.seasonStats.season_team_stats || {};
+    const playerStats = statsContext.seasonStats.season_player_stats || {};
     
     // Team Record - add null checks
     const wins = teamStats.win || 0;
     const losses = teamStats.loss || 0;
     const totalGames = wins + losses;
-    const winRate = safeRatio(wins, totalGames, 100).toFixed(1);
+    const winRate = totalGames > 0 ? safeRatio(wins, totalGames, 100).toFixed(1) : '0.0';
     
     const teamRecordElement = document.getElementById('team-record-info');
     if (teamRecordElement) {
@@ -95,7 +89,7 @@ function updateStatsPanel() {
     
     // Top Players by PPG - add validation
     const topPlayers = Object.entries(playerStats)
-        .filter(([name, stats]) => stats && typeof stats.ppg === 'number')
+        .filter(([name, stats]) => stats && typeof stats === 'object' && typeof stats.ppg === 'number' && isFinite(stats.ppg))
         .sort((a, b) => b[1].ppg - a[1].ppg)
         .slice(0, 5);
     
@@ -136,16 +130,50 @@ function toggleStatsPanel() {
 
 // Load conversation history from sessionStorage
 function loadConversationHistory() {
-    const saved = sessionStorage.getItem('chatHistory');
-    if (saved) {
-        conversationHistory = JSON.parse(saved);
-        displayConversationHistory();
+    try {
+        const saved = sessionStorage.getItem('chatHistory');
+        if (saved) {
+            conversationHistory = JSON.parse(saved);
+            // Validate history array
+            if (!Array.isArray(conversationHistory)) {
+                conversationHistory = [];
+            }
+            displayConversationHistory();
+        }
+    } catch (error) {
+        console.error('Failed to load chat history:', error);
+        conversationHistory = [];
+        try {
+            sessionStorage.removeItem('chatHistory');
+        } catch (e) {
+            console.error('Failed to clear invalid chat history:', e);
+        }
     }
 }
 
-// Save conversation history to sessionStorage
+// Save conversation history to sessionStorage with size limit
 function saveConversationHistory() {
-    sessionStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+    try {
+        const historyJson = JSON.stringify(conversationHistory);
+        // Check size (arbitrary limit of 1MB)
+        if (historyJson.length > 1024 * 1024) {
+            // Trim history if too large
+            conversationHistory = conversationHistory.slice(-10);
+            sessionStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+            console.warn('Chat history trimmed due to size limit');
+        } else {
+            sessionStorage.setItem('chatHistory', historyJson);
+        }
+    } catch (error) {
+        console.error('Failed to save chat history:', error);
+        // Clear and retry with empty history
+        conversationHistory = [];
+        try {
+            sessionStorage.removeItem('chatHistory');
+        } catch (e) {
+            console.error('Failed to clear chat history:', e);
+        }
+    }
 }
 
 // Display all messages in the conversation

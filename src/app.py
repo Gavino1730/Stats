@@ -8,6 +8,7 @@ from functools import lru_cache
 import json
 import os
 import logging
+import threading
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -36,6 +37,7 @@ app = Flask(
 
 app.config["JSON_SORT_KEYS"] = False
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 31536000
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max request size
 
 # Initialize services
 data = get_data_manager()
@@ -104,31 +106,38 @@ def health_check():
     )
 
 
+# Global lock for data reload to prevent race conditions
+reload_lock = threading.Lock()
+
 @app.route("/api/reload-data", methods=["POST"])
 def reload_data():
     """Reload data from files to pick up new games and player stats"""
-    try:
-        data.reload()
-        # Also reinitialize advanced stats calculator with fresh data
-        global advanced_calc
-        advanced_calc = AdvancedStatsCalculator(data.stats_data)
+    with reload_lock:
+        try:
+            data.reload()
+            # Also reinitialize advanced stats calculator with fresh data
+            global advanced_calc
+            advanced_calc = AdvancedStatsCalculator(data.stats_data)
 
-        # Clear any AI caches so they regenerate with new data
-        if os.path.exists(Config.TEAM_CACHE):
-            os.remove(Config.TEAM_CACHE)
-        if os.path.exists(Config.ANALYSIS_CACHE):
-            os.remove(Config.ANALYSIS_CACHE)
+            # Clear any AI caches so they regenerate with new data
+            try:
+                if os.path.exists(Config.TEAM_CACHE):
+                    os.remove(Config.TEAM_CACHE)
+                if os.path.exists(Config.ANALYSIS_CACHE):
+                    os.remove(Config.ANALYSIS_CACHE)
+            except OSError as e:
+                logger.warning(f"Failed to clear cache files: {e}")
 
-        return jsonify(
-            {
-                "message": "Data reloaded successfully",
-                "games_loaded": len(data.games),
-                "players_loaded": len(data.season_player_stats),
-            }
-        )
-    except Exception as e:
-        logger.error(f"Reload error: {e}")
-        return jsonify({"error": str(e)}), 500
+            return jsonify(
+                {
+                    "message": "Data reloaded successfully",
+                    "games_loaded": len(data.games),
+                    "players_loaded": len(data.season_player_stats),
+                }
+            )
+        except Exception as e:
+            logger.error(f"Reload error: {e}")
+            return jsonify({"error": str(e)}), 500
 
 
 # =============================================================================
@@ -414,6 +423,11 @@ def api_player_comparison():
 
     if len(player_names) < 2:
         return jsonify({"error": "At least 2 players required for comparison"}), 400
+
+    # Validate player names
+    for player_name in player_names:
+        if not player_name or len(player_name.strip()) > 100:
+            return jsonify({"error": "Invalid player name in comparison"}), 400
 
     comparison_players = []
 
@@ -757,17 +771,21 @@ def ai_chat():
         if not ai.is_configured:
             return jsonify({"error": "OpenAI API key not configured"}), 500
 
-        # Clean history
+        # Clean history with better validation
         clean_history = []
         for msg in (history or [])[-20:]:
-            if isinstance(msg, dict) and "role" in msg and "content" in msg:
-                if (
-                    msg["role"] in ["user", "assistant"]
-                    and len(str(msg["content"])) <= 2000
-                ):
-                    clean_history.append(
-                        {"role": msg["role"], "content": str(msg["content"]).strip()}
-                    )
+            if not isinstance(msg, dict):
+                continue
+            if "role" not in msg or "content" not in msg:
+                continue
+            if msg["role"] not in ["user", "assistant"]:
+                continue
+            if not isinstance(msg["content"], (str, int, float)):
+                continue
+            content = str(msg["content"]).strip()
+            if len(content) > 2000:
+                continue
+            clean_history.append({"role": msg["role"], "content": content})
 
         # Always get fresh stats context (no caching)
         context = build_stats_context(data)
@@ -946,8 +964,12 @@ def ai_team_summary():
     try:
         # Check cache (cache is cleared when data is reloaded)
         if os.path.exists(Config.TEAM_CACHE):
-            with open(Config.TEAM_CACHE) as f:
-                return jsonify(json.load(f))
+            try:
+                with open(Config.TEAM_CACHE) as f:
+                    return jsonify(json.load(f))
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(f"Failed to load team cache, regenerating: {e}")
+                # Continue to regenerate if cache is corrupted
 
         ai = get_ai_service()
         if not ai.is_configured:
@@ -972,8 +994,12 @@ Be specific with numbers. No speculation."""
         )
 
         result = {"summary": summary}
-        with open(Config.TEAM_CACHE, "w") as f:
-            json.dump(result, f)
+        try:
+            with open(Config.TEAM_CACHE, "w") as f:
+                json.dump(result, f)
+        except (OSError, IOError) as e:
+            logger.error(f"Failed to save team cache: {e}")
+            # Continue anyway - cache is optional
 
         return jsonify(result)
 
@@ -991,8 +1017,9 @@ def clear_team_summary():
         if os.path.exists(Config.TEAM_CACHE):
             os.remove(Config.TEAM_CACHE)
         return jsonify({"message": "Cache cleared"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except OSError as e:
+        logger.error(f"Failed to clear team cache: {e}")
+        return jsonify({"error": "Failed to clear cache"}), 500
 
 
 # =============================================================================
@@ -1007,8 +1034,12 @@ def get_season_analysis():
         force = request.args.get("force", "false").lower() == "true"
 
         if not force and os.path.exists(Config.ANALYSIS_CACHE):
-            with open(Config.ANALYSIS_CACHE) as f:
-                return jsonify(json.load(f))
+            try:
+                with open(Config.ANALYSIS_CACHE) as f:
+                    return jsonify(json.load(f))
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(f"Failed to load analysis cache, regenerating: {e}")
+                # Continue to regenerate
 
         ai = get_ai_service()
         if not ai.is_configured:
@@ -1085,8 +1116,12 @@ Comprehensive analysis: strengths, weaknesses, evolution, improvements needed.""
             "per_game_analysis": per_game,
         }
 
-        with open(Config.ANALYSIS_CACHE, "w") as f:
-            json.dump(result, f, indent=2)
+        try:
+            with open(Config.ANALYSIS_CACHE, "w") as f:
+                json.dump(result, f, indent=2)
+        except (OSError, IOError) as e:
+            logger.error(f"Failed to save analysis cache: {e}")
+            # Continue anyway - cache is optional
 
         return jsonify(result)
 
@@ -1104,8 +1139,9 @@ def clear_analysis():
         if os.path.exists(Config.ANALYSIS_CACHE):
             os.remove(Config.ANALYSIS_CACHE)
         return jsonify({"message": "Cache cleared"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except OSError as e:
+        logger.error(f"Failed to clear analysis cache: {e}")
+        return jsonify({"error": "Failed to clear cache"}), 500
 
 
 # =============================================================================
@@ -1118,14 +1154,18 @@ def _load_player_cache():
         try:
             with open(Config.PLAYER_CACHE) as f:
                 return json.load(f)
-        except:
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning(f"Failed to load player cache: {e}")
             return {}
     return {}
 
 
 def _save_player_cache(cache):
-    with open(Config.PLAYER_CACHE, "w") as f:
-        json.dump(cache, f, indent=2)
+    try:
+        with open(Config.PLAYER_CACHE, "w") as f:
+            json.dump(cache, f, indent=2)
+    except (OSError, IOError) as e:
+        logger.error(f"Failed to save player cache: {e}")
 
 
 @app.route("/api/ai/player-analysis/<player_name>")
@@ -1241,4 +1281,5 @@ def clear_player_analysis(player_name):
             return jsonify({"message": f"Cache cleared for {player_name}"})
         return jsonify({"message": "No cached analysis found"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Failed to clear player cache: {e}")
+        return jsonify({"error": "Failed to clear cache"}), 500

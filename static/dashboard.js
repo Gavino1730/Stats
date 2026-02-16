@@ -23,12 +23,20 @@ async function fetchJson(url) {
 }
 
 function destroyDashboardCharts() {
-    if (scoringChart) {
-        scoringChart.destroy();
+    if (scoringChart && typeof scoringChart.destroy === 'function') {
+        try {
+            scoringChart.destroy();
+        } catch (error) {
+            console.warn('Failed to destroy scoring chart:', error);
+        }
         scoringChart = null;
     }
-    if (shootingChart) {
-        shootingChart.destroy();
+    if (shootingChart && typeof shootingChart.destroy === 'function') {
+        try {
+            shootingChart.destroy();
+        } catch (error) {
+            console.warn('Failed to destroy shooting chart:', error);
+        }
         shootingChart = null;
     }
 }

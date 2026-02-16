@@ -41,6 +41,18 @@ class Config:
     OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
     OPENAI_MODEL = "gpt-4o-mini"
     OPENAI_TIMEOUT = 30
+    
+    @classmethod
+    def is_openai_configured(cls) -> bool:
+        """Check if OpenAI is configured without exposing the key"""
+        return bool(cls.OPENAI_API_KEY and len(cls.OPENAI_API_KEY) > 20)
+    
+    @classmethod
+    def get_masked_api_key(cls) -> str:
+        """Return a masked version of the API key for logging"""
+        if not cls.OPENAI_API_KEY:
+            return "Not configured"
+        return f"{cls.OPENAI_API_KEY[:8]}...{cls.OPENAI_API_KEY[-4:] if len(cls.OPENAI_API_KEY) > 12 else ''}"
 
     # ==========================================================================
     # Flask
